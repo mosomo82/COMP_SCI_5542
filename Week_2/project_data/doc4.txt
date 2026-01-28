@@ -1,0 +1,214 @@
+Contract
+
+What is a contract?
+A contract is a binding written or oral agreement that is enforceable by law between two or more competent parties to do or not to do certain things. The elements of a valid contract are:
+
+an offer;
+acceptance of the offer; and
+sufficient consideration to support the offer.
+What constitutes an offer?
+An offer is a promise and a request for something in return. Offers can be written or implied.
+
+Example: You drop your clothes off at the dry cleaners to be cleaned. By leaving your clothes, it is implied that you have accepted the cleaner's open offer to clean your clothes and that you will pay them for this service.
+
+Is an advertisement an offer?
+No. An advertisement is generally considered an invitation to bargain.
+
+Can an advertisement ever be an offer?
+Yes, any time a store advertises that it will give a free gift or special discount on the happening of a certain event (you buy $50 worth of merchandise; you are among the first 50 people at the store), they have made an enforceable offer.
+
+Is an offer good forever?
+No, an offer ends when:
+
+the time to accept is over; either the stated deadline or, if no deadline is stated, a reasonable amount of time;
+the offeror cancels the offer;
+the offeree rejects the offer;
+the offeree dies or is incapacitated;
+a change in the law makes the contract illegal; or
+the subject matter of the contract is destroyed.
+Sidebar: An "option contract" is an agreement, made for consideration, to keep an offer open for a certain period of time. During this time period, the offer cannot be revoked.
+Can I revoke my offer?
+Yes, you can revoke an offer any time before it is accepted. In order to revoke your offer, you must communicate the revocation to the other party. The revocation is effective once it is made.
+
+What constitutes acceptance?
+Acceptance is an assent by the party to whom the offer is made showing that the person agrees to all of the terms offered. An offer is not binding unless the other party accepts it. Like an offer, acceptance can be express or implied. Generally, an affirmative action is necessary for acceptance of an offer; silence does not constitute assent.
+
+To create a binding contract, both parties must give their assent. Their actions must lead the other people involved to believe that a contract is being formed. If one party is obviously not sincere in accepting an offer, chances are there is no contract. However, if a party has no intention of forming a contract but his or her actions lead others to believe that a contract has been formed, he or she may be held to the contract. It is the external appearance that determines whether you are held to a contract.
+
+What is "consideration"?
+Consideration is when one party gives up something or promises to give up something in exchange for something given up by the other party. Generally, a promise by one party without consideration in some form does not result in a contract. Each party must extend consideration to the other; however, the value of the consideration does not have to be equal.
+
+Consideration can be money, property, rights, services or the promise to do or not to do certain things. However, a duty that a party can refuse to perform is not considered consideration.
+
+Who can enter into a contract?
+Only competent parties can enter a contract. To be competent, a party must be able to understand what he or she is doing. This requires both maturity and mental capacity.
+
+What constitutes maturity?
+Most states consider legal majority to be age 18. Prior to that age, a person is legally incapable of entering into a contract. If a person or business enters into a contract with a minor, the minor is not responsible for keeping his or her end of the bargain.
+
+Sidebar: In some states, if a minor contracts for necessities (i.e., food or shelter) and is not under the care of a parent or guardian, then the minor is bound by the contract.
+TIP: No matter what your teenager says, a cell phone is not considered a necessity.
+
+What is a "mental disability"?
+A person suffers from a mental disability if they are intoxicated from drugs or liquor or if they are mentally ill or defective. The important aspect concerning mental disability in regard to contracts is whether the person understands what he or she is doing.
+
+Is an agreement to sell or do something illegal a contract?
+No. A court will not enforce a contract if its provisions are illegal. The courts will treat the contract as if it never existed.
+
+However, if contract provisions were legal at the time they were made and later become illegal, the courts will generally consider the provisions in light of the law at the time the contract was formed.
+
+Does a contract have to be in writing?
+Not all contracts must be in writing. Oral contracts are enforceable if they can be proven. An oral contract can be proven by showing that the circumstances would lead a reasonable person to believe that a contract existed. However, written contracts are easier to prove.
+
+There are some contracts that must be in writing. These include:
+
+contracts to pay the debts of another person;
+contacts for the sale of land or any interest in real property;
+contracts which require more than 1 year to perform;
+prenuptial agreements;
+contracts for the sale of goods worth $500 or more; and
+contracts for the lease of goods worth more than $1,000.
+TIP: Some states have additional requirements for written contracts. Therefore, before entering a contract, check the laws of your state.
+
+Do written contracts have to be signed?
+A written contract must be properly signed but generally does not have to be witnessed or notarized. It is sufficient that all the parties to the contract sign their names.
+
+What qualifies as "signing"?
+A contract may be signed in any manner that indicates an intention to be bound by it. A signature can be any mark, symbol or device chosen by the person signing to represent himself or herself. Electronic signatures are valid, and federal legislation has been enacted specifically to authorize them.
+
+Can someone else sign a contract for me?
+You cannot be bound by another person signing for you unless you have given that person legal authorization to do so-this is called a power of attorney. A "general power of attorney" permits almost any act; a "limited power of attorney" specifies the particular actions that can be done. You are called the "principal," and the person signing for you becomes your "agent."
+
+If an agent exceeds the limits of his or her agency, the principal may or may not be liable depending on the particular case. If a third person dealing with the agent knows that the agent is exceeding the limitations of his or her agency, the principal is not liable.
+
+However, if a principal knows that his or her agent has exceeded the limits of the agency in the past and has done nothing to rectify the situation, the principal may be liable for the actions of the agent.
+
+I clicked a "YES" on the bottom of a computer Web site. Have I entered a contract?
+Yes, most courts will hold that you have entered a contract in this instance.
+
+What is a breach of contract?
+A breach of contract is the failure of one party to perform his or her responsibilities under the contract. A breach of contract can occur by:
+
+failing to perform the contract terms as promised;
+making it impossible for the other party to perform; or
+announcing an intent not to perform. This is also known as "repudiation."
+What is performance?
+At one time, the law required exact compliance with all contract terms. A minor deviation would excuse total non-performance by the other party or would be grounds for a breach of contract action.
+
+Today, however, strict compliance is not necessary and "substantial performance" is sufficient. Under the doctrine of substantial performance, if one party to a contract performs the contract in large part, the other party cannot refuse to complete his or her part of the contract. The person giving substantial performance can recover damages from the other party for breach of contract. However, only the value of what was actually performed can be recovered.
+
+What is partial performance?
+Partial performance is anything less than substantial performance. A party who partially performs a contract cannot enforce it if the other party rejects the contract.
+
+Example: After getting estimates from a number of painting companies, Sue and Tom contract with Ace Painting Company to paint the outside of their home for $3,000. They chose Ace because its estimate was lower than the other companies by at least $500. Ace Painting begins to paint their home but leaves after painting only the eaves and never returns. Ace has only partially performed their part of the bargain. Sue and Tom then contract with Acme Painting Company to complete the job for $3,500. Ace cannot recover anything from Sue and Tom and, in fact, owe Sue and Tom $500 for the difference between the amount they agreed to do the job for and what Sue and Tom ultimately had to pay.
+
+How can performance become impossible?
+Performance becomes impossible when a party is unable to complete his or her part of the bargain, through no fault of his or her own, because of a fact which he or she has no reason to know and the nonexistence of which is a basic assumption under which the contract is made.
+
+Example: After getting estimates from a number of painting companies, Sue and Tom contract with Ace Painting Company to paint the outside of their home for $3,000. They chose Ace because their estimate was lower than the other companies by at least $500. Ace Painting shows up at Sue and Tom's house to begin painting, only to find that their pit bull is loose in the fenced yard and will not let them in. They call and leave a message for Sue and Tom saying they will return the next day and asking that they keep the dog in the house. Ace returns day after day, only to find the dog still in the yard. Sue and Tom never return their calls. Sue and Tom have "breached" the contract by making performance by Ace Painting impossible.
+
+Will increased costs because of changing circumstances make a contract impossible to perform?
+The courts would most likely enforce the contract on the grounds that the changing circumstances were foreseeable at the time the contract was formed and that the possibility of rising costs should have been built into the contract terms.
+
+What is "repudiation"?
+Repudiation occurs when, before performance is due, one party clearly communicates to the other party that he or she cannot or will not perform a material part of his or her contractual obligations. In this instance, the contract has been breached.
+
+Are there any excuses for non-performance of a contract?
+Yes, there are certain situations in which a party may be excused from performing his or her part of the contract. These include:
+
+Fraud: A court will cancel a contract because of fraud when a person knowingly made a material misrepresentation that the other party reasonably relied on and was disadvantaged by.
+Duress: A contract that a party agrees to under duress is void in most states. Duress is a threat or act that overcomes a party's free will.
+Impossibility of performance: Performance will usually be excused and the contract terminated if an essential party to the contract dies, an essential item or commodity has been destroyed or an intervening change of law has rendered performance of the contract illegal.
+Commercial frustration: Non-performance of a contract will be excused where performance would be virtually worthless or the objectives of the contract have become meaningless because of circumstances arising after the formation of the contract.
+Delay: When the contract specifies that its duties or obligations must be performed by a specific time, a delay by one party can excuse performance by the other.
+Failure of consideration: A failure of consideration exists when a promise has been made to support a contract or good consideration existed when the contract was made, but that promise has not been performed and the other party is excused from further performance.
+What are the remedies for breach of contract?
+When a party breaches a contract by failing to perform his or her obligations, the usual remedy is a legal action for the damages caused by the breach. However, under certain circumstances, the non-breaching party can force specific performance of the contract, have the contract modified or canceled or obtain an injunction.
+
+What types of damages are recoverable for a breach of contract?
+A monetary damage judgment is the most common judicial remedy for breach of contract. Depending on the circumstances of the case, you may receive nominal damages, punitive damages, compensatory damages, consequential damages and/or liquidated damages.
+
+Nominal damages: Nominal damages are awarded when a breach of a contract is proven, but the non-breaching party is unable to prove any actual loss. The amount of nominal damages usually varies from between a few cents to a few dollars.
+Punitive damages: Punitive damages punish a wrongdoer and set an example for others. While it is rare for a court to award punitive damages in a contract suit, if the breach is malicious, willful or physically injurious to the non-breaching party, the court may award them.
+Compensatory damages: Compensatory damages are those damages that flow from the wrongful conduct of the breaching party. The usual measure of compensatory damages is the amount of money necessary to compensate the non-breaching party for the breach.
+Consequential damages: Consequential damages (also known as special damages) are foreseeable damages that result from a party's breach. Consequential damages are granted in addition to compensatory damages when they are foreseeable to a reasonable person at the time the contract was entered.
+Liquidated damages: A liquidated damages clause is a clause in a contract under which the parties agree in advance to the damages to be paid in the event of breach. The purpose of a liquidated damages clause is to ensure that a reasonable estimate of probable damages is available in case of breach. There are three elements to a valid liquidated damages clause. They are:
+1. the clause must reasonably forecast the probable loss due to breach;
+
+2. the loss anticipated by the breach is difficult to calculate; and
+
+3. the clause must not be intended as a penalty.
+
+Sidebar: If a contract provides that the non-breaching party can choose between liquidated damages or actual damages, the liquidated damages clause is probably unenforceable.
+When a breach of contract occurs, the injured party must take reasonable steps to mitigate (meaning reduce or lessen) the damages that he or she sustains. The injured party may not recover damages for losses that he or she could have avoided without undue risk, burden or humiliation. In mitigating damages, the non-breaching party must:
+
+refrain from piling up losses after notice of breach;
+avoid incurring further costs or expenditures; and
+make reasonable efforts to reduce his or her losses by obtaining a substitute at a reasonable price.
+What is "specific performance"?
+Specific performance is an equitable remedy that is available to the non-breaching party when the remedy at law is not adequate. In order to obtain specific performance, the non-breaching party must prove that the subject matter of the contract is unique-for example, a rare painting. In this instance, the court will require the breaching party to comply with the contract.
+
+Sidebar: Specific performance is never granted for breach of a personal service contract.
+When can a contract be canceled?
+The purpose of cancellation of a contract (also called "rescission") is to return the parties to the contract to the positions they would have occupied if the contract had never been made.
+
+There are three general situations in which rescission is the appropriate remedy:
+
+when the contract involves a mutual mistake-for example, an agreement to sell a product that does not exist;
+when a contract involves a unilateral mistake due to fraud, duress or undue influence;
+when a material breach-for example, an unjustified failure to perform-occurs.
+Sidebar: A party who substantially breaches the contract cannot receive rescission. Further, a fully executed contract cannot be rescinded.
+When can I get a contract modified?
+Modification of a contract, also known as reformation, occurs when a court amends, modifies or rewrites the contract to reflect the parties' true intent. This remedy is used when a party cannot perform the contract in the exact way it is written but can fulfill it in other ways.
+
+Usually reformation will apply when fraud or mutual mistake-e.g., a typographical error-occurs. Generally, a court will only order reformation on a clear and convincing demonstration of mutual mistake. If only one party was mistaken, reformation will not be ordered unless the mistake on one side was caused by the other party's fraud.
+
+Under what circumstances can I get an injunction?
+An injunction is an equitable remedy which compels a party to act or not act in a certain way. It is only granted when monetary damages are inadequate because irreparable injury will occur if the contract is not performed. An injunction would order a party to perform the contract.
+
+Example: You contract with a famous designer to create a one of a kind wedding dress. A week before your wedding, you find out that the designer is planning on selling your wedding dress to another person. You can go to court and ask the court to prevent the designer from selling the dress to the other person. If the designer violates the injunction, not only will he or she be responsible to you for monetary damages, but the designer may also be held in contempt of court for violating the injunction.
+
+What is the FTC Cooling-Off Rule?
+The FTC Cooling-Off Rule gives a consumer 3 days to cancel certain purchases of $25 or more that are made in his or her home or at a location that is not the seller's permanent place of business. Under this rule, the consumer's right to cancel for a full refund extends until midnight of the third business day after the sale.
+
+What kinds of sales or contracts are covered by the rule?
+The Cooling-Off Rule applies to:
+
+sales over $25;
+purchases of goods or negotiations of services made at the buyer's home, workplace or dormitory or at facilities rented by the seller on a temporary or short-term basis, such as hotel or motel rooms, convention centers, fairgrounds and restaurants; it also applies when you invite a salesperson to make a presentation in your home (for example, home sales parties);
+refinancing a real estate mortgage or purchasing an additional real estate mortgage.
+What kinds of contracts are not covered by the rule?
+The Cooling-Off Rule does not cover sales:
+
+under $25;
+for goods or services not primarily intended for personal, family or household purposes;
+made entirely by mail or telephone;
+that are the result of prior negotiations at the seller's permanent business location where the goods are regularly sold;
+needed to meet an emergency;
+made as part of your request for the seller to do repairs or maintenance on your personal property (purchases made beyond the maintenance or repair request are covered);
+for real estate, insurance or securities;
+for automobiles, vans, trucks or other motor vehicles sold at temporary locations, provided the seller has at least one permanent place of business; and
+arts or crafts sold at fairs or locations such as shopping malls, civic centers and schools.
+Does the salesperson have to tell me about my right to cancel?
+Yes, the salesperson must tell you about your cancellation rights at the time of sale, as well as giving you two copies of a cancellation form (one to keep and one to send) and a copy of your contract or receipt. The contract or receipt should be dated, show the name and address of the seller and explain your right to cancel.
+
+TIP: If you are not given a cancellation form, you have a continuing right to cancel beyond the 3 days. You may also have a continuing right to cancel if the seller misleads you about or interferes with your right to cancel.
+
+How can I cancel a sale under the FTC Cooling-Off Rule?
+To cancel an applicable sale, sign and date one copy of the cancellation form and mail it to the address given for cancellation, making sure the envelope is postmarked before midnight of the third business day after the contract date. Keep the other copy of the cancellation form for your records.
+
+If the seller did not give you a cancellation form, you can create your own. It must be postmarked within 3 business days of the sale.
+
+TIP: For purposes of the Cooling-Off Rule, Saturday is considered a business day; Sundays and federal holidays are not.
+
+TIP: Proof of the mailing date and receipt are important; therefore, consider sending the cancellation form by certified mail, return receipt requested.
+
+What happens after I send in the cancellation form?
+Once you cancel your purchase, the seller has 10 days to:
+
+cancel and return any promissory note or other negotiable instrument you signed;
+refund all your money and tell you whether any product you still have will be picked up; and
+return any trade-in.
+The seller has 20 days to either pick up the items left with you, or reimburse you for mailing expenses if you agree to send back the items.
+
+If you do not make the items available to the seller or if you agree to return the items but fail to, you remain obligated under the contract.
