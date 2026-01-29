@@ -2,18 +2,18 @@
 
 > **Course:** CS 5542 — Big Data Analytics and Apps  
 > **Lab:** Advanced RAG Systems Engineering  
-> **Student Name:**  
-> **GitHub Username:**  
-> **Date:**  
+> **Student Name:** Tony Nguyen
+> **GitHub Username:** mosomo82
+> **Date:** 01/28/2026
 
 ---
 
 ## 1. Project Dataset
-- **Domain:**  
-- **# Documents:**  
-- **Data Source (URL / Description):**  
+- **Domain:** Consumer Protection  
+- **# Documents:**	8 text files (covering customer protection, credit card, fraud, etc.)
+- **Data Source (URL / Description):**  https://github.com/mosomo82/COMP_SCI_5542/tree/main/Week_2/project_data
 - **Why this dataset fits my use case:**  
-  *(2–3 sentences explaining relevance and realism)*
+  This dataset provides realistic, fact-dense legal statutes and consumer rights information that require high precision to answer correctly. It is a perfect use case for Advanced RAG because the documents contain specific deadlines and "Tips" that general LLMs might hallucinate or overlook without grounded retrieval.
 
 ---
 
