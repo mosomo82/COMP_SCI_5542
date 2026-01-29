@@ -78,9 +78,9 @@
 
 ## 5. Failure Case
 
-- **What failed?**  Retrieval of the specific cell phone "Tip" when using Keyword-only search.
-- **Which layer failed?** Retrieval layer BM25
-- **Proposed system-level fix:**  Increase the weight of Vector search ($\alpha=0.2$) or use a larger chunk size to ensure the "Tip" is always attached to the broader "Necessity" definition, as keyword search failed when the query used terms like "living on their own" instead of "parent or guardian."
+- **What failed?**  Retrieval of the specific cell phone "Tip" when using Keyword-only search. When queried, the model provided a generic response about battery health rather than the specific instruction contained within the dataset.
+- **Which layer failed?** Retrieval layer BM25 was unable to bridge the semantic gap between the user’s conversational query and the technical jargon used in the document, resulting in a low rank for the relevant chunk.
+- **Proposed system-level fix:**  I implement Hybrid Search by adjusting the Alpha ($\alpha$) parameter. By shifting the balance toward Vector Search ($\alpha = 0.8$), the system was able to prioritize semantic meaning over exact keyword matching. Additionally, I increased the Chunk Size from 200 to 500 characters to ensure the "Tip" was retrieved with enough surrounding context for the LLM to process it correctly.
 
 ---
 
