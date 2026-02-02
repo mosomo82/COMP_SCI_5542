@@ -18,7 +18,15 @@ The repository is organized by week to track progress and module-specific assign
 COMP_SCI_5542/
 ├── Week_1/
 │   └── src/                  # Source code for Week 1 modules
+|       └── week1_embeddings_RAG.ipynb
 ├── Week_2/                   # Assignments and data for Week 2
+|   ├── project_data/
+|   |   └── doc1.txt
+|   |   ...
+|   |   └── doc8.txt
+|   ├── src/
+|   |   └── CS5542_Lab2_Advanced_RAG_TN.ipynb        
+|   └── README_Lab2_Advanced_RAG.md  
 ├── LICENSE.md                # Project licensing information
 └── README.md                 # Project documentation and roadmap
 
@@ -32,7 +40,7 @@ COMP_SCI_5542/
 | --- | --- | --- | --- |
 | **Week 1** | [Building AI Workflow with RAG] | Python, Colab | ✅ Completed |
 | **Week 2** | [Advaned RAG Systems Engineering: Semantic Chunking & Hybrid Search] | Python, Colab | ✅ Completed |
-| **Week 3** | [Multimodal RAG Systems & Retrieval Evaluation: PDF/Image Ingestion, & ORC] | - | 🏗️ In Progress |
+| **Week 3** | [Multimodal RAG Systems & Retrieval Evaluation: PDF/Image Ingestion, & ORC] | Python, Colab | 🏗️ In Progress |
 | **Week 4** | Upcoming... | - | 📅 Scheduled |
 
 ---
