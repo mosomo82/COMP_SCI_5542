@@ -73,6 +73,6 @@ git clone https://github.com/mosomo82/COMP_SCI_5542.git
 
 ## Acknowledgements
 
-* **Course:** COMP_SCI_5542: Big Data Analytics
+* **Course:** COMP_SCI_5542: Big Data Analytics & Application
 * **Institution:** University of Missouri-Kansas City (UMKC)
 
