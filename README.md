@@ -20,13 +20,27 @@ COMP_SCI_5542/
 │   └── src/                  # Source code for Week 1 modules
 |       └── week1_embeddings_RAG.ipynb
 ├── Week_2/                   # Assignments and data for Week 2
-|   ├── project_data/
-|   |   └── doc1.txt
-|   |   ...
-|   |   └── doc8.txt
-|   ├── src/
+|   ├── project_data/         # Knowledge Base
+|   |   ├── doc1.txt
+|   |   └── ...
+|   ├── src/                  # Source code for Week 2 modules
 |   |   └── CS5542_Lab2_Advanced_RAG_TN.ipynb        
-|   └── README_Lab2_Advanced_RAG.md  
+|   └── README_Lab2_Advanced_RAG.md   # Lab 2 specific documentation
+├── Week_3/                           # Multimodal RAG Systems (Lab 3)
+│   ├── project_data_mm/              # Knowledge Base
+│   │   ├── figures/                  # Extracted charts and diagrams
+│   │   │   ├── CCPAvsGDPR-Nov.png
+│   │   │   └── ...
+│   │   ├── doc1.pdf
+│   │   ├── doc2.pdf
+│   │   └── ...
+│   ├── project_report/                       # Reports/Screenshots for Week 3 modules
+│   │       ├── ingestion_report.jpg
+│   │       └── ...
+│   ├── project_src/                          # Source code for Week 3 modules
+│   │   └── CS5542_Lab3.ipynb
+│   ├── README_MULTIMODAL_RAG.md                    # Lab 3 specific documentation
+│   └── requirements.txt              # Dependencies (PyMuPDF, Tesseract, etc.)  
 ├── LICENSE.md                # Project licensing information
 └── README.md                 # Project documentation and roadmap
 
