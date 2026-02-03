@@ -1,0 +1,23 @@
+# Data Processing & Ingestion
+numpy
+pandas
+requests
+PyMuPDF                 # For PDF text extraction (import fitz)
+Pillow                  # For image processing
+pytesseract             # For OCR on images
+reportlab               # For generating PDF reports
+
+# Retrieval (Sparse & Dense)
+scikit-learn            # For TF-IDF Vectorizer
+sentence-transformers   # For Embeddings and Cross-Encoder Reranking
+faiss-cpu               # For Dense Vector Indexing
+
+# Generation (LLMs)
+transformers            # For loading TinyLlama/Local models
+accelerate              # Optimization for Local LLM
+bitsandbytes            # For Quantization (running LLMs on free-tier GPUs)
+torch                   # PyTorch backend
+google-generativeai     # For Gemini API (optional)
+
+# Utilities
+ipywidgets              # For progress bars in Jupyter/Colab
