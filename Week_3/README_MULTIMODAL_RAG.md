@@ -18,6 +18,7 @@ The experiments demonstrate that **Multimodal RAG** significantly improves answe
 
 ### Repository Structure
 
+```text
 COMP_SCI_5542/
 ├── Week_3/                           # Multimodal RAG Systems (Lab 3)
 │   ├── project_data_mm/              # Knowledge Base
@@ -35,6 +36,7 @@ COMP_SCI_5542/
 │   ├── README_MULTIMODAL_RAG.md                    # Lab 3 specific documentation
 │   └── requirements.txt              # Dependencies (PyMuPDF, Tesseract, etc.)
 └── README.md                         # Project documentation and roadmap
+```
 
 ---
 
