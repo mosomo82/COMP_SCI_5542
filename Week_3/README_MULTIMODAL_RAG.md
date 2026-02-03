@@ -19,7 +19,7 @@ The experiments demonstrate that **Multimodal RAG** significantly improves answe
 ---
 
 ## 2. Project Dataset
-- **Domain:** Consumer Protection 
+- **Domain:** Privacy/Credit laws 
 - **# Documents:**	4 pdf files and 10 images (scanned pages, flowchart, tables, figures and screenshots etc.)
 - **Data Source (URL / Description):** [mosomo82 Github Repository](https://github.com/mosomo82/COMP_SCI_5542/tree/main/Week_3/project_data)
 
