@@ -16,6 +16,26 @@ This project implements a **Multimodal Retrieval-Augmented Generation (RAG) & Re
 
 The experiments demonstrate that **Multimodal RAG** significantly improves answer coverage for queries relying on visual data (flowcharts, maps) compared to text-only baselines.
 
+### Repository Structure
+
+COMP_SCI_5542/
+├── Week_3/                           # Multimodal RAG Systems (Lab 3)
+│   ├── project_data_mm/              # Knowledge Base
+│   │   ├── figures/                  # Extracted charts and diagrams
+│   │   │   ├── CCPAvsGDPR-Nov.png
+│   │   │   └── ...
+│   │   ├── doc1.pdf
+│   │   ├── doc2.pdf
+│   │   └── ...
+│   ├── project_report/                       # Reports/Screenshots for Week 3 modules
+│   │       ├── ingestion_report.jpg
+│   │       └── ...
+│   ├── project_src/                          # Source code for Week 3 modules
+│   │   └── CS5542_Lab3.ipynb
+│   ├── README_MULTIMODAL_RAG.md                    # Lab 3 specific documentation
+│   └── requirements.txt              # Dependencies (PyMuPDF, Tesseract, etc.)
+└── README.md                         # Project documentation and roadmap
+
 ---
 
 ## 2. Project Dataset
