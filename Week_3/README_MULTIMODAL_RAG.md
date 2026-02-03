@@ -1,8 +1,10 @@
 # CS 5542 — Lab 3: Multimodal RAG Systems & Retrieval Evaluation
 
-**Course:** CS 5542 - Big Analytics and Applications  
-**Lab:** Multimodal RAG Systems & Retrieval Evaluation
-**Student:** Tony Nguyen **GitHub Username:** mosomo82 **Date:** 02/02/2026
+> **Course:** CS 5542 - Big Analytics and Applications  
+> **Lab:** Multimodal RAG Systems & Retrieval Evaluation
+> **Student:** Tony Nguyen
+> **GitHub Username:** mosomo82
+> **Date:** 02/02/2026
 
 ---
 
