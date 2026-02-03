@@ -2,12 +2,12 @@
 
 **Student:** Tony Nguyen  
 **ID:** tmnc62@umkc.edu  
-**Course:** CS 5542 - Deep Learning  
+**Course:** CS 5542 - Big Analytics and Applications  
 
 ---
 
 ## 1. Executive Summary
-This project implements a **Multimodal Retrieval-Augmented Generation (RAG)** system capable of ingesting PDF documents and images (charts/diagrams) to answer complex domain-specific queries. The system utilizes:
+This project implements a **Multimodal Retrieval-Augmented Generation (RAG) & Retrieval Evaluation** system capable of ingesting PDF documents and images (charts/diagrams) to answer complex domain-specific queries. The system utilizes:
 * **Hybrid Retrieval:** Combining Sparse (TF-IDF) and Dense (SentenceTransformers/FAISS) vector search.
 * **Multimodal Ingestion:** Extracting text from PDFs via `PyMuPDF` and semantic content from images via **OCR (Tesseract)**.
 * **Generation:** Comparing a lightweight extractive baseline, a local LLM (TinyLlama), and a cloud API (Gemini).
