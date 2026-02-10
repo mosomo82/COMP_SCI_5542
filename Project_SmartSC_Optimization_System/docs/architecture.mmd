@@ -1,0 +1,56 @@
+---
+config:
+  layout: elk
+---
+flowchart LR
+ subgraph Sources["Data Perception (Sources)"]
+        S1["NOAA Weather Feed<br>(GSOD Disruption Signals)"]
+        S2["US Accidents (2016-2023)<br>(Risk Heatmaps)"]
+        S3["DOT Bridge Inventory<br>(Physical Constraints)"]
+        S4["DataCo Logistics<br>(Ground Truth)"]
+  end
+ subgraph Platform["Snowflake Data Cloud"]
+    direction TB
+        Ingest["Ingestion Layer<br>(Snowpipe / Internal Stages)"]
+        Storage[("Medallion Storage<br>(Bronze / Silver / Gold)")]
+        Graph[("Knowledge Layer<br>(NetworkX HyperGraph)")]
+        Cortex["Cortex AI Layer<br>(Gemini Pro RAG)"]
+        Forecasting["SRSNet Engine<br>(Time-Series Forecasting)"]
+        Spatial["Safety Veto Layer<br>(Spatial SQL)"]
+  end
+ subgraph AppLayer["Application Layer"]
+        Orch["Planning Agent<br>(CPP Protocol)"]
+        UI["Streamlit Dashboard"]
+  end
+    S1 --> Ingest
+    S2 --> Ingest
+    S3 --> Ingest
+    S4 --> Ingest
+    Ingest --> Storage
+    Storage -- Build Dependencies --> Graph
+    Storage -- Patch Logic --> Forecasting
+    User(("Logistics<br>Manager")) <--> UI
+    UI <--> Orch
+    Orch -- "1. ReMindRAG Retrieval" --> Graph
+    Orch -- "2. Generate Route" --> Cortex
+    Orch -- "3. Validate Safety" --> Spatial
+    Spatial <--> Storage
+    Spatial -- "4. Validated JSON" --> Orch
+
+     S1:::source
+     S2:::source
+     S3:::source
+     S4:::source
+     Ingest:::snow
+     Storage:::snow
+     Graph:::snow
+     Cortex:::snow
+     Forecasting:::snow
+     Spatial:::snow
+     Orch:::app
+     UI:::app
+     User:::user
+    classDef snow fill:#29B5E8,stroke:#003B5C,color:white,stroke-width:2px
+    classDef app fill:#ffffff,stroke:#333,stroke-width:2px,stroke-dasharray: 5 5
+    classDef user fill:#333,stroke:#333,color:white
+    classDef source fill:#eee,stroke:#999

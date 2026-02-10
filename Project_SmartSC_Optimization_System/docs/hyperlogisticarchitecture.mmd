@@ -1,0 +1,47 @@
+---
+config:
+  layout: elk
+---
+
+flowchart LR
+  subgraph subGraph0["Data Perception (Ingestion Layer)"]
+    B("Snowflake: Bronze/Silver"):::ingest
+    A1["NOAA GSOD Weather"]:::ingest
+    A2["US Accidents Dataset"]:::ingest
+    A3["DOT Bridge Inventory"]:::ingest
+    A4["DataCo Supply Chain"]:::ingest
+  end
+  subgraph subGraph1["Intelligence & Forecasting (Cortex & Snowpark)"]
+    FS{"SRSNet Engine \n Forecasting"}:::intell
+    C{"Reasoning Agent \n ReMindRAG"}:::intell
+    D["Cortex LLM \n Google Gemini"]:::intell
+    E("Negotiation Buffer"):::intell
+  end
+  subgraph subGraph2["Validation & Safety (Neuro-Symbolic)"]
+    F{"Planning Agent \n CPP Protocol"}:::valid
+    G["Spatial SQL Safety Veto"]:::valid
+    H["Final Secure Route"]:::valid
+  end
+  subgraph subGraph3["Application Layer"]
+    I["Streamlit Dashboard"]:::app
+  end
+
+    A1 -- External Tables --> B
+    A2 -- Snowpipe --> B
+    A3 -- Snowpipe --> B
+    A4 -- Batch Ingest --> B
+    B -- "Time-Series Data" --> FS
+    B -- Vector Embeddings --> C
+    C -- Context & Metadata --> D
+    FS -- Risk Propagation --> D
+    D -- Proposed Reroute JSON --> E
+    E --> F
+    G -- Physical Constraints --> F
+    F -- Consensus Reached --> H
+    H --> I
+    I -- User Feedback --> C
+
+classDef ingest fill:#e6f2ff,stroke:#3399ff,stroke-width:2px;
+classDef intell fill:#eaffea,stroke:#33cc44,stroke-width:2px;
+classDef valid fill:#fffbe6,stroke:#ffd700,stroke-width:2px;
+classDef app fill:#f3e6ff,stroke:#a259c8,stroke-width:2px;
