@@ -20,3 +20,5 @@ faiss-cpu>=1.7.0
 
 # LLM (optional — only needed if using Gemini / local model)
 google-generativeai>=0.5.0
+torch>=2.0.0
+transformers>=4.40.0

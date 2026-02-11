@@ -451,6 +451,50 @@ ANSWER:
         return f"[LLM error: {e}]\n\n{extractive_answer(question, context)}"
 
 
+# ── LLM Answer Generation (Local HuggingFace) ────────────────────────────────
+
+def generate_local_llm_answer(
+    question: str,
+    context: str,
+    model_name: str = "google/flan-t5-small",
+) -> str:
+    """Generate an answer using a local HuggingFace model (Flan-T5-Small, ~77 MB).
+
+    Uses text2text-generation (seq2seq) which is better for QA than causal LMs.
+    Falls back to extractive_answer if torch/transformers are unavailable.
+    """
+    if not context or not context.strip():
+        return MISSING_EVIDENCE_MSG
+
+    try:
+        from transformers import pipeline as hf_pipeline
+
+        llm = hf_pipeline(
+            "text2text-generation",
+            model=model_name,
+        )
+
+        # Truncate context to stay within T5's 512-token limit
+        tokenizer = llm.tokenizer
+        max_context_tokens = 400  # leave room for question + answer tokens
+        tokenized = tokenizer(context, truncation=False, return_tensors="pt")["input_ids"]
+        if tokenized.shape[1] > max_context_tokens:
+            tokenized = tokenized[:, :max_context_tokens]
+            context = tokenizer.decode(tokenized[0], skip_special_tokens=True)
+
+        prompt = (
+            f"Answer the question based on the context below. "
+            f"If the answer is not in the context, say 'Not enough evidence.'\n\n"
+            f"Context: {context}\n\n"
+            f"Question: {question}"
+        )
+
+        output = llm(prompt, max_new_tokens=200)
+        return output[0]["generated_text"].strip()
+    except Exception as e:
+        return f"[Local LLM error: {e}]\n\n{extractive_answer(question, context)}"
+
+
 # ── Evidence-ID Canonicalization ──────────────────────────────────────────────
 
 def canon_evidence_id(x: str) -> str:

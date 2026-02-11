@@ -21,6 +21,7 @@ from rag.pipeline import (
     build_retrievers,
     extractive_answer,
     generate_llm_answer,
+    generate_local_llm_answer,
     load_corpus,
     log_query,
 )
@@ -42,8 +43,8 @@ use_multimodal = st.sidebar.checkbox("use_multimodal", value=True)
 st.sidebar.header("Answer Generation")
 answer_mode = st.sidebar.selectbox(
     "answer_mode",
-    ["extractive", "llm (Gemini)"],
-    help="Extractive = heuristic overlap. LLM = Gemini API call (needs API key).",
+    ["extractive", "llm (Gemini)", "llm (Local)"],
+    help="Extractive = heuristic overlap. Gemini = API call. Local = TinyLlama on device.",
 )
 
 # Gemini API key — from Streamlit secrets or manual input
@@ -122,6 +123,9 @@ if run_btn and question.strip():
     if answer_mode == "llm (Gemini)":
         with st.spinner("🤖 Calling Gemini API..."):
             answer = generate_llm_answer(question, context, api_key=gemini_key or None)
+    elif answer_mode == "llm (Local)":
+        with st.spinner("🤖 Running local LLM (Flan-T5-Small)..."):
+            answer = generate_local_llm_answer(question, context)
     else:
         answer = extractive_answer(question, context)
 
