@@ -20,6 +20,7 @@ from rag.pipeline import (
     build_context,
     build_retrievers,
     extractive_answer,
+    generate_llm_answer,
     load_corpus,
     log_query,
 )
@@ -33,10 +34,31 @@ st.caption("Project-aligned Streamlit UI + automatic logging + failure monitorin
 st.sidebar.header("Retrieval Settings")
 retrieval_mode = st.sidebar.selectbox(
     "retrieval_mode",
-    ["tfidf", "dense", "sparse", "hybrid", "hybrid_rerank"],
+    ["tfidf", "dense", "sparse_BM25", "hybrid_BM25&TF-IDF", "hybrid_rerank", "multimodal"],
 )
 top_k = st.sidebar.slider("top_k", min_value=1, max_value=30, value=10, step=1)
 use_multimodal = st.sidebar.checkbox("use_multimodal", value=True)
+
+st.sidebar.header("Answer Generation")
+answer_mode = st.sidebar.selectbox(
+    "answer_mode",
+    ["extractive", "llm (Gemini)"],
+    help="Extractive = heuristic overlap. LLM = Gemini API call (needs API key).",
+)
+
+# Gemini API key — from Streamlit secrets or manual input
+gemini_key = ""
+if answer_mode == "llm (Gemini)":
+    # Try Streamlit secrets first
+    try:
+        gemini_key = st.secrets["GEMINI_API_KEY"]
+    except Exception:
+        gemini_key = os.environ.get("GEMINI_API_KEY", "")
+    if not gemini_key:
+        gemini_key = st.sidebar.text_input(
+            "Gemini API Key", type="password",
+            help="Paste your Gemini API key. It won't be stored.",
+        )
 
 st.sidebar.header("Logging")
 log_path = st.sidebar.text_input("log file", value="logs/query_metrics.csv")
@@ -96,7 +118,13 @@ if run_btn and question.strip():
 
     # 3. Generate answer
     context = build_context(evidence_store, hit_indices)
-    answer = extractive_answer(question, context)
+
+    if answer_mode == "llm (Gemini)":
+        with st.spinner("🤖 Calling Gemini API..."):
+            answer = generate_llm_answer(question, context, api_key=gemini_key or None)
+    else:
+        answer = extractive_answer(question, context)
+
     latency_ms = round((time.time() - t0) * 1000, 2)
 
     # 4. Evaluation
@@ -119,7 +147,10 @@ if run_btn and question.strip():
     # ── Display ───────────────────────────────────────────────────────────
     with colA:
         st.subheader("Answer")
-        st.write(answer)
+        if answer_mode == "llm (Gemini)":
+            st.markdown(answer)
+        else:
+            st.write(answer)
 
         st.subheader("Evidence (Top-K)")
         for ev in evidence_results:
@@ -129,6 +160,7 @@ if run_btn and question.strip():
     with colB:
         st.subheader("Metrics")
         st.metric("Latency (ms)", latency_ms)
+        st.caption(f"Answer mode: **{answer_mode}** · Retrieval: **{retrieval_mode}**")
         col1, col2 = st.columns(2)
         with col1:
             p5_val = metrics["Precision@5"]

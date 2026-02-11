@@ -268,10 +268,11 @@ def build_retrievers(evidence: List[Dict[str, Any]]) -> Dict[str, Any]:
 
     return {
         "tfidf": tfidf,
-        "sparse(BM25)": bm25,
+        "sparse_BM25": bm25,
         "dense": dense,
-        "hybrid(BM25+TF-IDF)": hybrid_sparse,
+        "hybrid_BM25&TF-IDF": hybrid_sparse,
         "hybrid_rerank": hybrid_rerank,
+        "multimodal": hybrid_rerank,  # Dense+BM25 — best for text + image captions
     }
 
 
@@ -343,6 +344,56 @@ def extractive_answer(query: str, context: str) -> str:
             truncated.append(b)
 
     return "\n\n".join(truncated)
+
+
+# ── LLM Answer Generation (Gemini) ────────────────────────────────────────────
+
+def generate_llm_answer(
+    question: str,
+    context: str,
+    model_name: str = "gemini-2.5-flash",
+    api_key: Optional[str] = None,
+) -> str:
+    """Generate a grounded answer using Google Gemini.
+
+    Falls back to extractive_answer if the API call fails.
+    """
+    if not context or not context.strip():
+        return MISSING_EVIDENCE_MSG
+
+    # Resolve API key
+    if api_key is None:
+        api_key = os.environ.get("GEMINI_API_KEY", "")
+    if not api_key:
+        return f"[LLM unavailable — no GEMINI_API_KEY set]\n\n{extractive_answer(question, context)}"
+
+    try:
+        import google.generativeai as genai
+        genai.configure(api_key=api_key)
+
+        model = genai.GenerativeModel(model_name)
+
+        prompt = f"""You are a helpful assistant for a Multimodal RAG system.
+Use the following retrieved context (text chunks and image descriptions) to answer the user's question.
+
+RULES:
+1. Answer ONLY using the provided context. If the answer is not in the context, say "{MISSING_EVIDENCE_MSG}"
+2. Cite your sources! When you use information, append the source ID like [doc1.pdf::p1] or [img::figure1.png].
+3. Be concise and direct.
+
+CONTEXT:
+{context}
+
+QUESTION:
+{question}
+
+ANSWER:
+"""
+        response = model.generate_content(prompt)
+        return response.text
+    except Exception as e:
+        # Fallback to extractive answer
+        return f"[LLM error: {e}]\n\n{extractive_answer(question, context)}"
 
 
 # ── Evidence-ID Canonicalization ──────────────────────────────────────────────
@@ -506,7 +557,6 @@ MINI_GOLD = {
             "Notes the Adaptive Fusion that integrates embeddings from both conventional and selective patching",
             "Includes at least one citation to a document or figure",
         ],
-        "rubric": {"must_have_keywords": ["selective patching", "SRS", "representation space", "dynamic reassembly"]},
         "citation_format": "[doc1_TimerSeries.pdf] or [figure8.png] / [figure9.png]",
     },
 
@@ -527,7 +577,6 @@ MINI_GOLD = {
             "(skipping full LLM-guided KG traversal)",
             "Includes at least one citation",
         ],
-        "rubric": {"must_have_keywords": ["memory replay", "edge-weight", "traversal path"]},
         "citation_format": "[doc2_ReMindRAG.pdf] or [figure3.png] / [figure7.png]",
     },
 
@@ -547,7 +596,6 @@ MINI_GOLD = {
             "States the interface type (primal / dual / proximal) used by the agents in each application",
             "Includes a citation to Table 1 or the document",
         ],
-        "rubric": {"must_have_keywords": ["consensus", "planning problem", "primal", "dual"]},
         "citation_format": "[doc3_CPP.pdf] or [figure2.png, Table 1]",
     },
 
@@ -568,7 +616,6 @@ MINI_GOLD = {
             "Notes that ReMindRAG outperforms HippoRAG2 by ~14.43 percentage points",
             "Includes a citation to Table 1 or figure6",
         ],
-        "rubric": {"must_have_keywords": ["79.38", "64.95", "Multi-Hop", "Deepseek"]},
         "citation_format": "[doc2_ReMindRAG.pdf, Table 1] or [figure6.png]",
     },
 
@@ -585,7 +632,6 @@ MINI_GOLD = {
             "SRSNet's scorer is gradient-based (Gumbel-Softmax), not RL-based",
             "Optionally clarifies that the actual mechanism is gradient-based, citing the document",
         ],
-        "rubric": {"must_have_keywords": []},
         "citation_format": "",
     },
 
@@ -601,7 +647,6 @@ MINI_GOLD = {
             "Mentions the Enhance/Penalize edge-weight update (memory) after the first query",
             "Mentions the fast retrieval shortcut for subsequent similar/same queries",
         ],
-        "rubric": {"must_have_keywords": ["KG construction", "traversal", "enhance", "penalize"]},
         "citation_format": "[img::figure3.png]",
     },
 }
