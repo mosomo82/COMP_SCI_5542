@@ -148,7 +148,7 @@ def load_corpus(
 # ── TF-IDF Retriever ──────────────────────────────────────────────────────────
 
 class TfidfRetriever:
-    """Simple TF-IDF retriever over a list of evidence dicts."""
+    """TF-IDF cosine-similarity retriever."""
 
     def __init__(self, evidence: List[Dict[str, Any]]):
         from sklearn.feature_extraction.text import TfidfVectorizer
@@ -164,6 +164,70 @@ class TfidfRetriever:
         sims = cosine_similarity(q_vec, self.matrix).ravel()
         idxs = np.argsort(-sims)[:top_k]
         return [(int(i), float(sims[i])) for i in idxs]
+
+
+# ── BM25 Retriever ────────────────────────────────────────────────────────────
+
+class BM25Retriever:
+    """BM25 (Okapi) retriever using rank_bm25."""
+
+    def __init__(self, evidence: List[Dict[str, Any]]):
+        from rank_bm25 import BM25Okapi
+        self.evidence = evidence
+        tokenized = [item.get("text", "").lower().split() for item in evidence]
+        self.bm25 = BM25Okapi(tokenized)
+
+    def retrieve(self, query: str, top_k: int = 10) -> List[Tuple[int, float]]:
+        tokens = query.lower().split()
+        scores = self.bm25.get_scores(tokens)
+        idxs = np.argsort(-scores)[:top_k]
+        return [(int(i), float(scores[i])) for i in idxs]
+
+
+# ── Hybrid Retriever ──────────────────────────────────────────────────────────
+
+class HybridRetriever:
+    """Combines TF-IDF and BM25 scores via weighted reciprocal rank fusion."""
+
+    def __init__(self, tfidf: TfidfRetriever, bm25: BM25Retriever, alpha: float = 0.5):
+        self.tfidf = tfidf
+        self.bm25 = bm25
+        self.alpha = alpha  # weight for TF-IDF; (1 - alpha) for BM25
+
+    def retrieve(self, query: str, top_k: int = 10) -> List[Tuple[int, float]]:
+        pool_k = min(top_k * 3, len(self.tfidf.evidence))
+        tfidf_hits = self.tfidf.retrieve(query, top_k=pool_k)
+        bm25_hits = self.bm25.retrieve(query, top_k=pool_k)
+
+        # Reciprocal rank fusion
+        rrf_k = 60  # standard RRF constant
+        scores: Dict[int, float] = {}
+        for rank, (idx, _) in enumerate(tfidf_hits):
+            scores[idx] = scores.get(idx, 0.0) + self.alpha / (rrf_k + rank + 1)
+        for rank, (idx, _) in enumerate(bm25_hits):
+            scores[idx] = scores.get(idx, 0.0) + (1 - self.alpha) / (rrf_k + rank + 1)
+
+        ranked = sorted(scores.items(), key=lambda x: x[1], reverse=True)[:top_k]
+        return [(idx, score) for idx, score in ranked]
+
+
+# ── Retriever Factory ─────────────────────────────────────────────────────────
+
+def build_retrievers(evidence: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Build all retriever variants from the evidence list.
+    
+    Returns dict mapping mode name → retriever instance.
+    """
+    tfidf = TfidfRetriever(evidence)
+    bm25 = BM25Retriever(evidence)
+    hybrid = HybridRetriever(tfidf, bm25, alpha=0.5)
+    return {
+        "tfidf": tfidf,
+        "sparse": bm25,
+        "dense": tfidf,          # fallback (no embedding model)
+        "hybrid": hybrid,
+        "hybrid_rerank": hybrid,  # fallback (no reranker model)
+    }
 
 
 # ── Context Building ──────────────────────────────────────────────────────────

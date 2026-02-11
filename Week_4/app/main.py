@@ -17,8 +17,8 @@ if str(PROJECT_ROOT) not in sys.path:
 from rag.pipeline import (
     MINI_GOLD,
     MISSING_EVIDENCE_MSG,
-    TfidfRetriever,
     build_context,
+    build_retrievers,
     extractive_answer,
     load_corpus,
     log_query,
@@ -45,29 +45,26 @@ st.sidebar.header("Evaluation")
 query_id = st.sidebar.selectbox("query_id (for logging)", list(MINI_GOLD.keys()))
 use_gold_question = st.sidebar.checkbox("Use the gold-set question text", value=True)
 
-# ── Load Corpus & Build Index (cached) ────────────────────────────────────────
+# ── Load Corpus & Build All Retrievers (cached) ──────────────────────────────
 
-@st.cache_resource(show_spinner="Loading corpus and building TF-IDF index …")
-def get_retriever():
-    # 1. Define paths using Path objects for better handling
+@st.cache_resource(show_spinner="Loading corpus and building retrieval indices …")
+def get_retrievers():
     docs_path = PROJECT_ROOT / "data" / "docs"
     images_path = PROJECT_ROOT / "data" / "images"
 
-    # 2. DEBUG: Check if they exist
     if not docs_path.exists():
         st.error(f"❌ Critical Error: The directory `{docs_path}` does not exist.")
         st.info(f"Current working directory: {os.getcwd()}")
         st.info(f"Contents of {PROJECT_ROOT}: {list(PROJECT_ROOT.glob('*'))}")
-        st.stop() # Stop the app so it doesn't crash later
+        st.stop()
 
-    # 3. Convert to string for your load_corpus function
     evidence = load_corpus(str(docs_path), str(images_path))
-    retriever = TfidfRetriever(evidence)
-    return evidence, retriever
+    retrievers = build_retrievers(evidence)
+    return evidence, retrievers
 
 
-evidence_store, retriever = get_retriever()
-st.sidebar.info(f"📚 Corpus loaded: **{len(evidence_store)}** evidence items")
+evidence_store, all_retrievers = get_retrievers()
+st.sidebar.info(f"📚 Corpus: **{len(evidence_store)}** items · Modes: {list(all_retrievers.keys())}")
 
 # ── Main Query ────────────────────────────────────────────────────────────────
 default_q = MINI_GOLD[query_id]["question"] if use_gold_question else ""
@@ -79,7 +76,8 @@ colA, colB = st.columns([2, 1])
 if run_btn and question.strip():
     t0 = time.time()
 
-    # 1. Retrieve
+    # 1. Retrieve using selected mode
+    retriever = all_retrievers.get(retrieval_mode, all_retrievers["tfidf"])
     hits = retriever.retrieve(question, top_k=top_k)
 
     # 2. Format evidence
