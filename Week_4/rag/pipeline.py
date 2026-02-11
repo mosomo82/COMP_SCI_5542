@@ -719,9 +719,9 @@ MINI_GOLD = {
             "and how does it differ from conventional adjacent patching?"
         ),
         "gold_evidence_ids": [
-            "doc1_TimerSeries.pdf",   # main paper text describing SRS
-            "figure8.png",            # Figure 2 – overall SRS pipeline
-            "figure9.png",            # Figure 3 – detailed architecture
+            "doc1_TimeSeries.pdf",    # main paper text describing SRS
+            "img::figure8.png",       # Figure 2 – overall SRS pipeline
+            "img::figure9.png",       # Figure 3 – detailed architecture
         ],
         "answer_criteria": [
             "Explains that SRS uses Selective Patching (gradient-based, learnable patch selection with stride=1 scanning) "
@@ -730,7 +730,7 @@ MINI_GOLD = {
             "Notes the Adaptive Fusion that integrates embeddings from both conventional and selective patching",
             "Includes at least one citation to a document or figure",
         ],
-        "citation_format": "[doc1_TimerSeries.pdf] or [figure8.png] / [figure9.png]",
+        "citation_format": "[doc1_TimeSeries.pdf] or [img::figure8.png] / [img::figure9.png]",
     },
 
     # ── Q2  (typical project query – doc2: ReMindRAG) ────────────────────────
@@ -741,8 +741,8 @@ MINI_GOLD = {
         ),
         "gold_evidence_ids": [
             "doc2_ReMindRAG.pdf",     # main paper text
-            "figure3.png",            # Figure 1 – overall workflow showing memorize/replay
-            "figure7.png",            # Figure 5 – memory replay under Same Query setting
+            "img::figure3.png",       # Figure 1 – overall workflow showing memorize/replay
+            "img::figure7.png",       # Figure 5 – memory replay under Same Query setting
         ],
         "answer_criteria": [
             "Describes the enhance/penalize edge-weight update after the first query",
@@ -750,7 +750,7 @@ MINI_GOLD = {
             "(skipping full LLM-guided KG traversal)",
             "Includes at least one citation",
         ],
-        "citation_format": "[doc2_ReMindRAG.pdf] or [figure3.png] / [figure7.png]",
+        "citation_format": "[doc2_ReMindRAG.pdf] or [img::figure3.png] / [img::figure7.png]",
     },
 
     # ── Q3  (typical project query – doc3: Consensus Planning Problem) ───────
@@ -761,7 +761,7 @@ MINI_GOLD = {
         ),
         "gold_evidence_ids": [
             "doc3_CPP.pdf",           # main paper text
-            "figure2.png",            # Table 1 – examples of consensus problems
+            "img::figure2.png",       # Table 1 – examples of consensus problems
         ],
         "answer_criteria": [
             "Lists at least three applications (Fullness Optimization, Throughput Coordination, "
@@ -769,7 +769,7 @@ MINI_GOLD = {
             "States the interface type (primal / dual / proximal) used by the agents in each application",
             "Includes a citation to Table 1 or the document",
         ],
-        "citation_format": "[doc3_CPP.pdf] or [figure2.png, Table 1]",
+        "citation_format": "[doc3_CPP.pdf] or [img::figure2.png, Table 1]",
     },
 
     # ── Q4  (multimodal / table-heavy query – doc2 Table 1 + doc1 Table 2) ──
@@ -781,7 +781,7 @@ MINI_GOLD = {
         ),
         "gold_evidence_ids": [
             "doc2_ReMindRAG.pdf",
-            "figure6.png",            # Table 1 – Effectiveness Performance
+            "img::figure6.png",       # Table 1 – Effectiveness Performance
         ],
         "answer_criteria": [
             "Extracts the correct numeric value for ReMindRAG Multi-Hop QA / Deepseek-V3: 79.38%",
@@ -789,7 +789,7 @@ MINI_GOLD = {
             "Notes that ReMindRAG outperforms HippoRAG2 by ~14.43 percentage points",
             "Includes a citation to Table 1 or figure6",
         ],
-        "citation_format": "[doc2_ReMindRAG.pdf, Table 1] or [figure6.png]",
+        "citation_format": "[doc2_ReMindRAG.pdf, Table 1] or [img::figure6.png]",
     },
 
     # ── Q5  (missing-evidence / ambiguous query – must trigger safe behavior)
@@ -823,3 +823,4 @@ MINI_GOLD = {
         "citation_format": "[img::figure3.png]",
     },
 }
+

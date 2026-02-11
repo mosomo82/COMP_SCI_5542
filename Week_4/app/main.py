@@ -91,6 +91,89 @@ def get_retrievers():
 evidence_store, all_retrievers = get_retrievers()
 st.sidebar.info(f"📚 Corpus: **{len(evidence_store)}** items · Modes: {list(all_retrievers.keys())}")
 
+# ── Metadata Filters ──────────────────────────────────────────────────────────
+st.sidebar.header("Metadata Filters")
+
+# Extract unique sources (basename) and modalities from the corpus
+_all_sources = sorted({os.path.basename(e.get("source", "unknown")) for e in evidence_store})
+_all_modalities = sorted({e.get("modality", "text") for e in evidence_store})
+
+selected_sources = st.sidebar.multiselect(
+    "Source documents", _all_sources, default=_all_sources,
+    help="Filter evidence to only include items from selected source files.",
+)
+selected_modalities = st.sidebar.multiselect(
+    "Modality", _all_modalities, default=_all_modalities,
+    help="Filter by evidence type (text pages, images, tables, etc.).",
+)
+
+# ── Response Caching ──────────────────────────────────────────────────────────
+st.sidebar.header("Cache")
+if st.sidebar.button("🗑️ Clear Response Cache"):
+    _cached_query.clear()
+    st.sidebar.success("Cache cleared!")
+
+
+@st.cache_data(show_spinner=False, ttl=3600)
+def _cached_query(
+    _question: str,
+    _retrieval_mode: str,
+    _answer_mode: str,
+    _top_k: int,
+    _gemini_key: str,
+    _sources_key: str,
+    _modalities_key: str,
+):
+    """Cache query results keyed on (question, mode, top_k, filters).
+
+    Identical queries return instantly without re-running retrieval + LLM.
+    """
+    # Parse filter keys back to sets
+    allowed_sources = set(_sources_key.split("|")) if _sources_key else set()
+    allowed_modalities = set(_modalities_key.split("|")) if _modalities_key else set()
+
+    retriever = all_retrievers.get(_retrieval_mode, all_retrievers["tfidf"])
+    # Over-fetch then filter so we still get top_k results after filtering
+    hits = retriever.retrieve(_question, top_k=_top_k * 3)
+
+    evidence_results = []
+    hit_indices = []
+    for idx, score in hits:
+        item = evidence_store[idx]
+        src_base = os.path.basename(item.get("source", ""))
+        modality = item.get("modality", "text")
+        # Apply metadata filters
+        if src_base not in allowed_sources:
+            continue
+        if modality not in allowed_modalities:
+            continue
+        evidence_results.append({
+            "chunk_id": item["chunk_id"],
+            "citation_tag": f"[{item['chunk_id']}]",
+            "score": round(score, 4),
+            "source": item.get("source", ""),
+            "text": item.get("text", "")[:500],
+        })
+        hit_indices.append(idx)
+        if len(evidence_results) >= _top_k:
+            break
+
+    context = build_context(evidence_store, hit_indices)
+
+    if _answer_mode == "llm (Gemini)":
+        answer = generate_llm_answer(_question, context, api_key=_gemini_key or None)
+    elif _answer_mode == "llm (Local)":
+        answer = generate_local_llm_answer(_question, context)
+    else:
+        answer = extractive_answer(_question, context)
+
+    return {
+        "evidence_results": evidence_results,
+        "hit_indices": hit_indices,
+        "answer": answer,
+    }
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 #  TABS
 # ══════════════════════════════════════════════════════════════════════════════
@@ -107,35 +190,17 @@ with tab_query:
     if run_btn and question.strip():
         t0 = time.time()
 
-        # 1. Retrieve
-        retriever = all_retrievers.get(retrieval_mode, all_retrievers["tfidf"])
-        hits = retriever.retrieve(question, top_k=top_k)
+        # Use cached query (dedup identical calls)
+        with st.spinner(f"⏳ Querying ({retrieval_mode} + {answer_mode}) …"):
+            sources_key = "|".join(sorted(selected_sources))
+            modalities_key = "|".join(sorted(selected_modalities))
+            result = _cached_query(
+                question, retrieval_mode, answer_mode, top_k,
+                gemini_key or "", sources_key, modalities_key,
+            )
 
-        # 2. Format evidence
-        evidence_results = []
-        hit_indices = []
-        for idx, score in hits:
-            item = evidence_store[idx]
-            evidence_results.append({
-                "chunk_id": item["chunk_id"],
-                "citation_tag": f"[{item['chunk_id']}]",
-                "score": round(score, 4),
-                "source": item.get("source", ""),
-                "text": item.get("text", "")[:500],
-            })
-            hit_indices.append(idx)
-
-        # 3. Generate answer
-        context = build_context(evidence_store, hit_indices)
-
-        if answer_mode == "llm (Gemini)":
-            with st.spinner("🤖 Calling Gemini API..."):
-                answer = generate_llm_answer(question, context, api_key=gemini_key or None)
-        elif answer_mode == "llm (Local)":
-            with st.spinner("🤖 Running local LLM (Flan-T5-Small)..."):
-                answer = generate_local_llm_answer(question, context)
-        else:
-            answer = extractive_answer(question, context)
+        evidence_results = result["evidence_results"]
+        answer = result["answer"]
 
         latency_ms = round((time.time() - t0) * 1000, 2)
 
