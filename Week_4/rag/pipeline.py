@@ -632,6 +632,83 @@ def log_query(
     }
 
 
+# ── Batch Evaluation ─────────────────────────────────────────────────────────
+
+def batch_evaluate(
+    evidence: List[Dict[str, Any]],
+    retrievers: Dict[str, Any],
+    gold: Dict[str, Dict],
+    top_k: int = 10,
+    log_path: str = "logs/query_metrics.csv",
+    answer_fn=None,
+) -> List[Dict[str, Any]]:
+    """Run every gold query across every retrieval mode and return results.
+
+    Parameters
+    ----------
+    evidence : list of evidence dicts (from load_corpus)
+    retrievers : dict of mode_name -> retriever (from build_retrievers)
+    gold : dict mapping query_id -> {question, gold_evidence_ids, ...}
+    top_k : int
+    log_path : str — CSV file for logging each run
+    answer_fn : callable(question, context) -> str, defaults to extractive_answer
+
+    Returns a list of dicts with keys: query_id, mode, P@5, R@10, latency_ms,
+    faithfulness_pass, answer (truncated).
+    """
+    if answer_fn is None:
+        answer_fn = extractive_answer
+
+    results = []
+    for qid, qobj in gold.items():
+        question = qobj["question"]
+        gold_ids = qobj.get("gold_evidence_ids", [])
+
+        for mode_name, retriever in retrievers.items():
+            t0 = time.time()
+
+            # Retrieve
+            hits = retriever.retrieve(question, top_k=top_k)
+            hit_indices = [idx for idx, _ in hits]
+            retrieved_ids = [evidence[idx]["chunk_id"] for idx, _ in hits]
+
+            # Build context & generate answer
+            context = build_context(evidence, hit_indices)
+            answer = answer_fn(question, context)
+
+            latency_ms = round((time.time() - t0) * 1000, 2)
+
+            # Log to CSV
+            evidence_results = [
+                {"chunk_id": evidence[idx]["chunk_id"],
+                 "text": evidence[idx].get("text", "")[:200]}
+                for idx, _ in hits
+            ]
+            metrics = log_query(
+                log_path=log_path,
+                query_id=qid,
+                retrieval_mode=mode_name,
+                top_k=top_k,
+                latency_ms=latency_ms,
+                retrieved_ids=retrieved_ids,
+                gold_ids=gold_ids,
+                answer=answer,
+                evidence=evidence_results,
+            )
+
+            results.append({
+                "query_id": qid,
+                "mode": mode_name,
+                "Precision@5": metrics["Precision@5"],
+                "Recall@10": metrics["Recall@10"],
+                "latency_ms": latency_ms,
+                "faithfulness": "Yes" if metrics["faithfulness_pass"] else "No",
+                "answer": answer[:150] + "…" if len(answer) > 150 else answer,
+            })
+
+    return results
+
+
 # ── Gold Set ──────────────────────────────────────────────────────────────────
 
 MINI_GOLD = {

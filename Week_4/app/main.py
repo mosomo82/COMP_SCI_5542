@@ -16,6 +16,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from rag.pipeline import (
     MINI_GOLD,
     MISSING_EVIDENCE_MSG,
+    batch_evaluate,
     build_context,
     build_retrievers,
     extractive_answer,
@@ -60,7 +61,10 @@ if answer_mode == "llm (Gemini)":
         )
 
 st.sidebar.header("Logging")
-log_path = st.sidebar.text_input("log file", value="logs/query_metrics.csv")
+log_path_input = st.sidebar.text_input("log file", value="logs/query_metrics.csv")
+# Resolve to absolute so both tabs use the same path
+_lp = Path(log_path_input)
+log_path = str(_lp if _lp.is_absolute() else PROJECT_ROOT / _lp)
 
 st.sidebar.header("Evaluation")
 query_id = st.sidebar.selectbox("query_id (for logging)", list(MINI_GOLD.keys()))
@@ -189,114 +193,160 @@ with tab_dashboard:
     st.subheader("📊 Evaluation Dashboard")
     st.caption("Visualize logged query metrics across retrieval modes")
 
+    # ── Batch Evaluation Button ───────────────────────────────────────────
+    st.markdown("---")
+    st.markdown("### 🚀 Batch Evaluation")
+    st.caption("Run all 6 gold queries × all retrieval modes in one click")
+
+    batch_col1, batch_col2 = st.columns([1, 2])
+    with batch_col1:
+        batch_btn = st.button("▶ Run Batch Evaluation", type="primary")
+
+    if batch_btn:
+        with st.spinner(f"Running {len(MINI_GOLD)} queries × {len(all_retrievers)} modes …"):
+            results = batch_evaluate(
+                evidence=evidence_store,
+                retrievers=all_retrievers,
+                gold=MINI_GOLD,
+                top_k=top_k,
+                log_path=log_path,
+            )
+        batch_df = pd.DataFrame(results)
+        st.success(f"✅ Batch complete — {len(results)} runs logged to `{log_path}`")
+
+        # Pivot: rows=query, cols=mode, values=P@5
+        st.markdown("**Precision@5 — Query × Mode**")
+        pivot_p5 = batch_df.pivot_table(
+            index="query_id", columns="mode",
+            values="Precision@5", aggfunc="mean"
+        ).round(3)
+        st.dataframe(pivot_p5, use_container_width=True)
+
+        # Pivot: rows=query, cols=mode, values=R@10
+        st.markdown("**Recall@10 — Query × Mode**")
+        pivot_r10 = batch_df.pivot_table(
+            index="query_id", columns="mode",
+            values="Recall@10", aggfunc="mean"
+        ).round(3)
+        st.dataframe(pivot_r10, use_container_width=True)
+
+        # Summary by mode
+        st.markdown("**Average Metrics by Mode**")
+        mode_summary = batch_df.groupby("mode").agg(
+            Avg_P5=("Precision@5", "mean"),
+            Avg_R10=("Recall@10", "mean"),
+            Avg_Latency_ms=("latency_ms", "mean"),
+        ).round(3)
+        st.dataframe(mode_summary, use_container_width=True)
+
+        # Full results table
+        with st.expander("📋 All Batch Results"):
+            st.dataframe(batch_df, use_container_width=True)
+
+    st.markdown("---")
+
     # ── Load log CSV ──────────────────────────────────────────────────────
     log_file = Path(log_path)
-    if not log_file.is_absolute():
-        log_file = PROJECT_ROOT / log_file
 
     if not log_file.exists():
-        st.info("No log file found yet. Run some queries in the **Query** tab first!")
-        st.stop()
+        st.info("📭 No log data yet. Click **▶ Run Batch Evaluation** above or run queries in the **Query** tab!")
+    else:
+        df = pd.read_csv(log_file)
 
-    df = pd.read_csv(log_file)
+        if df.empty:
+            st.info("Log file is empty. Run some queries to populate data.")
+        else:
+            # Clean up numeric columns
+            for col in ["Precision@5", "Recall@10", "latency_ms"]:
+                if col in df.columns:
+                    df[col] = pd.to_numeric(df[col], errors="coerce")
 
-    if df.empty:
-        st.info("Log file is empty. Run some queries to populate data.")
-        st.stop()
+            st.metric("Total Logged Queries", len(df))
 
-    # Clean up numeric columns
-    for col in ["Precision@5", "Recall@10", "latency_ms"]:
-        if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors="coerce")
+            # ── 1. Metrics by Retrieval Mode ──────────────────────────────
+            st.markdown("---")
+            st.subheader("📈 Metrics by Retrieval Mode")
 
-    st.metric("Total Logged Queries", len(df))
+            if "retrieval_mode" in df.columns:
+                mode_stats = df.groupby("retrieval_mode").agg(
+                    Queries=("query_id", "count"),
+                    Avg_P5=("Precision@5", "mean"),
+                    Avg_R10=("Recall@10", "mean"),
+                    Avg_Latency_ms=("latency_ms", "mean"),
+                    Faithfulness_Rate=("faithfulness_pass", lambda x: (x == "Yes").mean()),
+                ).round(3)
 
-    # ── 1. Metrics by Retrieval Mode ──────────────────────────────────────
-    st.markdown("---")
-    st.subheader("📈 Metrics by Retrieval Mode")
+                st.dataframe(mode_stats, use_container_width=True)
 
-    if "retrieval_mode" in df.columns:
-        mode_stats = df.groupby("retrieval_mode").agg(
-            Queries=("query_id", "count"),
-            Avg_P5=("Precision@5", "mean"),
-            Avg_R10=("Recall@10", "mean"),
-            Avg_Latency_ms=("latency_ms", "mean"),
-            Faithfulness_Rate=("faithfulness_pass", lambda x: (x == "Yes").mean()),
-        ).round(3)
+                col_p5, col_r10 = st.columns(2)
+                with col_p5:
+                    st.markdown("**Avg Precision@5 by Mode**")
+                    st.bar_chart(mode_stats["Avg_P5"])
+                with col_r10:
+                    st.markdown("**Avg Recall@10 by Mode**")
+                    st.bar_chart(mode_stats["Avg_R10"])
 
-        st.dataframe(mode_stats, use_container_width=True)
+                st.markdown("**Avg Latency (ms) by Mode**")
+                st.bar_chart(mode_stats["Avg_Latency_ms"])
 
-        # Bar charts side by side
-        col_p5, col_r10 = st.columns(2)
-        with col_p5:
-            st.markdown("**Avg Precision@5 by Mode**")
-            st.bar_chart(mode_stats["Avg_P5"])
-        with col_r10:
-            st.markdown("**Avg Recall@10 by Mode**")
-            st.bar_chart(mode_stats["Avg_R10"])
+            # ── 2. Per-Query Breakdown ────────────────────────────────────
+            st.markdown("---")
+            st.subheader("🔎 Per-Query Breakdown")
 
-        # Latency comparison
-        st.markdown("**Avg Latency (ms) by Mode**")
-        st.bar_chart(mode_stats["Avg_Latency_ms"])
+            if "query_id" in df.columns:
+                query_stats = df.groupby(["query_id", "retrieval_mode"]).agg(
+                    Avg_P5=("Precision@5", "mean"),
+                    Avg_R10=("Recall@10", "mean"),
+                    Avg_Latency_ms=("latency_ms", "mean"),
+                ).round(3)
 
-    # ── 2. Per-Query Breakdown ────────────────────────────────────────────
-    st.markdown("---")
-    st.subheader("🔎 Per-Query Breakdown")
+                st.dataframe(query_stats, use_container_width=True)
 
-    if "query_id" in df.columns:
-        query_stats = df.groupby(["query_id", "retrieval_mode"]).agg(
-            Avg_P5=("Precision@5", "mean"),
-            Avg_R10=("Recall@10", "mean"),
-            Avg_Latency_ms=("latency_ms", "mean"),
-        ).round(3)
+                if len(df["retrieval_mode"].unique()) > 1:
+                    st.markdown("**Precision@5 — Query × Mode**")
+                    pivot = df.pivot_table(
+                        index="query_id", columns="retrieval_mode",
+                        values="Precision@5", aggfunc="mean"
+                    ).round(3)
+                    st.dataframe(pivot, use_container_width=True)
 
-        st.dataframe(query_stats, use_container_width=True)
+            # ── 3. Latency Distribution ───────────────────────────────────
+            st.markdown("---")
+            st.subheader("⏱️ Latency Distribution")
 
-        # Pivot table: rows=query, cols=mode, values=P@5
-        if len(df["retrieval_mode"].unique()) > 1:
-            st.markdown("**Precision@5 — Query × Mode**")
-            pivot = df.pivot_table(
-                index="query_id", columns="retrieval_mode",
-                values="Precision@5", aggfunc="mean"
-            ).round(3)
-            st.dataframe(pivot, use_container_width=True)
+            if "latency_ms" in df.columns:
+                col_hist, col_stats = st.columns([2, 1])
+                with col_hist:
+                    st.line_chart(df.set_index(df.index)["latency_ms"])
+                with col_stats:
+                    st.metric("Min", f"{df['latency_ms'].min():.1f} ms")
+                    st.metric("Median", f"{df['latency_ms'].median():.1f} ms")
+                    st.metric("Max", f"{df['latency_ms'].max():.1f} ms")
+                    st.metric("Mean", f"{df['latency_ms'].mean():.1f} ms")
 
-    # ── 3. Latency Distribution ───────────────────────────────────────────
-    st.markdown("---")
-    st.subheader("⏱️ Latency Distribution")
+            # ── 4. Failure Analysis ───────────────────────────────────────
+            st.markdown("---")
+            st.subheader("⚠️ Failure Analysis")
 
-    if "latency_ms" in df.columns:
-        col_hist, col_stats = st.columns([2, 1])
-        with col_hist:
-            st.line_chart(df.set_index(df.index)["latency_ms"])
-        with col_stats:
-            st.metric("Min", f"{df['latency_ms'].min():.1f} ms")
-            st.metric("Median", f"{df['latency_ms'].median():.1f} ms")
-            st.metric("Max", f"{df['latency_ms'].max():.1f} ms")
-            st.metric("Mean", f"{df['latency_ms'].mean():.1f} ms")
+            if "faithfulness_pass" in df.columns:
+                faith_counts = df["faithfulness_pass"].value_counts()
+                col_f1, col_f2 = st.columns(2)
+                with col_f1:
+                    st.markdown("**Faithfulness Distribution**")
+                    st.bar_chart(faith_counts)
+                with col_f2:
+                    fail_rows = df[df["faithfulness_pass"] == "No"]
+                    st.metric("Failed Queries", len(fail_rows))
+                    if not fail_rows.empty:
+                        st.dataframe(
+                            fail_rows[["query_id", "retrieval_mode", "Precision@5"]],
+                            use_container_width=True,
+                        )
 
-    # ── 4. Failure Analysis ───────────────────────────────────────────────
-    st.markdown("---")
-    st.subheader("⚠️ Failure Analysis")
+            # ── 5. Raw Log ────────────────────────────────────────────────
+            st.markdown("---")
+            with st.expander("📋 Raw Log Data"):
+                st.dataframe(df, use_container_width=True)
+                csv_data = df.to_csv(index=False)
+                st.download_button("⬇️ Download CSV", csv_data, "query_metrics.csv", "text/csv")
 
-    if "faithfulness_pass" in df.columns:
-        faith_counts = df["faithfulness_pass"].value_counts()
-        col_f1, col_f2 = st.columns(2)
-        with col_f1:
-            st.markdown("**Faithfulness Distribution**")
-            st.bar_chart(faith_counts)
-        with col_f2:
-            fail_rows = df[df["faithfulness_pass"] == "No"]
-            st.metric("Failed Queries", len(fail_rows))
-            if not fail_rows.empty:
-                st.dataframe(
-                    fail_rows[["query_id", "retrieval_mode", "Precision@5"]],
-                    use_container_width=True,
-                )
-
-    # ── 5. Raw Log ────────────────────────────────────────────────────────
-    st.markdown("---")
-    with st.expander("📋 Raw Log Data"):
-        st.dataframe(df, use_container_width=True)
-        csv_data = df.to_csv(index=False)
-        st.download_button("⬇️ Download CSV", csv_data, "query_metrics.csv", "text/csv")
