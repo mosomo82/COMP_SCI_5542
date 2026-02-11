@@ -166,7 +166,7 @@ class TfidfRetriever:
         return [(int(i), float(sims[i])) for i in idxs]
 
 
-# ── BM25 Retriever ────────────────────────────────────────────────────────────
+# ── BM25 (Sparse) Retriever ────────────────────────────────────────────────────────────
 
 class BM25Retriever:
     """BM25 (Okapi) retriever using rank_bm25."""
@@ -184,27 +184,61 @@ class BM25Retriever:
         return [(int(i), float(scores[i])) for i in idxs]
 
 
+# ── Dense (FAISS + Sentence-Transformers) Retriever ───────────────────────────
+
+class DenseRetriever:
+    """Dense retriever using sentence-transformers embeddings + FAISS L2 index."""
+
+    def __init__(self, evidence: List[Dict[str, Any]], model_name: str = "all-MiniLM-L6-v2"):
+        import faiss
+        from sentence_transformers import SentenceTransformer
+
+        self.evidence = evidence
+        self.model = SentenceTransformer(model_name)
+
+        texts = [item.get("text", "") for item in evidence]
+        self.corpus_embeddings = self.model.encode(texts, show_progress_bar=False)
+
+        d = self.corpus_embeddings.shape[1]  # embedding dimension (384 for MiniLM)
+        self.index = faiss.IndexFlatL2(d)
+        self.index.add(self.corpus_embeddings)
+        print(f"Dense index built: {self.index.ntotal} vectors, dim={d}")
+
+    def retrieve(self, query: str, top_k: int = 10) -> List[Tuple[int, float]]:
+        query_emb = self.model.encode([query])
+        distances, indices = self.index.search(query_emb, top_k)
+        # Convert L2 distance to similarity score (lower distance = better)
+        results = []
+        for idx, dist in zip(indices[0], distances[0]):
+            if idx == -1:  # FAISS returns -1 for missing results
+                continue
+            # Convert distance to a 0-1 similarity: sim = 1 / (1 + dist)
+            sim = 1.0 / (1.0 + float(dist))
+            results.append((int(idx), sim))
+        return results
+
+
 # ── Hybrid Retriever ──────────────────────────────────────────────────────────
 
 class HybridRetriever:
-    """Combines TF-IDF and BM25 scores via weighted reciprocal rank fusion."""
+    """Combines two retrievers via weighted reciprocal rank fusion."""
 
-    def __init__(self, tfidf: TfidfRetriever, bm25: BM25Retriever, alpha: float = 0.5):
-        self.tfidf = tfidf
-        self.bm25 = bm25
-        self.alpha = alpha  # weight for TF-IDF; (1 - alpha) for BM25
+    def __init__(self, retriever_a, retriever_b, alpha: float = 0.5):
+        self.retriever_a = retriever_a
+        self.retriever_b = retriever_b
+        self.alpha = alpha  # weight for retriever_a; (1 - alpha) for retriever_b
 
     def retrieve(self, query: str, top_k: int = 10) -> List[Tuple[int, float]]:
-        pool_k = min(top_k * 3, len(self.tfidf.evidence))
-        tfidf_hits = self.tfidf.retrieve(query, top_k=pool_k)
-        bm25_hits = self.bm25.retrieve(query, top_k=pool_k)
+        n = len(self.retriever_a.evidence) if hasattr(self.retriever_a, 'evidence') else top_k * 3
+        pool_k = min(top_k * 3, n)
+        hits_a = self.retriever_a.retrieve(query, top_k=pool_k)
+        hits_b = self.retriever_b.retrieve(query, top_k=pool_k)
 
-        # Reciprocal rank fusion
         rrf_k = 60  # standard RRF constant
         scores: Dict[int, float] = {}
-        for rank, (idx, _) in enumerate(tfidf_hits):
+        for rank, (idx, _) in enumerate(hits_a):
             scores[idx] = scores.get(idx, 0.0) + self.alpha / (rrf_k + rank + 1)
-        for rank, (idx, _) in enumerate(bm25_hits):
+        for rank, (idx, _) in enumerate(hits_b):
             scores[idx] = scores.get(idx, 0.0) + (1 - self.alpha) / (rrf_k + rank + 1)
 
         ranked = sorted(scores.items(), key=lambda x: x[1], reverse=True)[:top_k]
@@ -215,18 +249,29 @@ class HybridRetriever:
 
 def build_retrievers(evidence: List[Dict[str, Any]]) -> Dict[str, Any]:
     """Build all retriever variants from the evidence list.
-    
+
     Returns dict mapping mode name → retriever instance.
+    Mode names match the Streamlit sidebar labels.
     """
     tfidf = TfidfRetriever(evidence)
     bm25 = BM25Retriever(evidence)
-    hybrid = HybridRetriever(tfidf, bm25, alpha=0.5)
+    hybrid_sparse = HybridRetriever(tfidf, bm25, alpha=0.5)
+
+    # Dense retriever (optional — needs faiss-cpu + sentence-transformers)
+    try:
+        dense = DenseRetriever(evidence)
+        hybrid_rerank = HybridRetriever(dense, bm25, alpha=0.6)
+    except Exception as e:
+        print(f"WARNING: Dense retriever unavailable ({e}). Falling back to TF-IDF.")
+        dense = tfidf
+        hybrid_rerank = hybrid_sparse
+
     return {
         "tfidf": tfidf,
-        "sparse": bm25,
-        "dense": tfidf,          # fallback (no embedding model)
-        "hybrid": hybrid,
-        "hybrid_rerank": hybrid,  # fallback (no reranker model)
+        "sparse(BM25)": bm25,
+        "dense": dense,
+        "hybrid(BM25+TF-IDF)": hybrid_sparse,
+        "hybrid_rerank": hybrid_rerank,
     }
 
 
@@ -443,75 +488,120 @@ def log_query(
 # ── Gold Set ──────────────────────────────────────────────────────────────────
 
 MINI_GOLD = {
+    # ── Q1  (typical project query – doc1: SRSNet) ───────────────────────────
     "Q1": {
         "question": (
             "What is the Selective Representation Space (SRS) module in SRSNet "
             "and how does it differ from conventional adjacent patching?"
         ),
-        "gold_evidence_ids": ["doc1_TimeSeries.pdf", "figure8.png", "figure9.png"],
-        "rubric": {
-            "must_have_keywords": [
-                "selective patching", "SRS", "representation space",
-                "dynamic reassembly",
-            ],
-        },
+        "gold_evidence_ids": [
+            "doc1_TimerSeries.pdf",   # main paper text describing SRS
+            "figure8.png",            # Figure 2 – overall SRS pipeline
+            "figure9.png",            # Figure 3 – detailed architecture
+        ],
+        "answer_criteria": [
+            "Explains that SRS uses Selective Patching (gradient-based, learnable patch selection with stride=1 scanning) "
+            "instead of fixed-length adjacent patching",
+            "Mentions the Dynamic Reassembly step that re-orders the selected patches based on learned scores",
+            "Notes the Adaptive Fusion that integrates embeddings from both conventional and selective patching",
+            "Includes at least one citation to a document or figure",
+        ],
+        "rubric": {"must_have_keywords": ["selective patching", "SRS", "representation space", "dynamic reassembly"]},
+        "citation_format": "[doc1_TimerSeries.pdf] or [figure8.png] / [figure9.png]",
     },
+
+    # ── Q2  (typical project query – doc2: ReMindRAG) ────────────────────────
     "Q2": {
         "question": (
             "How does ReMindRAG's memory replay mechanism improve retrieval "
             "for similar or repeated queries?"
         ),
-        "gold_evidence_ids": ["doc2_ReMindRAG.pdf", "figure3.png", "figure7.png"],
-        "rubric": {
-            "must_have_keywords": [
-                "memory replay", "edge-weight", "traversal path",
-            ],
-        },
+        "gold_evidence_ids": [
+            "doc2_ReMindRAG.pdf",     # main paper text
+            "figure3.png",            # Figure 1 – overall workflow showing memorize/replay
+            "figure7.png",            # Figure 5 – memory replay under Same Query setting
+        ],
+        "answer_criteria": [
+            "Describes the enhance/penalize edge-weight update after the first query",
+            "Explains that on a subsequent similar/same query the system reuses the memorized traversal path "
+            "(skipping full LLM-guided KG traversal)",
+            "Includes at least one citation",
+        ],
+        "rubric": {"must_have_keywords": ["memory replay", "edge-weight", "traversal path"]},
+        "citation_format": "[doc2_ReMindRAG.pdf] or [figure3.png] / [figure7.png]",
     },
+
+    # ── Q3  (typical project query – doc3: Consensus Planning Problem) ───────
     "Q3": {
         "question": (
-            "What real-world applications of the Consensus Planning Problem "
+            "What real-world applications of the Consensus Planning Problem (CPP) "
             "are described, and what agent interfaces does each application use?"
         ),
-        "gold_evidence_ids": ["doc3_CPP.pdf", "figure2.png"],
-        "rubric": {
-            "must_have_keywords": [
-                "consensus", "planning problem", "primal", "dual",
-            ],
-        },
+        "gold_evidence_ids": [
+            "doc3_CPP.pdf",           # main paper text
+            "figure2.png",            # Table 1 – examples of consensus problems
+        ],
+        "answer_criteria": [
+            "Lists at least three applications (Fullness Optimization, Throughput Coordination, "
+            "Transportation Optimization, Arrivals & Throughput Coordination)",
+            "States the interface type (primal / dual / proximal) used by the agents in each application",
+            "Includes a citation to Table 1 or the document",
+        ],
+        "rubric": {"must_have_keywords": ["consensus", "planning problem", "primal", "dual"]},
+        "citation_format": "[doc3_CPP.pdf] or [figure2.png, Table 1]",
     },
+
+    # ── Q4  (multimodal / table-heavy query – doc2 Table 1 + doc1 Table 2) ──
     "Q4": {
         "question": (
-            "According to Table 1 in the ReMindRAG paper, what is the Multi-Hop "
-            "QA accuracy of ReMindRAG with the Deepseek-V3 backbone compared to "
-            "HippoRAG2?"
+            "According to Table 1 in the ReMindRAG paper, what is the Multi-Hop QA "
+            "accuracy of ReMindRAG with the Deepseek-V3 backbone, and how does it "
+            "compare to HippoRAG2 on the same task and backbone?"
         ),
-        "gold_evidence_ids": ["doc2_ReMindRAG.pdf", "figure6.png"],
-        "rubric": {
-            "must_have_keywords": [
-                "79.38", "64.95", "Multi-Hop", "Deepseek",
-            ],
-        },
+        "gold_evidence_ids": [
+            "doc2_ReMindRAG.pdf",
+            "figure6.png",            # Table 1 – Effectiveness Performance
+        ],
+        "answer_criteria": [
+            "Extracts the correct numeric value for ReMindRAG Multi-Hop QA / Deepseek-V3: 79.38%",
+            "Extracts HippoRAG2 Multi-Hop QA / Deepseek-V3: 64.95%",
+            "Notes that ReMindRAG outperforms HippoRAG2 by ~14.43 percentage points",
+            "Includes a citation to Table 1 or figure6",
+        ],
+        "rubric": {"must_have_keywords": ["79.38", "64.95", "Multi-Hop", "Deepseek"]},
+        "citation_format": "[doc2_ReMindRAG.pdf, Table 1] or [figure6.png]",
     },
+
+    # ── Q5  (missing-evidence / ambiguous query – must trigger safe behavior)
     "Q5": {
         "question": (
-            "What reinforcement learning reward function does SRSNet use to "
-            "train the Selective Patching scorer?"
+            "What reinforcement learning reward function does SRSNet use to train "
+            "the Selective Patching scorer?"
         ),
-        "gold_evidence_ids": ["N/A"],
-        "rubric": {
-            "must_have_keywords": [],  # should trigger missing-evidence
-        },
+        "gold_evidence_ids": ["N/A"],  # SRSNet does NOT use RL; the scorer is gradient-based
+        "answer_criteria": [
+            "Returns a missing-evidence / 'insufficient information' response",
+            "Does NOT hallucinate a reinforcement learning component – "
+            "SRSNet's scorer is gradient-based (Gumbel-Softmax), not RL-based",
+            "Optionally clarifies that the actual mechanism is gradient-based, citing the document",
+        ],
+        "rubric": {"must_have_keywords": []},
+        "citation_format": "",
     },
+
+    # ── Q6  (multimodal query – image evidence via caption surrogate) ────────
     "Q6": {
         "question": (
             "What are the key stages shown in the ReMindRAG overall workflow diagram?"
         ),
-        "gold_evidence_ids": ["img::figure3.png"],
-        "rubric": {
-            "must_have_keywords": [
-                "KG construction", "traversal", "enhance", "penalize",
-            ],
-        },
+        "gold_evidence_ids": ["img::figure3.png"],  # Figure 1 – ReMindRAG overall workflow
+        "answer_criteria": [
+            "Mentions KG construction from documents (Build stage: Document → Chunks → KG)",
+            "Mentions LLM-guided KG traversal with seed node selection and path expansion",
+            "Mentions the Enhance/Penalize edge-weight update (memory) after the first query",
+            "Mentions the fast retrieval shortcut for subsequent similar/same queries",
+        ],
+        "rubric": {"must_have_keywords": ["KG construction", "traversal", "enhance", "penalize"]},
+        "citation_format": "[img::figure3.png]",
     },
 }
