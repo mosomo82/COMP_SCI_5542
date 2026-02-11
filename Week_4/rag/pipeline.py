@@ -190,24 +190,42 @@ def build_context(
 # ── Answer Generation ─────────────────────────────────────────────────────────
 
 def extractive_answer(query: str, context: str) -> str:
-    """Heuristic extractive answer: return top-3 sentences most
-    overlapping with the query terms."""
+    """Heuristic extractive answer: return top-3 evidence blocks most
+    overlapping with the query terms, preserving citation tags."""
     if not context or not context.strip():
         return MISSING_EVIDENCE_MSG
 
-    q_words = set(re.findall(r"[A-Za-z]+", query.lower()))
-    sents = re.split(r"(?<=[.!?])\s+", context.strip())
+    # Split context into blocks separated by double-newlines (one per evidence chunk)
+    blocks = [b.strip() for b in context.split("\n\n") if b.strip()]
+
+    if not blocks:
+        return MISSING_EVIDENCE_MSG
+
+    q_words = set(re.findall(r"[A-Za-z]{2,}", query.lower()))
 
     scored = []
-    for s in sents:
-        w = set(re.findall(r"[A-Za-z]+", s.lower()))
-        score = len(q_words & w)
-        if score > 0:
-            scored.append((score, s.strip()))
+    for block in blocks:
+        words_in_block = set(re.findall(r"[A-Za-z]{2,}", block.lower()))
+        score = len(q_words & words_in_block)
+        scored.append((score, block))
 
     scored.sort(key=lambda x: x[0], reverse=True)
-    best = [s for _, s in scored[:3]]
-    return " ".join(best) if best else MISSING_EVIDENCE_MSG
+
+    # Take top-3 blocks. If no overlap found, still return the first block
+    # (we already have retrieved evidence, so show something useful)
+    best = [b for _, b in scored[:3]]
+    if not best:
+        best = blocks[:1]
+
+    # Truncate each block to ~500 chars for readability
+    truncated = []
+    for b in best:
+        if len(b) > 500:
+            truncated.append(b[:500] + " …")
+        else:
+            truncated.append(b)
+
+    return "\n\n".join(truncated)
 
 
 # ── Evidence-ID Canonicalization ──────────────────────────────────────────────

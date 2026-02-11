@@ -67,6 +67,7 @@ def get_retriever():
 
 
 evidence_store, retriever = get_retriever()
+st.sidebar.info(f"📚 Corpus loaded: **{len(evidence_store)}** evidence items")
 
 # ── Main Query ────────────────────────────────────────────────────────────────
 default_q = MINI_GOLD[query_id]["question"] if use_gold_question else ""
