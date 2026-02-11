@@ -4,7 +4,7 @@ A project-aligned **Retrieval-Augmented Generation (RAG)** application that inge
 
 ## 🔗 Deployment
 
-> **Streamlit Cloud:** [https://your-app-url.streamlit.app](https://your-app-url.streamlit.app)
+> **Streamlit Cloud:** [Lab4_Streamlit_Cloud](https://compsci5542-qhebkbpsl3muncwyxbsf6n.streamlit.app/))
 >
 > *(Replace with your actual deployment URL after deploying)*
 
