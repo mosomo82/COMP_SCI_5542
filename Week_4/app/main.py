@@ -42,6 +42,20 @@ use_multimodal = st.sidebar.checkbox("use_multimodal", value=True)
 st.sidebar.header("Logging")
 log_path = st.sidebar.text_input("log file", value="logs/query_metrics.csv")
 
+<<<<<<< HEAD
+=======
+# --- Mini gold set (replace with your team's Q1–Q5) ---
+# Tip: keep the same structure as in your Lab 4 notebook so IDs match logs.
+MINI_GOLD = {
+    "Q1": {"question": "What is the Selective Representation Space (SRS) module in SRSNet and how does it differ from conventional adjacent patching?", "gold_evidence_ids": ['doc1_TimerSeries.pdf']
+    },
+    "Q2": {"question": "How does ReMindRAG\'s memory replay mechanism improve retrieval for similar or repeated queries?", "gold_evidence_ids": ['doc2_ReMindRAG.pdf']},
+    "Q3": {"question": "What real-world applications of the Consensus Planning Problem are described, and what agent interfaces does each application use?", "gold_evidence_ids": ['doc3_CPP.pdf']},
+    "Q4": {"question": "According to Table 1 in the ReMindRAG paper, what is the Multi-Hop QA accuracy of ReMindRAG with the Deepseek-V3 backbone compared to HippoRAG2?", "gold_evidence_ids": ['img::figure6.png']},
+    "Q5": {"question": "What reinforcement learning reward function does SRSNet use to train the Selective Patching scorer?", "gold_evidence_ids": ['N/A']},
+}
+
+>>>>>>> 5c83c59827314342220ed0a5e176a7cc9eedc0be
 st.sidebar.header("Evaluation")
 query_id = st.sidebar.selectbox("query_id (for logging)", list(MINI_GOLD.keys()))
 use_gold_question = st.sidebar.checkbox("Use the gold-set question text", value=True)
