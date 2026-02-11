@@ -25,7 +25,7 @@ log_path = st.sidebar.text_input("log file", value="logs/query_metrics.csv")
 # --- Mini gold set (replace with your team's Q1–Q5) ---
 # Tip: keep the same structure as in your Lab 4 notebook so IDs match logs.
 MINI_GOLD = {
-    "Q1": {"question": What is the Selective Representation Space (SRS) module in SRSNet and how does it differ from conventional adjacent patching?", "gold_evidence_ids": ['doc1_TimerSeries.pdf']
+    "Q1": {"question": "What is the Selective Representation Space (SRS) module in SRSNet and how does it differ from conventional adjacent patching?", "gold_evidence_ids": ['doc1_TimerSeries.pdf']
     },
     "Q2": {"question": "How does ReMindRAG\'s memory replay mechanism improve retrieval for similar or repeated queries?", "gold_evidence_ids": ['doc2_ReMindRAG.pdf']},
     "Q3": {"question": "What real-world applications of the Consensus Planning Problem are described, and what agent interfaces does each application use?", "gold_evidence_ids": ['doc3_CPP.pdf']},
