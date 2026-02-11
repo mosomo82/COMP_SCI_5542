@@ -1,0 +1,5 @@
+Fusion Hyperparameters (Table 1)
+alpha = 0.50
+top_k = 5
+missing_evidence_score_threshold = 0.05
+latency_alert_ms = 2000
