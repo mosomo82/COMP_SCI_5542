@@ -171,17 +171,25 @@ class TfidfRetriever:
 def build_context(
     evidence: List[Dict[str, Any]],
     hit_indices: List[int],
-    max_chars: int = 2000,
+    max_chars: int = 4000,
 ) -> str:
-    """Join retrieved evidence into a context string with citation tags."""
+    """Join retrieved evidence into a context string with citation tags.
+    
+    Always includes at least the first entry, truncated if needed.
+    """
     parts = []
     total = 0
     for idx in hit_indices:
         item = evidence[idx]
         tag = f"[{item['chunk_id']}]"
-        entry = f"{tag} {item.get('text', '')}"
-        if total + len(entry) > max_chars:
+        text = item.get("text", "")
+        entry = f"{tag} {text}"
+        # Always include at least one entry
+        if parts and total + len(entry) > max_chars:
             break
+        # Truncate individual entries if very long
+        if len(entry) > 1000:
+            entry = entry[:1000] + " …"
         parts.append(entry)
         total += len(entry)
     return "\n\n".join(parts)
