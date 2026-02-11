@@ -41,7 +41,10 @@ def extract_pdf_pages(pdf_path: str) -> List[Dict[str, Any]]:
     
     Returns list of dicts with keys: chunk_id, text, source, page.
     """
-    import fitz  # PyMuPDF
+    try:
+        import fitz  # PyMuPDF
+    except ImportError:
+        import pymupdf as fitz  # PyMuPDF >= 1.24 alternate import
 
     basename = os.path.basename(pdf_path)
     pages = []

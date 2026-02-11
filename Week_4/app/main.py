@@ -49,9 +49,19 @@ use_gold_question = st.sidebar.checkbox("Use the gold-set question text", value=
 
 @st.cache_resource(show_spinner="Loading corpus and building TF-IDF index …")
 def get_retriever():
-    docs_dir = str(PROJECT_ROOT / "data" / "docs")
-    images_dir = str(PROJECT_ROOT / "data" / "images")
-    evidence = load_corpus(docs_dir, images_dir)
+    # 1. Define paths using Path objects for better handling
+    docs_path = PROJECT_ROOT / "data" / "docs"
+    images_path = PROJECT_ROOT / "data" / "images"
+
+    # 2. DEBUG: Check if they exist
+    if not docs_path.exists():
+        st.error(f"❌ Critical Error: The directory `{docs_path}` does not exist.")
+        st.info(f"Current working directory: {os.getcwd()}")
+        st.info(f"Contents of {PROJECT_ROOT}: {list(PROJECT_ROOT.glob('*'))}")
+        st.stop() # Stop the app so it doesn't crash later
+
+    # 3. Convert to string for your load_corpus function
+    evidence = load_corpus(str(docs_path), str(images_path))
     retriever = TfidfRetriever(evidence)
     return evidence, retriever
 
