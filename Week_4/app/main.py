@@ -7,25 +7,6 @@ from pathlib import Path
 import streamlit as st
 import pandas as pd
 
-# ── Ensure project root is on sys.path so `rag` package is importable ─────
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
-
-from rag.pipeline import (
-    MINI_GOLD,
-    MISSING_EVIDENCE_MSG,
-    TfidfRetriever,
-    build_context,
-    canon_evidence_id,
-    extractive_answer,
-    load_corpus,
-    log_query,
-    faithfulness_heuristic,
-    missing_evidence_behavior,
-)
-
-# ── Page Config ────────────────────────────────────────────────────────────────
 st.set_page_config(page_title="CS5542 Lab 4 — Project RAG App", layout="wide")
 st.title("CS 5542 Lab 4 — Project RAG Application")
 st.caption("Project-aligned Streamlit UI + automatic logging + failure monitoring")
@@ -42,8 +23,6 @@ use_multimodal = st.sidebar.checkbox("use_multimodal", value=True)
 st.sidebar.header("Logging")
 log_path = st.sidebar.text_input("log file", value="logs/query_metrics.csv")
 
-<<<<<<< HEAD
-=======
 # --- Mini gold set (replace with your team's Q1–Q5) ---
 # Tip: keep the same structure as in your Lab 4 notebook so IDs match logs.
 MINI_GOLD = {
@@ -55,7 +34,6 @@ MINI_GOLD = {
     "Q5": {"question": "What reinforcement learning reward function does SRSNet use to train the Selective Patching scorer?", "gold_evidence_ids": ['N/A']},
 }
 
->>>>>>> 5c83c59827314342220ed0a5e176a7cc9eedc0be
 st.sidebar.header("Evaluation")
 query_id = st.sidebar.selectbox("query_id (for logging)", list(MINI_GOLD.keys()))
 use_gold_question = st.sidebar.checkbox("Use the gold-set question text", value=True)
@@ -79,6 +57,47 @@ question = st.text_area("Enter your question", value=default_q, height=120)
 run_btn = st.button("Run Query")
 
 colA, colB = st.columns([2, 1])
+
+def ensure_logfile(path: str):
+    p = Path(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    if not p.exists():
+        df = pd.DataFrame(columns=[
+            "timestamp","query_id","retrieval_mode","top_k","latency_ms",
+            "Precision@5","Recall@10","evidence_ids_returned","gold_evidence_ids",
+            "faithfulness_pass","missing_evidence_behavior"
+        ])
+        df.to_csv(p, index=False)
+
+def precision_at_k(retrieved_ids, gold_ids, k=5):
+    if not gold_ids:
+        return None
+    topk = retrieved_ids[:k]
+    hits = sum(1 for x in topk if x in set(gold_ids))
+    return hits / k
+
+def recall_at_k(retrieved_ids, gold_ids, k=10):
+    if not gold_ids:
+        return None
+    topk = retrieved_ids[:k]
+    hits = sum(1 for x in topk if x in set(gold_ids))
+    return hits / max(1, len(gold_ids))
+
+# ---- Placeholder demo logic (replace with imports from your /rag module) ----
+def retrieve_demo(q: str, top_k: int):
+    return [{"chunk_id":"demo_doc","citation_tag":"[demo_doc]","score":0.9,"source":"data/docs/demo_doc.txt","text":"demo evidence..."}]
+
+def answer_demo(q: str, evidence: list):
+    if not evidence:
+        return MISSING_EVIDENCE_MSG
+    return f"Grounded answer using {evidence[0]['citation_tag']} {evidence[0]['citation_tag']}"
+
+def log_row(path: str, row: dict):
+    ensure_logfile(path)
+    df = pd.read_csv(path)
+    df = pd.concat([df, pd.DataFrame([row])], ignore_index=True)
+    df.to_csv(path, index=False)
+# --------------------------------------------------------------------------
 
 if run_btn and question.strip():
     t0 = time.time()
