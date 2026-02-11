@@ -245,6 +245,54 @@ class HybridRetriever:
         return [(idx, score) for idx, score in ranked]
 
 
+# ── Reranked Retriever ────────────────────────────────────────────────────────
+
+class RerankedRetriever:
+    """Wraps a base retriever and re-scores candidates with a CrossEncoder.
+
+    Over-fetches ``rerank_depth`` candidates from the base retriever, then
+    re-scores each (query, doc_text) pair using a CrossEncoder model.
+    """
+
+    def __init__(
+        self,
+        base_retriever,
+        evidence: List[Dict[str, Any]],
+        model_name: str = "cross-encoder/ms-marco-MiniLM-L-6-v2",
+        rerank_depth: int = 20,
+    ):
+        from sentence_transformers import CrossEncoder
+        self.base = base_retriever
+        self.evidence = evidence
+        self.reranker = CrossEncoder(model_name)
+        self.rerank_depth = rerank_depth
+        print(f"Reranker loaded: {model_name}")
+
+    def retrieve(self, query: str, top_k: int = 10) -> List[Tuple[int, float]]:
+        # 1. Over-fetch from the base retriever
+        candidates = self.base.retrieve(query, top_k=self.rerank_depth)
+
+        if not candidates:
+            return []
+
+        # 2. Build (query, doc_text) pairs for the CrossEncoder
+        pairs = []
+        for idx, _ in candidates:
+            text = self.evidence[idx].get("text", "")
+            pairs.append([query, text])
+
+        # 3. Score with CrossEncoder
+        rerank_scores = self.reranker.predict(pairs)
+
+        # 4. Attach new scores and sort
+        reranked = [
+            (idx, float(score))
+            for (idx, _), score in zip(candidates, rerank_scores)
+        ]
+        reranked.sort(key=lambda x: x[1], reverse=True)
+        return reranked[:top_k]
+
+
 # ── Retriever Factory ─────────────────────────────────────────────────────────
 
 def build_retrievers(evidence: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -260,19 +308,26 @@ def build_retrievers(evidence: List[Dict[str, Any]]) -> Dict[str, Any]:
     # Dense retriever (optional — needs faiss-cpu + sentence-transformers)
     try:
         dense = DenseRetriever(evidence)
-        hybrid_rerank = HybridRetriever(dense, bm25, alpha=0.6)
+        hybrid_dense = HybridRetriever(dense, bm25, alpha=0.6)
     except Exception as e:
         print(f"WARNING: Dense retriever unavailable ({e}). Falling back to TF-IDF.")
         dense = tfidf
-        hybrid_rerank = hybrid_sparse
+        hybrid_dense = hybrid_sparse
+
+    # CrossEncoder reranker (optional — needs sentence-transformers)
+    try:
+        reranked = RerankedRetriever(hybrid_dense, evidence)
+    except Exception as e:
+        print(f"WARNING: Reranker unavailable ({e}). Falling back to hybrid.")
+        reranked = hybrid_dense
 
     return {
         "tfidf": tfidf,
         "sparse_BM25": bm25,
         "dense": dense,
         "hybrid_BM25&TF-IDF": hybrid_sparse,
-        "hybrid_rerank": hybrid_rerank,
-        "multimodal": hybrid_rerank,  # Dense+BM25 — best for text + image captions
+        "hybrid_rerank": reranked,
+        "multimodal": reranked,  # Reranked Dense+BM25 — best for text + image captions
     }
 
 
