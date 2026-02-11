@@ -39,29 +39,60 @@ LOG_HEADER = [
 def extract_pdf_pages(pdf_path: str) -> List[Dict[str, Any]]:
     """Extract per-page text from a PDF using PyMuPDF.
     
+    Falls back to raw binary-to-text if PyMuPDF is not installed.
     Returns list of dicts with keys: chunk_id, text, source, page.
     """
-    try:
-        import fitz  # PyMuPDF
-    except ImportError:
-        import pymupdf as fitz  # PyMuPDF >= 1.24 alternate import
-
     basename = os.path.basename(pdf_path)
-    pages = []
-    doc = fitz.open(pdf_path)
-    for page_num in range(len(doc)):
-        page = doc[page_num]
-        text = page.get_text("text").strip()
-        if text:
-            pages.append({
-                "chunk_id": f"{basename}::p{page_num + 1}",
-                "text": text,
-                "source": pdf_path,
-                "page": page_num + 1,
-                "modality": "text",
-            })
-    doc.close()
-    return pages
+
+    # Try PyMuPDF first (best quality)
+    try:
+        try:
+            import fitz  # PyMuPDF
+        except ImportError:
+            import pymupdf as fitz  # PyMuPDF >= 1.24
+
+        pages = []
+        doc = fitz.open(pdf_path)
+        for page_num in range(len(doc)):
+            page = doc[page_num]
+            text = page.get_text("text").strip()
+            if text:
+                pages.append({
+                    "chunk_id": f"{basename}::p{page_num + 1}",
+                    "text": text,
+                    "source": pdf_path,
+                    "page": page_num + 1,
+                    "modality": "text",
+                })
+        doc.close()
+        return pages
+
+    except ImportError:
+        # Fallback: read PDF as raw text (lossy but functional)
+        print(f"WARNING: PyMuPDF not installed. Reading {basename} as raw text.")
+        try:
+            with open(pdf_path, "rb") as f:
+                raw = f.read()
+            # Extract readable ASCII/UTF-8 fragments from the PDF binary
+            text = raw.decode("utf-8", errors="ignore")
+            # Strip PDF binary noise — keep lines with mostly printable chars
+            clean_lines = []
+            for line in text.split("\n"):
+                printable = sum(1 for c in line if c.isprintable() or c in " \t")
+                if len(line) > 0 and printable / len(line) > 0.8:
+                    clean_lines.append(line.strip())
+            clean_text = "\n".join(clean_lines).strip()
+            if clean_text:
+                return [{
+                    "chunk_id": f"{basename}::p1",
+                    "text": clean_text[:5000],  # cap length
+                    "source": pdf_path,
+                    "page": 1,
+                    "modality": "text",
+                }]
+        except Exception as e:
+            print(f"WARNING: Could not read {basename}: {e}")
+        return []
 
 
 def load_images(images_dir: str) -> List[Dict[str, Any]]:
