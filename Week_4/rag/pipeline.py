@@ -327,7 +327,6 @@ def build_retrievers(evidence: List[Dict[str, Any]]) -> Dict[str, Any]:
         "dense": dense,
         "hybrid_BM25&TF-IDF": hybrid_sparse,
         "hybrid_rerank": reranked,
-        "multimodal": reranked,  # Reranked Dense+BM25 — best for text + image captions
     }
 
 
@@ -467,20 +466,17 @@ def generate_local_llm_answer(
         return MISSING_EVIDENCE_MSG
 
     try:
-        from transformers import pipeline as hf_pipeline
+        from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
-        llm = hf_pipeline(
-            "text2text-generation",
-            model=model_name,
-        )
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
 
         # Truncate context to stay within T5's 512-token limit
-        tokenizer = llm.tokenizer
         max_context_tokens = 400  # leave room for question + answer tokens
-        tokenized = tokenizer(context, truncation=False, return_tensors="pt")["input_ids"]
-        if tokenized.shape[1] > max_context_tokens:
-            tokenized = tokenized[:, :max_context_tokens]
-            context = tokenizer.decode(tokenized[0], skip_special_tokens=True)
+        tokenized_ctx = tokenizer(context, truncation=False, return_tensors="pt")["input_ids"]
+        if tokenized_ctx.shape[1] > max_context_tokens:
+            tokenized_ctx = tokenized_ctx[:, :max_context_tokens]
+            context = tokenizer.decode(tokenized_ctx[0], skip_special_tokens=True)
 
         prompt = (
             f"Answer the question based on the context below. "
@@ -489,8 +485,9 @@ def generate_local_llm_answer(
             f"Question: {question}"
         )
 
-        output = llm(prompt, max_new_tokens=200)
-        return output[0]["generated_text"].strip()
+        inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=512)
+        outputs = model.generate(**inputs, max_new_tokens=200)
+        return tokenizer.decode(outputs[0], skip_special_tokens=True).strip()
     except Exception as e:
         return f"[Local LLM error: {e}]\n\n{extractive_answer(question, context)}"
 

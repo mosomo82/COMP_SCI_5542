@@ -35,7 +35,7 @@ st.caption("Project-aligned Streamlit UI + automatic logging + failure monitorin
 st.sidebar.header("Retrieval Settings")
 retrieval_mode = st.sidebar.selectbox(
     "retrieval_mode",
-    ["tfidf", "dense", "sparse_BM25", "hybrid_BM25&TF-IDF", "hybrid_rerank", "multimodal"],
+    ["tfidf", "dense", "sparse_BM25", "hybrid_BM25&TF-IDF", "hybrid_rerank"],
 )
 top_k = st.sidebar.slider("top_k", min_value=1, max_value=30, value=10, step=1)
 use_multimodal = st.sidebar.checkbox("use_multimodal", value=True)
