@@ -4,7 +4,7 @@ A project-aligned **Retrieval-Augmented Generation (RAG)** application that inge
 
 ## 🔗 Deployment
 
-> **Streamlit Cloud:** [https://your-app-url.streamlit.app](https://your-app-url.streamlit.app)
+> **Streamlit Cloud:** [Lab4_Streamlit_Cloud](https://compsci5542-qhebkbpsl3muncwyxbsf6n.streamlit.app/)
 >
 > *(Replace with your actual deployment URL after deploying)*
 
@@ -19,7 +19,7 @@ The corpus consists of **three research papers** and their associated figures, c
 | `doc1_TimeSeries.pdf` | **SRSNet** — Selective Representation Space Network for time series forecasting using learnable patch selection | ~15 |
 | `doc2_ReMindRAG.pdf` | **ReMindRAG** — Memory-augmented RAG with knowledge graph traversal and replay mechanisms | ~12 |
 | `doc3_CPP.pdf` | **Consensus Planning Problem** — Multi-agent consensus optimization with primal/dual/proximal interfaces | ~10 |
-| `data/images/` | **9 figures** extracted from the papers (architecture diagrams, tables, workflow visualizations) | — |
+| `data/images/` | **15 figures** extracted from the papers (architecture diagrams, tables, workflow visualizations) | — |
 | `07_numeric_table.txt` | Supplementary numeric table data | — |
 
 **Ingestion pipeline:**
@@ -42,10 +42,11 @@ Week_4/
 │   └── pipeline.py           # Shared RAG pipeline (827 lines)
 ├── data/
 │   ├── docs/                  # PDF papers (3 files)
-│   └── images/                # Extracted figures (9 files)
+│   └── images/                # Extracted figures (15 files)
 ├── logs/
 │   └── query_metrics.csv      # Auto-generated evaluation log
-├── notebooks/                 # Lab 4 Jupyter notebook
+├── src/                 # Lab 4 Jupyter notebook
+│   └── CS5542_Lab4_Notebook.ipynb 
 ├── .streamlit/
 │   └── config.toml            # Streamlit config & theme
 ├── Procfile                   # Deployment entrypoint
