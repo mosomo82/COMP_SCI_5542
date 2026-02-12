@@ -122,15 +122,12 @@ The application implements **5 retrieval strategies**:
 | Q5 | What RL reward function does SRSNet use to train the Selective Patching scorer? | Missing Evidence | `N/A` (trick question — SRSNet uses gradient-based, not RL) |
 | Q6 | What are the key stages shown in the ReMindRAG overall workflow diagram? | Image-Only | `img::figure3.png` |
 
-### Batch Evaluation Results (6 queries × 5 modes = 30 runs)
+### Batch Evaluation Results (6 queries × 5 modes)
 
 > **Note:** Run the batch evaluation from the **📊 Evaluation Dashboard** tab to generate your own results.
 
-| Metric | TF-IDF | BM25 | Dense | Hybrid (BM25+TF-IDF) | Hybrid + Rerank |
-|--------|--------|------|-------|----------------------|-----------------|
-| **Avg Precision@5** | ~0.20 | ~0.20 | ~0.24 | ~0.24 | ~0.28 |
-| **Avg Recall@10** | ~0.40 | ~0.40 | ~0.47 | ~0.47 | ~0.53 |
-| **Avg Latency (ms)** | ~50 | ~60 | ~200 | ~250 | ~400 |
+<img width="2874" height="470" alt="image" src="https://github.com/user-attachments/assets/107bd25f-04e7-4c2c-a2b8-8ab885776071" />
+
 
 *Exact values depend on your hardware. Run batch evaluation to get precise numbers.*
 
