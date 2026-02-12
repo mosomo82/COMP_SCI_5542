@@ -568,22 +568,50 @@ def generate_local_llm_answer(
 
 # ── Evidence-ID Canonicalization ──────────────────────────────────────────────
 
-def canon_evidence_id(x: str) -> str:
-    """Normalize an evidence ID for comparison.
+# def canon_evidence_id(x: str) -> str:
+#     """Normalize an evidence ID for comparison.
     
-    - Strips whitespace
-    - Keeps ``img::`` prefix intact
-    - Removes ``.txt`` extension
-    - Strips ``::pN`` page suffix so ``doc1_TimerSeries.pdf::p2``
-      matches gold ID ``doc1_TimerSeries.pdf``
+#     - Strips whitespace
+#     - Keeps ``img::`` prefix intact
+#     - Removes ``.txt`` extension
+#     - Strips ``::pN`` page suffix so ``doc1_TimerSeries.pdf::p2``
+#       matches gold ID ``doc1_TimerSeries.pdf``
+#     """
+#     x = str(x).strip()
+#     if x.startswith("img::"):
+#         return x
+#     # strip page suffix  e.g.  ::p2
+#     x = re.sub(r"::p\d+$", "", x)
+#     if x.endswith(".txt"):
+#         x = x[:-4]
+#     return x
+def canon_evidence_id(x: str) -> str:
     """
-    x = str(x).strip()
-    if x.startswith("img::"):
-        return x
-    # strip page suffix  e.g.  ::p2
+    Robust canonicalization to ensure Gold IDs match Retrieved IDs.
+    - Lowercases everything.
+    - Removes '::pX' page suffixes.
+    - Removes common file extensions (.pdf, .txt, .png, etc).
+    - Preserves 'img::' prefix logic.
+    """
+    # 1. Lowercase and strip whitespace
+    x = str(x).lower().strip()
+
+    # 2. Check for and temporarily remove image prefix
+    is_img = x.startswith("img::")
+    if is_img:
+        x = x[5:]  # strip 'img::'
+
+    # 3. Remove Page Suffix (e.g., ::p1, ::p25)
     x = re.sub(r"::p\d+$", "", x)
-    if x.endswith(".txt"):
-        x = x[:-4]
+
+    # 4. Remove File Extensions (Aggressive)
+    # This ensures "doc1.pdf" matches "doc1"
+    x = re.sub(r"\.(pdf|txt|png|jpg|jpeg|gif)$", "", x)
+
+    # 5. Re-attach image prefix if needed
+    if is_img:
+        return f"img::{x}"
+    
     return x
 
 
