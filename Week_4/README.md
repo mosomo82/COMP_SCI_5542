@@ -19,7 +19,6 @@ The corpus consists of **three research papers** and their associated figures, c
 | `doc2_ReMindRAG.pdf` | **ReMindRAG** — Memory-augmented RAG with knowledge graph traversal and replay mechanisms | ~12 |
 | `doc3_CPP.pdf` | **Consensus Planning Problem** — Multi-agent consensus optimization with primal/dual/proximal interfaces | ~10 |
 | `data/images/` | **15 figures** extracted from the papers (architecture diagrams, tables, workflow visualizations) | — |
-| `07_numeric_table.txt` | Supplementary numeric table data | — |
 
 **Ingestion pipeline:**
 - PDFs → per-page text chunks via PyMuPDF (`chunk_id: doc1_TimeSeries.pdf::p1`)
@@ -124,10 +123,7 @@ The application implements **5 retrieval strategies**:
 
 ### Batch Evaluation Results (6 queries × 5 modes)
 
-> **Note:** Run the batch evaluation from the **📊 Evaluation Dashboard** tab to generate your own results.
-
 <img width="2874" height="470" alt="image" src="https://github.com/user-attachments/assets/107bd25f-04e7-4c2c-a2b8-8ab885776071" />
-
 
 *Exact values depend on your hardware. Run batch evaluation to get precise numbers.*
 
@@ -135,22 +131,30 @@ The application implements **5 retrieval strategies**:
 
 ## 📸 Screenshots
 
-> **Instructions:** Replace these placeholders with actual screenshots after running the app.
-
 ### Query Interface
-<!-- ![Query Interface](screenshots/query_interface.png) -->
+<img width="2874" height="1208" alt="image" src="https://github.com/user-attachments/assets/276ec1e3-ca17-4999-8271-e6a224cd2fb4" />
+
 *Screenshot: The main query tab showing the question input, answer output with citations, evidence panel, and metrics sidebar.*
 
 ### Evaluation Dashboard
-<!-- ![Evaluation Dashboard](screenshots/eval_dashboard.png) -->
+<img width="2280" height="924" alt="image" src="https://github.com/user-attachments/assets/df14a6a4-808b-468a-a758-9d22c0574313" />
+
+<img width="2262" height="1238" alt="image" src="https://github.com/user-attachments/assets/e51a16ee-27cc-40aa-b0cb-e0208ff066f9" />
+
+<img width="2280" height="1114" alt="image" src="https://github.com/user-attachments/assets/c508e477-7cc2-46de-8d09-537dbf3825cf" />
+
+<img width="980" height="450" alt="image" src="https://github.com/user-attachments/assets/4bd81e39-be72-4895-8811-ad53c49a9fe0" />
+
 *Screenshot: The evaluation dashboard showing Precision@5 and Recall@10 bar charts across retrieval modes, per-query breakdown table, and latency distribution.*
 
 ### Metadata Filtering
-<!-- ![Metadata Filtering](screenshots/metadata_filters.png) -->
+<img width="596" height="978" alt="image" src="https://github.com/user-attachments/assets/da018101-1f69-4bbe-b33f-85112b77e991" />
+
 *Screenshot: The sidebar metadata filters showing source document and modality multiselects.*
 
 ### Batch Evaluation Results
-<!-- ![Batch Results](screenshots/batch_results.png) -->
+<img width="2264" height="1238" alt="image" src="https://github.com/user-attachments/assets/f411ba22-cbf9-4a9e-bb2c-855c46adfd47" />
+
 *Screenshot: Batch evaluation results showing the pivot table comparing all queries across all retrieval modes.*
 
 ---
@@ -185,7 +189,9 @@ The application implements **5 retrieval strategies**:
 
 ## 💡 Reflection
 
-Building this RAG application revealed the significant gap between simple keyword retrieval and truly understanding multimodal research documents. The most impactful finding was that **retrieval mode matters far more than answer generation** — switching from TF-IDF to hybrid+rerank consistently improved Precision@5 by 30–40%, while the answer generation method had minimal impact on retrieval quality. Image evidence remains the biggest challenge: without OCR or vision-language model integration, figures are effectively invisible to all retrievers, which is a critical limitation for scientific document QA. The evaluation dashboard proved invaluable for rapid iteration — being able to run 30 evaluations in one click and immediately see per-mode/per-query breakdowns made it trivial to identify failure patterns like the Q6 image retrieval gap. If I were to extend this further, I would prioritize adding CLIP-based image embeddings and table-aware PDF parsing to close the multimodal retrieval gap.
+Building this RAG application exposed the gap between simple keyword retrieval and true multimodal understanding. The most critical finding was that retrieval strategy impacts performance far more than answer generation—switching from TF-IDF to a hybrid+rerank approach improved Precision@5 by 30–40%, whereas generation adjustments had negligible impact.
+
+To move beyond qualitative checks, We identified the necessity of a 'Gold Standard' benchmarking mode—using a curated dataset and a predefined query set to rigorously measure system yield and accuracy. This, combined with the evaluation dashboard, allowed for data-driven iteration and highlighted the persistent challenge of 'invisible' visual data. If we were to extend this project, we would prioritize formally implementing this automated benchmarking suite, alongside CLIP-based image embeddings and table-aware parsing, to fully bridge the multimodal gap.
 
 ---
 
@@ -198,6 +204,8 @@ Building this RAG application revealed the significant gap between simple keywor
 5. **Multiple Retrieval Modes** — 5 strategies: TF-IDF, BM25, Dense (FAISS), Hybrid, Reranked
 6. **LLM Answer Generation** — 3 modes: extractive heuristic, Gemini API, local Flan-T5-Small
 7. **CrossEncoder Reranking** — Two-stage retrieval with `ms-marco-MiniLM-L-6-v2`
+8. **Query Management** - Edit/Upload/Change Golden Query Set
+9. **Comparison Mode** - Option to compare between two retrieval modes on selected generation.
 
 ---
 
