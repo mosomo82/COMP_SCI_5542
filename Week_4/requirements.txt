@@ -11,6 +11,7 @@ requests>=2.31.0
 # PDF & Image Processing
 pymupdf>=1.24.0
 Pillow>=10.0.0
+pytesseract>=0.3.10
 
 # Retrieval
 sentence-transformers>=3.0.0

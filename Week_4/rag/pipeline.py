@@ -14,8 +14,18 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+from dataclasses import dataclass
 
 import numpy as np
+import fitz  # PyMuPDF
+
+try:
+    from PIL import Image
+    import pytesseract
+    _HAS_OCR = True
+except ImportError:
+    _HAS_OCR = False
+    print("WARNING: PIL/pytesseract not installed. Image OCR disabled.")
 
 
 # ── Constants ──────────────────────────────────────────────────────────────────
@@ -36,83 +46,69 @@ LOG_HEADER = [
 
 # ── Data Ingestion ─────────────────────────────────────────────────────────────
 
-def extract_pdf_pages(pdf_path: str) -> List[Dict[str, Any]]:
-    """Extract per-page text from a PDF using PyMuPDF.
-    
-    Falls back to raw binary-to-text if PyMuPDF is not installed.
-    Returns list of dicts with keys: chunk_id, text, source, page.
-    """
-    basename = os.path.basename(pdf_path)
+@dataclass
+class TextChunk:
+    chunk_id: str
+    doc_id: str
+    page_num: int
+    text: str
 
-    # Try PyMuPDF first (best quality)
-    try:
-        try:
-            import fitz  # PyMuPDF
-        except ImportError:
-            import pymupdf as fitz  # PyMuPDF >= 1.24
+@dataclass
+class ImageItem:
+    item_id: str
+    path: str
+    caption: str  # simple text to make image retrieval runnable
 
-        pages = []
-        doc = fitz.open(pdf_path)
-        for page_num in range(len(doc)):
-            page = doc[page_num]
-            text = page.get_text("text").strip()
-            if text:
-                pages.append({
-                    "chunk_id": f"{basename}::p{page_num + 1}",
-                    "text": text,
-                    "source": pdf_path,
-                    "page": page_num + 1,
-                    "modality": "text",
-                })
-        doc.close()
-        return pages
+def clean_text(s: str) -> str:
+    s = s or ""
+    s = re.sub(r"\s+", " ", s).strip()
+    return s
 
-    except ImportError:
-        # Fallback: read PDF as raw text (lossy but functional)
-        print(f"WARNING: PyMuPDF not installed. Reading {basename} as raw text.")
-        try:
-            with open(pdf_path, "rb") as f:
-                raw = f.read()
-            # Extract readable ASCII/UTF-8 fragments from the PDF binary
-            text = raw.decode("utf-8", errors="ignore")
-            # Strip PDF binary noise — keep lines with mostly printable chars
-            clean_lines = []
-            for line in text.split("\n"):
-                printable = sum(1 for c in line if c.isprintable() or c in " \t")
-                if len(line) > 0 and printable / len(line) > 0.8:
-                    clean_lines.append(line.strip())
-            clean_text = "\n".join(clean_lines).strip()
-            if clean_text:
-                return [{
-                    "chunk_id": f"{basename}::p1",
-                    "text": clean_text[:5000],  # cap length
-                    "source": pdf_path,
-                    "page": 1,
-                    "modality": "text",
-                }]
-        except Exception as e:
-            print(f"WARNING: Could not read {basename}: {e}")
-        return []
+def extract_pdf_pages(pdf_path: str) -> List[TextChunk]:
+    doc_id = os.path.basename(pdf_path)
+    doc = fitz.open(pdf_path)
+    out: List[TextChunk] = []
+    for i in range(len(doc)):
+        page = doc.load_page(i)
+        text = clean_text(page.get_text("text"))
+        if text:
+            out.append(TextChunk(
+                chunk_id=f"{doc_id}::p{i+1}",
+                doc_id=doc_id,
+                page_num=i+1,
+                text=text
+            ))
+    return out
 
 
-def load_images(images_dir: str) -> List[Dict[str, Any]]:
-    """Load image evidence items from a directory.
-    
-    Each image gets an evidence ID prefixed with ``img::`` per project convention.
-    """
-    items = []
+def load_images(images_dir: str) -> List[ImageItem]:
+    items: List[ImageItem] = []
     if not os.path.isdir(images_dir):
         return items
+    print(f"Scanning images in {images_dir} with OCR...")
 
-    for fname in sorted(os.listdir(images_dir)):
-        if fname.lower().endswith((".png", ".jpg", ".jpeg", ".gif", ".bmp")):
-            fpath = os.path.join(images_dir, fname)
-            items.append({
-                "chunk_id": f"img::{fname}",
-                "text": f"[Image: {fname}]",  # placeholder text for TF-IDF
-                "source": fpath,
-                "modality": "image",
-            })
+    for p in sorted(glob.glob(os.path.join(images_dir, "*.*"))):
+        base = os.path.basename(p)
+        if not base.lower().endswith((".png", ".jpg", ".jpeg", ".gif", ".bmp")):
+            continue
+
+        # 1. Generate Caption (Filename based)
+        simple_caption = os.path.splitext(base)[0].replace("_", " ")
+
+        # 2. Run OCR (Tesseract) to get text inside the image
+        ocr_text = ""
+        if _HAS_OCR:
+            try:
+                image = Image.open(p)
+                ocr_text = pytesseract.image_to_string(image).strip()
+                ocr_text = re.sub(r"\s+", " ", ocr_text)
+            except Exception as e:
+                print(f"OCR Failed for {base}: {e}")
+
+        final_text = f"Caption: {simple_caption}. Content: {ocr_text}"
+
+        items.append(ImageItem(item_id=base, path=p, caption=final_text))
+
     return items
 
 
@@ -120,12 +116,23 @@ def load_corpus(
     docs_dir: str = DEFAULT_DOCS_DIR,
     images_dir: str = DEFAULT_IMAGES_DIR,
 ) -> List[Dict[str, Any]]:
-    """Load the full corpus (PDFs + images) and return a flat evidence list."""
+    """Load the full corpus (PDFs + images) and return a flat evidence list.
+
+    Converts TextChunk / ImageItem dataclasses into the dict format
+    expected by all downstream retrievers and the Streamlit UI.
+    """
     evidence: List[Dict[str, Any]] = []
 
-    # PDFs
+    # PDFs → TextChunk → dict
     for pdf_path in sorted(glob.glob(os.path.join(docs_dir, "*.pdf"))):
-        evidence.extend(extract_pdf_pages(pdf_path))
+        for chunk in extract_pdf_pages(pdf_path):
+            evidence.append({
+                "chunk_id": chunk.chunk_id,
+                "text": chunk.text,
+                "source": pdf_path,
+                "page": chunk.page_num,
+                "modality": "text",
+            })
 
     # Plain-text files
     for txt_path in sorted(glob.glob(os.path.join(docs_dir, "*.txt"))):
@@ -140,8 +147,15 @@ def load_corpus(
                 "modality": "text",
             })
 
-    # Images
-    evidence.extend(load_images(images_dir))
+    # Images → ImageItem → dict
+    for img in load_images(images_dir):
+        evidence.append({
+            "chunk_id": f"img::{img.item_id}",
+            "text": img.caption,
+            "source": img.path,
+            "modality": "image",
+        })
+
     return evidence
 
 
