@@ -221,6 +221,21 @@ def _run_and_display(col, mode_label: str, ret_mode: str):
         evidence_results = result["evidence_results"]
         answer = result["answer"]
 
+        # Visual Debug: Show exactly what the #1 retrieved item was
+        if evidence_results:
+            top_hit = evidence_results[0]
+            top_id = top_hit["chunk_id"]
+            top_score = top_hit["score"]
+            
+            # Color-code based on score to see confidence differences
+            if top_score > 0.5:
+                st.success(f"🥇 **Top Hit:** `{top_id}` (Score: {top_score:.4f})")
+            else:
+                st.warning(f"🥇 **Top Hit:** `{top_id}` (Low Score: {top_score:.4f})")
+        else:
+            st.error("❌ No evidence retrieved.")
+        # ----------------------
+
         retrieved_ids = [e["chunk_id"] for e in evidence_results]
         gold_ids = MINI_GOLD[query_id].get("gold_evidence_ids", [])
 
