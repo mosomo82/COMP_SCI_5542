@@ -162,22 +162,29 @@ def load_corpus(
 # ── TF-IDF Retriever ──────────────────────────────────────────────────────────
 
 class TfidfRetriever:
-    """TF-IDF cosine-similarity retriever."""
+    """TF-IDF retriever with L2-normalized cosine similarity.
+
+    Uses normalized sparse matrix multiplication (X @ q.T) which is
+    equivalent to cosine similarity but faster for sparse matrices.
+    """
 
     def __init__(self, evidence: List[Dict[str, Any]]):
         from sklearn.feature_extraction.text import TfidfVectorizer
+        from sklearn.preprocessing import normalize
         self.evidence = evidence
         texts = [item.get("text", "") for item in evidence]
-        self.vectorizer = TfidfVectorizer(stop_words="english")
-        self.matrix = self.vectorizer.fit_transform(texts)
+        self.vectorizer = TfidfVectorizer(lowercase=True, stop_words="english")
+        X = self.vectorizer.fit_transform(texts)
+        self.matrix = normalize(X)  # L2-normalize rows
 
     def retrieve(self, query: str, top_k: int = 10) -> List[Tuple[int, float]]:
         """Return list of (index, score) tuples, descending by score."""
-        from sklearn.metrics.pairwise import cosine_similarity
-        q_vec = self.vectorizer.transform([query])
-        sims = cosine_similarity(q_vec, self.matrix).ravel()
-        idxs = np.argsort(-sims)[:top_k]
-        return [(int(i), float(sims[i])) for i in idxs]
+        from sklearn.preprocessing import normalize
+        q = self.vectorizer.transform([query])
+        q = normalize(q)  # L2-normalize query
+        scores = (self.matrix @ q.T).toarray().ravel()
+        idxs = np.argsort(-scores)[:top_k]
+        return [(int(i), float(scores[i])) for i in idxs]
 
 
 # ── BM25 (Sparse) Retriever ────────────────────────────────────────────────────────────
@@ -201,7 +208,15 @@ class BM25Retriever:
 # ── Dense (FAISS + Sentence-Transformers) Retriever ───────────────────────────
 
 class DenseRetriever:
-    """Dense retriever using sentence-transformers embeddings + FAISS L2 index."""
+    """Dense retriever with separate FAISS L2 indices for text and image captions.
+
+    Builds two indices:
+      - ``index_text``  — embeddings of text evidence (PDF pages, txt files)
+      - ``index_caption`` — embeddings of image caption/OCR text
+
+    At query time both indices are searched and results are merged,
+    sorted by L2 distance, then converted to a similarity score.
+    """
 
     def __init__(self, evidence: List[Dict[str, Any]], model_name: str = "all-MiniLM-L6-v2"):
         import faiss
@@ -210,26 +225,71 @@ class DenseRetriever:
         self.evidence = evidence
         self.model = SentenceTransformer(model_name)
 
-        texts = [item.get("text", "") for item in evidence]
-        self.corpus_embeddings = self.model.encode(texts, show_progress_bar=False)
+        # Partition evidence into text vs image by global index
+        text_indices = []
+        text_corpus = []
+        img_indices = []
+        img_corpus = []
 
-        d = self.corpus_embeddings.shape[1]  # embedding dimension (384 for MiniLM)
-        self.index = faiss.IndexFlatL2(d)
-        self.index.add(self.corpus_embeddings)
-        print(f"Dense index built: {self.index.ntotal} vectors, dim={d}")
+        for i, item in enumerate(evidence):
+            if item.get("modality") == "image":
+                img_indices.append(i)
+                img_corpus.append(item.get("text", ""))
+            else:
+                text_indices.append(i)
+                text_corpus.append(item.get("text", ""))
+
+        self._text_idx_map = text_indices   # local → global index
+        self._img_idx_map = img_indices
+
+        # Build text FAISS index
+        text_emb = self.model.encode(text_corpus, show_progress_bar=False)
+        d = text_emb.shape[1]
+        self.index_text = faiss.IndexFlatL2(d)
+        self.index_text.add(text_emb)
+        print(f"✅ Dense text index built: {self.index_text.ntotal} vectors, dim={d}")
+
+        # Build image caption FAISS index
+        if img_corpus:
+            cap_emb = self.model.encode(img_corpus, show_progress_bar=False)
+            d_cap = cap_emb.shape[1]
+            self.index_caption = faiss.IndexFlatL2(d_cap)
+            self.index_caption.add(cap_emb)
+            print(f"✅ Dense caption index built: {self.index_caption.ntotal} images via OCR/caption")
+        else:
+            self.index_caption = None
 
     def retrieve(self, query: str, top_k: int = 10) -> List[Tuple[int, float]]:
         query_emb = self.model.encode([query])
-        distances, indices = self.index.search(query_emb, top_k)
-        # Convert L2 distance to similarity score (lower distance = better)
-        results = []
-        for idx, dist in zip(indices[0], distances[0]):
-            if idx == -1:  # FAISS returns -1 for missing results
-                continue
-            # Convert distance to a 0-1 similarity: sim = 1 / (1 + dist)
-            sim = 1.0 / (1.0 + float(dist))
-            results.append((int(idx), sim))
-        return results
+
+        merged: List[Tuple[int, float]] = []
+
+        # Search text index
+        k_text = min(top_k, self.index_text.ntotal)
+        if k_text > 0:
+            dists_t, idxs_t = self.index_text.search(query_emb, k_text)
+            for local_idx, dist in zip(idxs_t[0], dists_t[0]):
+                if local_idx < 0:
+                    continue
+                global_idx = self._text_idx_map[int(local_idx)]
+                sim = 1.0 / (1.0 + float(dist))
+                merged.append((global_idx, sim))
+
+        # Search image caption index
+        if self.index_caption is not None:
+            k_img = min(top_k, self.index_caption.ntotal)
+            if k_img > 0:
+                dists_c, idxs_c = self.index_caption.search(query_emb, k_img)
+                for local_idx, dist in zip(idxs_c[0], dists_c[0]):
+                    if local_idx < 0:
+                        continue
+                    global_idx = self._img_idx_map[int(local_idx)]
+                    sim = 1.0 / (1.0 + float(dist))
+                    merged.append((global_idx, sim))
+
+        # Sort by similarity (descending) and return top_k
+        merged.sort(key=lambda x: x[1], reverse=True)
+        return merged[:top_k]
 
 
 # ── Hybrid Retriever ──────────────────────────────────────────────────────────
@@ -588,6 +648,118 @@ def missing_evidence_behavior(
         return "Pass" if answer.strip() == MISSING_EVIDENCE_MSG else "Fail"
     else:
         return "Pass" if answer.strip() != MISSING_EVIDENCE_MSG else "Fail"
+
+
+# ── LLM-as-a-Judge ───────────────────────────────────────────────────────────
+
+def llm_judge(
+    question: str,
+    answer: str,
+    evidence_texts: List[str],
+    answer_criteria: List[str],
+    api_key: Optional[str] = None,
+    model_name: str = "gemini-2.0-flash",
+) -> Dict[str, Any]:
+    """Use an LLM (Gemini) to grade a RAG answer against gold criteria.
+
+    Returns a dict with keys:
+        relevance      (1-5) — does the answer address the question?
+        completeness   (1-5) — does it cover all required criteria?
+        citation_quality (1-5) — are sources cited and correct?
+        faithfulness   (1-5) — is the answer grounded in the evidence?
+        overall        (1-5) — mean of the four axes
+        feedback       (str) — brief textual explanation from the judge
+        error          (str|None) — set only on failure
+    """
+    # Resolve API key
+    if api_key is None:
+        api_key = os.environ.get("GEMINI_API_KEY", "")
+    if not api_key:
+        return {
+            "relevance": None, "completeness": None,
+            "citation_quality": None, "faithfulness": None,
+            "overall": None, "feedback": "No GEMINI_API_KEY available.",
+            "error": "missing_api_key",
+        }
+
+    criteria_text = "\n".join(f"  - {c}" for c in answer_criteria) if answer_criteria else "  (no specific criteria provided)"
+    evidence_text = "\n---\n".join(evidence_texts[:5]) if evidence_texts else "(no evidence provided)"
+
+    prompt = f"""You are an impartial expert evaluator for a Retrieval-Augmented Generation (RAG) system.
+
+TASK: Grade the ANSWER on a 1-5 scale for each axis below.
+
+QUESTION:
+{question}
+
+GOLD CRITERIA (what a perfect answer should cover):
+{criteria_text}
+
+RETRIEVED EVIDENCE (the context the system had):
+{evidence_text}
+
+SYSTEM ANSWER:
+{answer}
+
+GRADING AXES (1 = very poor, 5 = excellent):
+1. **relevance**: Does the answer address the question asked?
+2. **completeness**: Does the answer cover all the gold criteria listed above?
+3. **citation_quality**: Does the answer cite sources and are those citations traceable to the evidence?
+4. **faithfulness**: Is the answer grounded in the provided evidence (no hallucinations)?
+
+RESPOND IN EXACTLY THIS FORMAT (no extra text):
+relevance: <1-5>
+completeness: <1-5>
+citation_quality: <1-5>
+faithfulness: <1-5>
+feedback: <one-sentence explanation>
+"""
+
+    try:
+        import google.generativeai as genai
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel(model_name)
+        response = model.generate_content(prompt)
+        text = response.text.strip()
+
+        # Parse structured response
+        scores: Dict[str, Any] = {}
+        feedback_line = ""
+        for line in text.splitlines():
+            line = line.strip()
+            if ":" not in line:
+                continue
+            key, _, val = line.partition(":")
+            key = key.strip().lower().replace(" ", "_")
+            val = val.strip()
+            if key in ("relevance", "completeness", "citation_quality", "faithfulness"):
+                try:
+                    scores[key] = int(val[0])  # first digit
+                except (ValueError, IndexError):
+                    scores[key] = None
+            elif key == "feedback":
+                feedback_line = val
+
+        # Compute overall
+        valid_scores = [v for v in scores.values() if isinstance(v, (int, float))]
+        overall = round(sum(valid_scores) / len(valid_scores), 2) if valid_scores else None
+
+        return {
+            "relevance": scores.get("relevance"),
+            "completeness": scores.get("completeness"),
+            "citation_quality": scores.get("citation_quality"),
+            "faithfulness": scores.get("faithfulness"),
+            "overall": overall,
+            "feedback": feedback_line or text[:200],
+            "error": None,
+        }
+    except Exception as e:
+        return {
+            "relevance": None, "completeness": None,
+            "citation_quality": None, "faithfulness": None,
+            "overall": None, "feedback": str(e),
+            "error": str(e),
+        }
 
 
 # ── CSV Logging ───────────────────────────────────────────────────────────────
