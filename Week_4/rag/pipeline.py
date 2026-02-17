@@ -64,6 +64,22 @@ def clean_text(s: str) -> str:
     s = re.sub(r"\s+", " ", s).strip()
     return s
 
+def chunk_text(text: str, chunk_size: int = 0, chunk_overlap: int = 0) -> List[str]:
+    """Split text into overlapping sub-chunks.
+
+    If chunk_size <= 0, returns the original text as a single-element list (page-level).
+    """
+    if chunk_size <= 0 or len(text) <= chunk_size:
+        return [text]
+    chunks: List[str] = []
+    start = 0
+    step = max(chunk_size - chunk_overlap, 1)
+    while start < len(text):
+        end = start + chunk_size
+        chunks.append(text[start:end])
+        start += step
+    return chunks
+
 def extract_pdf_pages(pdf_path: str) -> List[TextChunk]:
     doc_id = os.path.basename(pdf_path)
     doc = fitz.open(pdf_path)
@@ -115,24 +131,33 @@ def load_images(images_dir: str) -> List[ImageItem]:
 def load_corpus(
     docs_dir: str = DEFAULT_DOCS_DIR,
     images_dir: str = DEFAULT_IMAGES_DIR,
+    chunk_size: int = 0,
+    chunk_overlap: int = 0,
 ) -> List[Dict[str, Any]]:
     """Load the full corpus (PDFs + images) and return a flat evidence list.
 
     Converts TextChunk / ImageItem dataclasses into the dict format
     expected by all downstream retrievers and the Streamlit UI.
+
+    Args:
+        chunk_size: If >0, split each page into sub-chunks of this many chars.
+        chunk_overlap: Overlap (in chars) between consecutive sub-chunks.
     """
     evidence: List[Dict[str, Any]] = []
 
-    # PDFs → TextChunk → dict
+    # PDFs → TextChunk → (optional sub-chunks) → dict
     for pdf_path in sorted(glob.glob(os.path.join(docs_dir, "*.pdf"))):
         for chunk in extract_pdf_pages(pdf_path):
-            evidence.append({
-                "chunk_id": chunk.chunk_id,
-                "text": chunk.text,
-                "source": pdf_path,
-                "page": chunk.page_num,
-                "modality": "text",
-            })
+            sub_chunks = chunk_text(chunk.text, chunk_size, chunk_overlap)
+            for ci, sub in enumerate(sub_chunks):
+                cid = chunk.chunk_id if len(sub_chunks) == 1 else f"{chunk.chunk_id}::c{ci+1}"
+                evidence.append({
+                    "chunk_id": cid,
+                    "text": sub,
+                    "source": pdf_path,
+                    "page": chunk.page_num,
+                    "modality": "text",
+                })
 
     # Plain-text files
     for txt_path in sorted(glob.glob(os.path.join(docs_dir, "*.txt"))):
@@ -369,7 +394,10 @@ class RerankedRetriever:
 
 # ── Retriever Factory ─────────────────────────────────────────────────────────
 
-def build_retrievers(evidence: List[Dict[str, Any]]) -> Dict[str, Any]:
+def build_retrievers(
+    evidence: List[Dict[str, Any]],
+    embedding_model: str = "all-MiniLM-L6-v2",
+) -> Dict[str, Any]:
     """Build all retriever variants from the evidence list.
 
     Returns dict mapping mode name → retriever instance.
@@ -381,7 +409,7 @@ def build_retrievers(evidence: List[Dict[str, Any]]) -> Dict[str, Any]:
 
     # Dense retriever (optional — needs faiss-cpu + sentence-transformers)
     try:
-        dense = DenseRetriever(evidence)
+        dense = DenseRetriever(evidence, model_name=embedding_model)
         hybrid_dense = HybridRetriever(dense, bm25, alpha=0.6)
     except Exception as e:
         print(f"WARNING: Dense retriever unavailable ({e}). Falling back to TF-IDF.")

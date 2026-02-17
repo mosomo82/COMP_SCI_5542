@@ -44,6 +44,31 @@ retrieval_mode = st.sidebar.selectbox(
 top_k = st.sidebar.slider("top_k", min_value=1, max_value=30, value=10, step=1)
 use_multimodal = st.sidebar.checkbox("use_multimodal", value=True)
 
+# ── Advanced Retrieval Controls ────────────────────────────────────────────────
+st.sidebar.header("⚙️ Advanced Retrieval")
+
+embedding_model = st.sidebar.selectbox(
+    "Embedding Model (dense / hybrid / rerank)",
+    [
+        "all-MiniLM-L6-v2",
+        "all-mpnet-base-v2",
+        "multi-qa-MiniLM-L6-cos-v1",
+        "paraphrase-MiniLM-L6-v2",
+    ],
+    help="Sentence-Transformer model used for dense vector search. "
+         "Changing this will re-build the FAISS index.",
+)
+
+chunk_size = st.sidebar.slider(
+    "Chunk size (chars)", 0, 2000, 0, step=100,
+    help="0 = full-page chunks (default). >0 splits each page into sub-chunks of this character length.",
+)
+
+chunk_overlap = st.sidebar.slider(
+    "Chunk overlap (chars)", 0, 500, 0, step=50,
+    help="Number of overlapping characters between consecutive sub-chunks.",
+)
+
 # Comparison mode
 st.sidebar.header("⚔️ Comparison Mode")
 comparison_enabled = st.sidebar.checkbox("Enable side-by-side comparison", value=False)
@@ -89,7 +114,7 @@ use_gold_question = st.sidebar.checkbox("Use the gold-set question text", value=
 # ── Load Corpus & Build All Retrievers (cached) ──────────────────────────────
 
 @st.cache_resource(show_spinner="Loading corpus and building retrieval indices …")
-def get_retrievers():
+def get_retrievers(_embedding_model: str, _chunk_size: int, _chunk_overlap: int):
     docs_path = PROJECT_ROOT / "data" / "docs"
     images_path = PROJECT_ROOT / "data" / "images"
 
@@ -99,12 +124,16 @@ def get_retrievers():
         st.info(f"Contents of {PROJECT_ROOT}: {list(PROJECT_ROOT.glob('*'))}")
         st.stop()
 
-    evidence = load_corpus(str(docs_path), str(images_path))
-    retrievers = build_retrievers(evidence)
+    evidence = load_corpus(
+        str(docs_path), str(images_path),
+        chunk_size=_chunk_size,
+        chunk_overlap=_chunk_overlap,
+    )
+    retrievers = build_retrievers(evidence, embedding_model=_embedding_model)
     return evidence, retrievers
 
 
-evidence_store, all_retrievers = get_retrievers()
+evidence_store, all_retrievers = get_retrievers(embedding_model, chunk_size, chunk_overlap)
 st.sidebar.info(f"📚 Corpus: **{len(evidence_store)}** items · Modes: {list(all_retrievers.keys())}")
 
 # ── Metadata Filters ──────────────────────────────────────────────────────────
