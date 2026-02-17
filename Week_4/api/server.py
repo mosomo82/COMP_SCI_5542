@@ -1,269 +1,255 @@
-"""
-CS5542 Lab 4 — FastAPI RAG Backend
-====================================
-Full-featured REST API backed by the shared pipeline.
-
-Endpoints:
-    POST /query          — run a single retrieval + answer query
-    POST /batch_evaluate — run all gold queries across all modes
-    GET  /modes          — list available retrieval & answer modes
-    GET  /health         — health check
-"""
-
+from fastapi import FastAPI, HTTPException, Request
+from pydantic import BaseModel
+from typing import List, Dict, Any, Optional
 import os
 import sys
-import time
-from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+import time
+import re
 
-from fastapi import FastAPI
-from pydantic import BaseModel
-
-# Ensure project root is on path
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+# Ensure project root is on sys.path
+_THIS_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = _THIS_DIR.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+# Import from RAG pipeline
 from rag.pipeline import (
-    MINI_GOLD,
-    MISSING_EVIDENCE_MSG,
-    batch_evaluate,
-    build_context,
+    load_corpus,
     build_retrievers,
+    build_context,
     extractive_answer,
     generate_llm_answer,
     generate_local_llm_answer,
-    load_corpus,
-    log_query,
+    MISSING_EVIDENCE_MSG
 )
 
-# ── Global State ──────────────────────────────────────────────────────────────
-_state: Dict[str, Any] = {
-    "evidence": [],
-    "retrievers": {},
-}
+app = FastAPI(title="RAG Backend API")
 
-DEFAULT_LOG_PATH = str(PROJECT_ROOT / "logs" / "query_metrics.csv")
+# Global state
+class State:
+    evidence: List[Dict[str, Any]] = []
+    retrievers: Dict[str, Any] = {}
+    config: Dict[str, Any] = {
+        "embedding_model": "all-MiniLM-L6-v2",
+        "chunk_size": 0,
+        "chunk_overlap": 0
+    }
 
+state = State()
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """Load corpus and build all retriever variants on startup."""
-    docs_dir = str(PROJECT_ROOT / "data" / "docs")
-    images_dir = str(PROJECT_ROOT / "data" / "images")
+# Pydantic models
+class ConfigureRequest(BaseModel):
+    embedding_model: str = "all-MiniLM-L6-v2"
+    chunk_size: int = 0
+    chunk_overlap: int = 0
 
-    evidence = load_corpus(docs_dir, images_dir)
-    _state["evidence"] = evidence
-
-    if evidence:
-        _state["retrievers"] = build_retrievers(evidence)
-        modes = list(_state["retrievers"].keys())
-        print(f"Server ready: {len(evidence)} evidence items, modes={modes}")
-    else:
-        print("WARNING: No documents found. Server has empty index.")
-    yield
-    # Shutdown: nothing to clean up
-
-
-app = FastAPI(
-    title="CS5542 Lab 4 RAG Backend",
-    description="Project-aligned RAG API with 5 retrieval modes, LLM answer generation, and batch evaluation.",
-    version="2.0.0",
-    lifespan=lifespan,
-)
-
-
-# ── Request / Response Models ─────────────────────────────────────────────────
-
-class QueryIn(BaseModel):
+class RetrieveRequest(BaseModel):
     question: str
+    retrieval_mode: str
     top_k: int = 10
-    retrieval_mode: str = "tfidf"
-    answer_mode: str = "extractive"  # "extractive", "llm_gemini", "llm_local"
-    gemini_api_key: Optional[str] = None
-    query_id: Optional[str] = None  # for evaluation logging
-    sources_filter: Optional[List[str]] = None  # metadata filter
-    modalities_filter: Optional[List[str]] = None  # metadata filter
+    sources_key: Optional[str] = None  # pipe-separated allowed sources
+    modalities_key: Optional[str] = None # pipe-separated allowed modalities
 
+class GenerateRequest(BaseModel):
+    question: str
+    context: str
+    answer_mode: str
+    gemini_key: Optional[str] = None
 
-class BatchIn(BaseModel):
+class RagRequest(BaseModel):
+    question: str
+    retrieval_mode: str
+    answer_mode: str
     top_k: int = 10
-    log_path: Optional[str] = None
+    gemini_key: Optional[str] = None
+    sources_key: Optional[str] = None
+    modalities_key: Optional[str] = None
 
+# Startup
+@app.on_event("startup")
+def startup_event():
+    print("Loading corpus with default config...")
+    _reload_corpus()
 
-# ── Endpoints ─────────────────────────────────────────────────────────────────
+def _reload_corpus():
+    docs_path = PROJECT_ROOT / "data" / "docs"
+    images_path = PROJECT_ROOT / "data" / "images"
+    
+    if not docs_path.exists():
+        print(f"ERROR: {docs_path} not found")
+        return
 
-@app.get("/health")
-def health():
+    # Call pipeline's load_corpus
+    # We must ensure we're calling the updated version that accepts chunk_size/overlap
+    try:
+        updated_evidence = load_corpus(
+            str(docs_path), 
+            str(images_path),
+            chunk_size=state.config.get("chunk_size", 0),
+            chunk_overlap=state.config.get("chunk_overlap", 0)
+        )
+        state.evidence = updated_evidence
+        
+        # Build retrievers
+        state.retrievers = build_retrievers(
+            state.evidence, 
+            embedding_model=state.config.get("embedding_model", "all-MiniLM-L6-v2")
+        )
+        print(f"Corpus loaded: {len(state.evidence)} items. Retrievers ready.")
+    except Exception as e:
+        print(f"Error reloading corpus: {e}")
+
+# Endpoints
+
+@app.get("/status")
+def get_status():
     return {
         "status": "ok",
-        "corpus_size": len(_state["evidence"]),
-        "modes": list(_state["retrievers"].keys()),
+        "corpus_size": len(state.evidence),
+        "available_modes": list(state.retrievers.keys()),
+        "config": state.config
     }
 
+@app.post("/configure")
+def configure_endpoint(req: ConfigureRequest):
+    """Re-load corpus and retrievers if config changed."""
+    # Check if config actually changed to avoid redundant reloads
+    current = state.config
+    if (req.embedding_model == current["embedding_model"] and 
+        req.chunk_size == current["chunk_size"] and 
+        req.chunk_overlap == current["chunk_overlap"]):
+        return {"message": "No configuration changes detected.", "config": current}
+    
+    # Update config
+    state.config["embedding_model"] = req.embedding_model
+    state.config["chunk_size"] = req.chunk_size
+    state.config["chunk_overlap"] = req.chunk_overlap
+    
+    print(f"Re-configuring with: {state.config}")
+    _reload_corpus()
+    
+    return {"message": "Configuration updated and corpus reloaded.", "config": state.config}
 
-@app.get("/modes")
-def modes():
-    """List available retrieval and answer modes."""
-    return {
-        "retrieval_modes": list(_state["retrievers"].keys()),
-        "answer_modes": ["extractive", "llm_gemini", "llm_local"],
-    }
+@app.post("/retrieve")
+def retrieve_endpoint(req: RetrieveRequest):
+    mode = req.retrieval_mode
+    # Fallback to tfidf if mode not found
+    retriever = state.retrievers.get(mode, state.retrievers.get("tfidf"))
+    
+    if not retriever:
+        # Should ideally not happen if tfidf is always built
+        raise HTTPException(status_code=500, detail="No retrievers available (corpus load failed?)")
 
+    # Over-fetch for filtering
+    hits = retriever.retrieve(req.question, top_k=req.top_k * 3)
 
-@app.post("/query")
-def query(q: QueryIn) -> Dict[str, Any]:
-    """Run a single retrieval + answer query."""
-    retrievers = _state["retrievers"]
-    evidence = _state["evidence"]
+    # Parse filters
+    allowed_sources = set(req.sources_key.split("|")) if req.sources_key else set()
+    allowed_modalities = set(req.modalities_key.split("|")) if req.modalities_key else set()
 
-    if not retrievers:
-        return {
-            "answer": MISSING_EVIDENCE_MSG,
-            "evidence": [],
-            "metrics": {"top_k": q.top_k, "retrieval_mode": q.retrieval_mode},
-            "failure_flag": True,
-        }
-
-    retriever = retrievers.get(q.retrieval_mode, retrievers.get("tfidf"))
-    if retriever is None:
-        return {
-            "error": f"Unknown retrieval mode: {q.retrieval_mode}",
-            "available_modes": list(retrievers.keys()),
-        }
-
-    t0 = time.time()
-
-    # 1. Retrieve (over-fetch for filtering)
-    fetch_k = q.top_k * 3 if (q.sources_filter or q.modalities_filter) else q.top_k
-    hits = retriever.retrieve(q.question, top_k=fetch_k)
-
-    # 2. Apply metadata filters
-    evidence_list = []
+    results = []
     hit_indices = []
+    
+    count = 0
     for idx, score in hits:
-        item = evidence[idx]
-
-        # Source filter
-        if q.sources_filter:
-            src_base = os.path.basename(item.get("source", ""))
-            if src_base not in q.sources_filter:
-                continue
-
-        # Modality filter
-        if q.modalities_filter:
-            modality = item.get("modality", "text")
-            if modality not in q.modalities_filter:
-                continue
-
-        evidence_list.append({
+        if idx >= len(state.evidence):
+            continue
+            
+        item = state.evidence[idx]
+        src_base = os.path.basename(item.get("source", ""))
+        modality = item.get("modality", "text")
+        
+        # Apply metadata filters
+        if allowed_sources and src_base not in allowed_sources:
+             continue
+        if allowed_modalities and modality not in allowed_modalities:
+            continue
+        
+        results.append({
             "chunk_id": item["chunk_id"],
             "citation_tag": f"[{item['chunk_id']}]",
-            "score": round(score, 4),
+            "score": float(score), # ensure JSON serializable
             "source": item.get("source", ""),
             "text": item.get("text", "")[:500],
-            "modality": item.get("modality", "text"),
+            # Helper for debugging/inspection if needed
+            "full_text_len": len(item.get("text", "")),
         })
-        hit_indices.append(idx)
-        if len(evidence_list) >= q.top_k:
+        hit_indices.append(int(idx))
+        count += 1
+        if count >= req.top_k:
             break
+            
+    return {"results": results, "hit_indices": hit_indices}
 
-    # 3. Build context and generate answer
-    context = build_context(evidence, hit_indices)
-
-    if q.answer_mode == "llm_gemini":
-        answer = generate_llm_answer(
-            q.question, context, api_key=q.gemini_api_key or None,
-        )
-    elif q.answer_mode == "llm_local":
-        answer = generate_local_llm_answer(q.question, context)
+@app.post("/generate")
+def generate_endpoint(req: GenerateRequest):
+    if req.answer_mode == "llm (Gemini)":
+        ans = generate_llm_answer(req.question, req.context, api_key=req.gemini_key)
+    elif req.answer_mode == "llm (Local)":
+        ans = generate_local_llm_answer(req.question, req.context)
     else:
-        answer = extractive_answer(q.question, context)
+        ans = extractive_answer(req.question, req.context)
+    return {"answer": ans}
 
-    latency_ms = round((time.time() - t0) * 1000, 2)
+@app.post("/rag")
+def rag_pipeline_endpoint(req: RagRequest):
+    """Full RAG pipeline: Retrieve -> Context -> Generate"""
+    
+    # 1. Retrieve
+    # Re-use logic from retrieve_endpoint but via function call
+    # Construct a RetrieveRequest object manually or call retrieval logic directly?
+    # Direct usage is cleaner to avoid serialization overhead
+    
+    mode = req.retrieval_mode
+    retriever = state.retrievers.get(mode, state.retrievers.get("tfidf"))
+    if not retriever:
+         raise HTTPException(status_code=500, detail="Backend not ready: No retrievers loaded.")
 
-    # 4. Log metrics (if query_id provided)
-    metrics = {}
-    if q.query_id and q.query_id in MINI_GOLD:
-        gold = MINI_GOLD[q.query_id]
-        retrieved_ids = [item["chunk_id"] for item in evidence_list]
-        metrics = log_query(
-            log_path=DEFAULT_LOG_PATH,
-            query_id=q.query_id,
-            retrieval_mode=q.retrieval_mode,
-            top_k=q.top_k,
-            latency_ms=latency_ms,
-            retrieved_ids=retrieved_ids,
-            gold_ids=gold["gold_evidence_ids"],
-            answer=answer,
-            evidence=evidence,
-        )
+    hits = retriever.retrieve(req.question, top_k=req.top_k * 3)
+    
+    allowed_sources = set(req.sources_key.split("|")) if req.sources_key else set()
+    allowed_modalities = set(req.modalities_key.split("|")) if req.modalities_key else set()
 
-    return {
-        "answer": answer,
-        "evidence": evidence_list,
-        "metrics": {
-            "top_k": q.top_k,
-            "retrieval_mode": q.retrieval_mode,
-            "answer_mode": q.answer_mode,
-            "latency_ms": latency_ms,
-            **metrics,
-        },
-        "failure_flag": answer == MISSING_EVIDENCE_MSG,
-    }
-
-
-@app.post("/batch_evaluate")
-def batch_eval(b: BatchIn) -> Dict[str, Any]:
-    """Run all gold queries across all retrieval modes."""
-    evidence = _state["evidence"]
-    retrievers = _state["retrievers"]
-
-    if not retrievers:
-        return {"error": "No retrievers available. Corpus may be empty."}
-
-    log_path = b.log_path or DEFAULT_LOG_PATH
-
-    results = batch_evaluate(
-        evidence=evidence,
-        retrievers=retrievers,
-        gold=MINI_GOLD,
-        top_k=b.top_k,
-        log_path=log_path,
-    )
-
-    # Compute summary by mode
-    mode_summary: Dict[str, Dict[str, Any]] = {}
-    for r in results:
-        mode = r["mode"]
-        if mode not in mode_summary:
-            mode_summary[mode] = {"p5_vals": [], "r10_vals": [], "latency_vals": []}
-        if r.get("Precision@5") is not None:
-            mode_summary[mode]["p5_vals"].append(r["Precision@5"])
-        if r.get("Recall@10") is not None:
-            mode_summary[mode]["r10_vals"].append(r["Recall@10"])
-        mode_summary[mode]["latency_vals"].append(r.get("latency_ms", 0))
-
-    summary = {}
-    for mode, vals in mode_summary.items():
-        summary[mode] = {
-            "avg_precision_5": round(sum(vals["p5_vals"]) / max(len(vals["p5_vals"]), 1), 4),
-            "avg_recall_10": round(sum(vals["r10_vals"]) / max(len(vals["r10_vals"]), 1), 4),
-            "avg_latency_ms": round(sum(vals["latency_vals"]) / max(len(vals["latency_vals"]), 1), 2),
-        }
+    evidence_results = []
+    final_indices = []
+    
+    count = 0
+    for idx, score in hits:
+        if idx >= len(state.evidence): continue
+        
+        item = state.evidence[idx]
+        src_base = os.path.basename(item.get("source", ""))
+        modality = item.get("modality", "text")
+        
+        if allowed_sources and src_base not in allowed_sources: continue
+        if allowed_modalities and modality not in allowed_modalities: continue
+        
+        evidence_results.append({
+            "chunk_id": item["chunk_id"],
+            "citation_tag": f"[{item['chunk_id']}]",
+            "score": round(float(score), 4),
+            "source": item.get("source", ""),
+            "text": item.get("text", "")[:500],
+        })
+        final_indices.append(int(idx))
+        count += 1
+        if count >= req.top_k:
+            break
+            
+    # 2. Build Context
+    context = build_context(state.evidence, final_indices)
+    
+    # 3. Generate
+    if req.answer_mode == "llm (Gemini)":
+        ans = generate_llm_answer(req.question, context, api_key=req.gemini_key)
+    elif req.answer_mode == "llm (Local)":
+        ans = generate_local_llm_answer(req.question, context)
+    else:
+        ans = extractive_answer(req.question, context)
 
     return {
-        "total_runs": len(results),
-        "queries": len(MINI_GOLD),
-        "modes": list(retrievers.keys()),
-        "summary_by_mode": summary,
-        "results": results,
-        "log_path": log_path,
+        "answer": ans,
+        "evidence_results": evidence_results,
+        "context_preview": context[:200]
     }
-
-
-if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run(app, host="0.0.0.0", port=8000)
