@@ -24,7 +24,7 @@ from rag.pipeline import (
                   # as it only needs the result string + evidence text.
 )
 
-API_URL = "http://localhost:8000"
+API_URL = "https://compsci5542-qhebkbpsl3muncwyxbsf6n.streamlit.app"
 
 # ── Page Config ────────────────────────────────────────────────────────────────
 st.set_page_config(page_title="CS5542 Lab 4 — Project RAG App", layout="wide")
