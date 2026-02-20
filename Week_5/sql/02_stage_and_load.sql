@@ -1,5 +1,5 @@
 -- 02_stage_and_load.sql
--- Warehouse, file format, stage, and COPY INTO for all 7 trucking tables.
+-- Warehouse, file format, stage, and COPY INTO for all 14 trucking tables.
 -- Run this in a Snowflake Worksheet AFTER 01_create_schema.sql.
 -- CSVs must already be uploaded to @CS5542_STAGE (via PUT or the Python loader).
 
@@ -61,4 +61,43 @@ ON_ERROR = 'CONTINUE';
 -- 7) Fuel purchases (196K rows)
 COPY INTO FUEL_PURCHASES
 FROM @CS5542_STAGE/fuel_purchases.csv.gz
+ON_ERROR = 'CONTINUE';
+
+--------------------------------------------------------------------------------
+-- COPY INTO — extension tables
+--------------------------------------------------------------------------------
+
+-- 8) Trailers (181 rows)
+COPY INTO TRAILERS
+FROM @CS5542_STAGE/trailers.csv.gz
+ON_ERROR = 'CONTINUE';
+
+-- 9) Facilities (51 rows)
+COPY INTO FACILITIES
+FROM @CS5542_STAGE/facilities.csv.gz
+ON_ERROR = 'CONTINUE';
+
+-- 10) Delivery events (170K rows)
+COPY INTO DELIVERY_EVENTS
+FROM @CS5542_STAGE/delivery_events.csv.gz
+ON_ERROR = 'CONTINUE';
+
+-- 11) Maintenance records (2.9K rows)
+COPY INTO MAINTENANCE_RECORDS
+FROM @CS5542_STAGE/maintenance_records.csv.gz
+ON_ERROR = 'CONTINUE';
+
+-- 12) Safety incidents (171 rows)
+COPY INTO SAFETY_INCIDENTS
+FROM @CS5542_STAGE/safety_incidents.csv.gz
+ON_ERROR = 'CONTINUE';
+
+-- 13) Driver monthly metrics (4.5K rows)
+COPY INTO DRIVER_MONTHLY_METRICS
+FROM @CS5542_STAGE/driver_monthly_metrics.csv.gz
+ON_ERROR = 'CONTINUE';
+
+-- 14) Truck utilization metrics (3.3K rows)
+COPY INTO TRUCK_UTILIZATION_METRICS
+FROM @CS5542_STAGE/truck_utilization_metrics.csv.gz
 ON_ERROR = 'CONTINUE';

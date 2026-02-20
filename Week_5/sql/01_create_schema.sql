@@ -117,3 +117,108 @@ CREATE OR REPLACE TABLE FUEL_PURCHASES (
     fuel_card_number       STRING,
     CONSTRAINT pk_fuel_purchases PRIMARY KEY (fuel_purchase_id)
 );
+
+--------------------------------------------------------------------------------
+-- EXTENSION TABLES (additional dataset ingestion)
+--------------------------------------------------------------------------------
+
+CREATE OR REPLACE TABLE TRAILERS (
+    trailer_id             STRING      NOT NULL,
+    trailer_number         INT,
+    trailer_type           STRING,        -- Dry Van | Refrigerated | Flatbed | Tanker
+    length_feet            INT,
+    model_year             INT,
+    vin                    STRING,
+    acquisition_date       DATE,
+    status                 STRING,        -- Active | In Maintenance | Retired
+    current_location       STRING,
+    CONSTRAINT pk_trailers PRIMARY KEY (trailer_id)
+);
+
+CREATE OR REPLACE TABLE FACILITIES (
+    facility_id            STRING      NOT NULL,
+    facility_name          STRING,
+    facility_type          STRING,        -- Cross-Dock | Warehouse | Terminal | ...
+    city                   STRING,
+    state                  STRING,
+    latitude               FLOAT,
+    longitude              FLOAT,
+    dock_doors             INT,
+    operating_hours        STRING,
+    CONSTRAINT pk_facilities PRIMARY KEY (facility_id)
+);
+
+CREATE OR REPLACE TABLE DELIVERY_EVENTS (
+    event_id               STRING      NOT NULL,
+    load_id                STRING,        -- FK → LOADS
+    trip_id                STRING,        -- FK → TRIPS
+    event_type             STRING,        -- Pickup | Delivery
+    facility_id            STRING,        -- FK → FACILITIES
+    scheduled_datetime     TIMESTAMP_NTZ,
+    actual_datetime        TIMESTAMP_NTZ,
+    detention_minutes      INT,
+    on_time_flag           BOOLEAN,
+    location_city          STRING,
+    location_state         STRING,
+    CONSTRAINT pk_delivery_events PRIMARY KEY (event_id)
+);
+
+CREATE OR REPLACE TABLE MAINTENANCE_RECORDS (
+    maintenance_id         STRING      NOT NULL,
+    truck_id               STRING,        -- FK → TRUCKS
+    maintenance_date       DATE,
+    maintenance_type       STRING,        -- Scheduled | Unscheduled | Inspection
+    odometer_reading       INT,
+    labor_hours            FLOAT,
+    labor_cost             FLOAT,
+    parts_cost             FLOAT,
+    total_cost             FLOAT,
+    facility_location      STRING,
+    downtime_hours         FLOAT,
+    service_description    STRING,
+    CONSTRAINT pk_maintenance_records PRIMARY KEY (maintenance_id)
+);
+
+CREATE OR REPLACE TABLE SAFETY_INCIDENTS (
+    incident_id            STRING      NOT NULL,
+    trip_id                STRING,        -- FK → TRIPS
+    truck_id               STRING,        -- FK → TRUCKS
+    driver_id              STRING,        -- FK → DRIVERS
+    incident_date          TIMESTAMP_NTZ,
+    incident_type          STRING,        -- Moving Violation | Collision | Equipment Failure | ...
+    location_city          STRING,
+    location_state         STRING,
+    at_fault_flag          BOOLEAN,
+    injury_flag            BOOLEAN,
+    vehicle_damage_cost    FLOAT,
+    cargo_damage_cost      FLOAT,
+    claim_amount           FLOAT,
+    preventable_flag       BOOLEAN,
+    description            STRING,
+    CONSTRAINT pk_safety_incidents PRIMARY KEY (incident_id)
+);
+
+CREATE OR REPLACE TABLE DRIVER_MONTHLY_METRICS (
+    driver_id              STRING,        -- FK → DRIVERS
+    month                  DATE,
+    trips_completed        INT,
+    total_miles            FLOAT,
+    total_revenue          FLOAT,
+    average_mpg            FLOAT,
+    total_fuel_gallons     FLOAT,
+    on_time_delivery_rate  FLOAT,
+    average_idle_hours     FLOAT
+);
+
+CREATE OR REPLACE TABLE TRUCK_UTILIZATION_METRICS (
+    truck_id               STRING,        -- FK → TRUCKS
+    month                  DATE,
+    trips_completed        INT,
+    total_miles            FLOAT,
+    total_revenue          FLOAT,
+    average_mpg            FLOAT,
+    maintenance_events     INT,
+    maintenance_cost       FLOAT,
+    downtime_hours         FLOAT,
+    utilization_rate       FLOAT
+);

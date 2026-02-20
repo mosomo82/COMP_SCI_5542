@@ -1,1 +1,4 @@
-timestamp,team,user,query_name,latency_ms,rows_returned,error
+timestamp,team,user,query_name,latency_ms,rows_returned,error,perf_note
+2026-02-20T09:04:02.231032,TeamX,Student,overview_monthly_revenue,3406,24,,Moderate latency (2-5 s) — acceptable for ad-hoc analysis
+2026-02-20T09:04:25.710672,TeamX,Student,fleet_performance,2984,30,,Moderate latency (2-5 s) — acceptable for ad-hoc analysis
+2026-02-20T09:04:46.255690,TeamX,Student,route_scorecard,3017,20,,Moderate latency (2-5 s) — acceptable for ad-hoc analysis

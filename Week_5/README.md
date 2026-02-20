@@ -14,8 +14,8 @@ This starter kit provides a minimal, reproducible **Data → Snowflake → Query
 
 | Item | Included this week | Deferred |
 |---|---|---|
-| Dataset(s) | customers, drivers, trucks, routes, loads, trips, fuel_purchases (7 tables) | trailers, facilities, delivery_events, maintenance_records, safety_incidents, driver/truck metrics (7 tables) |
-| Feature(s) | Schema + staging + COPY INTO, 5 analytical queries, 5 views, batch Python loader, 4-tab Streamlit dashboard | monitoring panel |
+| Dataset(s) | All 14 trucking tables (customers, drivers, trucks, routes, loads, trips, fuel_purchases + trailers, facilities, delivery_events, maintenance_records, safety_incidents, driver/truck metrics) | — |
+| Feature(s) | Schema + staging + COPY INTO, 5 analytical queries, 5 views, batch Python loader, 5-tab Streamlit dashboard, pipeline monitoring | — |
 
 ## End-to-End Flow
 ```mermaid
@@ -79,9 +79,8 @@ streamlit run app/streamlit_app.py
 | ⛽ Fuel Spend | Fuel spend by state (state filter, top-N slider) |
 
 ## Extensions Completed
-- Extension 1:
-- Extension 2:
-- Extension 3: (if applicable)
+- **Extension 1: Full dataset ingestion** — ingested all 14 trucking CSVs (added trailers, facilities, delivery_events, maintenance_records, safety_incidents, driver_monthly_metrics, truck_utilization_metrics)
+- **Extension 2: Pipeline monitoring** — auto-logging with `perf_note`, latency charts, per-query stats, and performance summary in `📈 Monitoring` tab
 
 ## Demo Video Link
 - 

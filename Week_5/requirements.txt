@@ -1,4 +1,4 @@
-snowflake-connector-python
+snowflake-connector-python[secure-local-storage]
 pandas
 python-dotenv
 streamlit

@@ -1,6 +1,6 @@
 """
 CS 5542 — Week 5  ·  Trucking-Logistics Snowflake Dashboard
-Tabs: Overview | Fleet & Drivers | Routes | Fuel Spend
+Tabs: Overview | Fleet & Drivers | Routes | Fuel Spend | Monitoring
 """
 
 import os, time
@@ -25,8 +25,27 @@ LOG_PATH = "logs/pipeline_logs.csv"
 
 # ── helpers ──────────────────────────────────────────────────────────────────
 
+def _perf_note(latency_ms: int, rows: int, error: str = "") -> str:
+    """Auto-generate a short performance observation."""
+    if error:
+        return f"ERROR: {error[:120]}"
+    parts: list[str] = []
+    if latency_ms > 5000:
+        parts.append("High latency (>5 s) — consider warehouse scaling or query optimization")
+    elif latency_ms > 2000:
+        parts.append("Moderate latency (2-5 s) — acceptable for ad-hoc analysis")
+    else:
+        parts.append("Fast response (<2 s)")
+    if rows == 0:
+        parts.append("no rows returned — check filters or data availability")
+    elif rows > 500:
+        parts.append(f"large result set ({rows} rows) — consider tighter filters")
+    return "; ".join(parts)
+
+
 def log_event(team: str, user: str, query_name: str, latency_ms: int, rows: int, error: str = ""):
     os.makedirs(os.path.dirname(LOG_PATH), exist_ok=True)
+    note = _perf_note(latency_ms, rows, error)
     row = {
         "timestamp": datetime.utcnow().isoformat(),
         "team": team,
@@ -35,6 +54,7 @@ def log_event(team: str, user: str, query_name: str, latency_ms: int, rows: int,
         "latency_ms": latency_ms,
         "rows_returned": rows,
         "error": error,
+        "perf_note": note,
     }
     df = pd.DataFrame([row])
     header = not os.path.exists(LOG_PATH) or os.path.getsize(LOG_PATH) == 0
@@ -67,8 +87,8 @@ st.title("🚛 CS 5542 — Trucking Logistics Dashboard")
 st.caption("Live connection to **Snowflake** · parameterized inputs · Altair charts")
 
 # ── tabs ─────────────────────────────────────────────────────────────────────
-tab_overview, tab_fleet, tab_routes, tab_fuel = st.tabs(
-    ["📊 Overview", "🚛 Fleet & Drivers", "🗺️ Routes", "⛽ Fuel Spend"]
+tab_overview, tab_fleet, tab_routes, tab_fuel, tab_monitor = st.tabs(
+    ["📊 Overview", "🚛 Fleet & Drivers", "🗺️ Routes", "⛽ Fuel Spend", "📈 Monitoring"]
 )
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -304,10 +324,74 @@ with tab_fuel:
 
             st.dataframe(df, use_container_width=True)
 
-# ── footer — query log ──────────────────────────────────────────────────────
-st.divider()
-st.subheader("📋 Query Log")
-if os.path.exists(LOG_PATH):
-    st.dataframe(pd.read_csv(LOG_PATH).tail(50), use_container_width=True)
-else:
-    st.info("No logs yet. Run a query to generate logs.")
+# ═════════════════════════════════════════════════════════════════════════════
+# TAB 5 — Monitoring  (pipeline logs + performance analysis)
+# ═════════════════════════════════════════════════════════════════════════════
+with tab_monitor:
+    st.subheader("Pipeline Monitoring")
+
+    if os.path.exists(LOG_PATH) and os.path.getsize(LOG_PATH) > 0:
+        logs = pd.read_csv(LOG_PATH)
+        logs["timestamp"] = pd.to_datetime(logs["timestamp"], errors="coerce")
+
+        # ── KPI cards ────────────────────────────────────────────────────
+        mk1, mk2, mk3, mk4 = st.columns(4)
+        mk1.metric("Total Queries",   f"{len(logs):,}")
+        mk2.metric("Avg Latency",     f"{logs['latency_ms'].mean():,.0f} ms")
+        mk3.metric("Max Latency",     f"{logs['latency_ms'].max():,.0f} ms")
+        mk4.metric("Error Rate",      f"{(logs['error'].astype(bool).sum() / len(logs) * 100):.1f}%")
+
+        # ── Latency over time chart ──────────────────────────────────────
+        st.markdown("#### Latency Over Time")
+        lat_chart = (
+            alt.Chart(logs, title="Query Latency (ms)")
+            .mark_circle(size=60)
+            .encode(
+                x=alt.X("timestamp:T", title="Time"),
+                y=alt.Y("latency_ms:Q", title="Latency (ms)"),
+                color=alt.Color("query_name:N", legend=alt.Legend(title="Query")),
+                tooltip=["timestamp:T", "query_name:N", "latency_ms:Q", "rows_returned:Q"],
+            )
+            .properties(height=300)
+        )
+        st.altair_chart(lat_chart, use_container_width=True)
+
+        # ── Per-query stats table ────────────────────────────────────────
+        st.markdown("#### Per-Query Statistics")
+        stats = (
+            logs.groupby("query_name")
+            .agg(
+                runs=("latency_ms", "count"),
+                avg_latency_ms=("latency_ms", "mean"),
+                max_latency_ms=("latency_ms", "max"),
+                avg_rows=("rows_returned", "mean"),
+                errors=("error", lambda x: x.astype(bool).sum()),
+            )
+            .round(0)
+            .reset_index()
+            .sort_values("avg_latency_ms", ascending=False)
+        )
+        st.dataframe(stats, use_container_width=True, hide_index=True)
+
+        # ── Performance summary note ─────────────────────────────────────
+        st.markdown("#### Performance Notes")
+        slowest = logs.loc[logs["latency_ms"].idxmax()]
+        summary_lines = [
+            f"- **Total queries logged:** {len(logs)}",
+            f"- **Average latency:** {logs['latency_ms'].mean():,.0f} ms",
+            f"- **Slowest query:** `{slowest['query_name']}` at {slowest['latency_ms']:,} ms",
+        ]
+        high_lat = logs[logs["latency_ms"] > 5000]
+        if len(high_lat):
+            summary_lines.append(f"- ⚠️ **{len(high_lat)} queries exceeded 5 s** — consider Snowflake warehouse scaling or adding filters to reduce scan volume.")
+        else:
+            summary_lines.append("- ✅ All queries completed under 5 s — no bottlenecks detected.")
+        if logs["error"].astype(bool).any():
+            summary_lines.append(f"- 🔴 **{logs['error'].astype(bool).sum()} errors** detected — check the log table below for details.")
+        st.markdown("\n".join(summary_lines))
+
+        # ── Full log table ───────────────────────────────────────────────
+        st.markdown("#### Full Query Log")
+        st.dataframe(logs.sort_values("timestamp", ascending=False).head(100), use_container_width=True, hide_index=True)
+    else:
+        st.info("No logs yet. Run a query from any tab to start recording.")

@@ -5,12 +5,12 @@ Upload local CSV files to a Snowflake internal stage and COPY INTO tables.
 
 Usage:
   Single file:   python scripts/load_local_csv_to_stage.py data/customers.csv CUSTOMERS
-  Batch (all 7): python scripts/load_local_csv_to_stage.py --batch
+  Batch (all 14): python scripts/load_local_csv_to_stage.py --batch
 """
 import os
 import sys
 import time
-from sf_connect import get_conn
+# from sf_connect import get_conn
 
 # ---------- configuration ----------
 
@@ -19,13 +19,22 @@ FILE_FORMAT = "CS5542_CSV_FMT"
 
 # Ordered list: dimensions first, then facts (respects FK dependencies)
 BATCH_MANIFEST = [
-    ("data/customers.csv",       "CUSTOMERS"),
-    ("data/drivers.csv",         "DRIVERS"),
-    ("data/trucks.csv",          "TRUCKS"),
-    ("data/routes.csv",          "ROUTES"),
-    ("data/loads.csv",           "LOADS"),
-    ("data/trips.csv",           "TRIPS"),
-    ("data/fuel_purchases.csv",  "FUEL_PURCHASES"),
+    # --- core tables (dimensions first, then facts) ---
+    ("data/customers.csv",                "CUSTOMERS"),
+    ("data/drivers.csv",                  "DRIVERS"),
+    ("data/trucks.csv",                   "TRUCKS"),
+    ("data/routes.csv",                   "ROUTES"),
+    ("data/loads.csv",                    "LOADS"),
+    ("data/trips.csv",                    "TRIPS"),
+    ("data/fuel_purchases.csv",           "FUEL_PURCHASES"),
+    # --- extension tables ---
+    ("data/trailers.csv",                 "TRAILERS"),
+    ("data/facilities.csv",               "FACILITIES"),
+    ("data/delivery_events.csv",          "DELIVERY_EVENTS"),
+    ("data/maintenance_records.csv",      "MAINTENANCE_RECORDS"),
+    ("data/safety_incidents.csv",         "SAFETY_INCIDENTS"),
+    ("data/driver_monthly_metrics.csv",   "DRIVER_MONTHLY_METRICS"),
+    ("data/truck_utilization_metrics.csv","TRUCK_UTILIZATION_METRICS"),
 ]
 
 # ---------- helpers ----------
@@ -95,7 +104,7 @@ def upload_and_load(local_path: str, target_table: str):
 
 def main():
     if len(sys.argv) == 2 and sys.argv[1] == "--batch":
-        print("=== Batch load: 7 trucking CSVs ===\n")
+        print(f"=== Batch load: {len(BATCH_MANIFEST)} trucking CSVs ===\n")
         ensure_stage()
         total_t0 = time.time()
         for csv_path, table in BATCH_MANIFEST:
