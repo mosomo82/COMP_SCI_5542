@@ -24,8 +24,6 @@ from rag.pipeline import (
                   # as it only needs the result string + evidence text.
 )
 
-API_URL = "http://localhost:8000"
-
 # ── Page Config ────────────────────────────────────────────────────────────────
 st.set_page_config(page_title="CS5542 Lab 4 — Project RAG App", layout="wide")
 st.title("CS 5542 Lab 4 — Project RAG Application")
