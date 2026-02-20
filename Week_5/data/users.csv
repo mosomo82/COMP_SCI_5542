@@ -1,0 +1,5 @@
+USER_ID,TEAM,ROLE,CREATED_AT
+U1,TeamA,Developer,2026-01-01
+U2,TeamA,Analyst,2026-01-05
+U3,TeamB,Developer,2026-01-03
+U4,TeamC,Manager,2026-01-07

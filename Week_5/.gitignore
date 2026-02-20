@@ -1,0 +1,7 @@
+.env
+__pycache__/
+.ipynb_checkpoints/
+*.pyc
+.DS_Store
+logs/*.csv
+!logs/pipeline_logs.csv
