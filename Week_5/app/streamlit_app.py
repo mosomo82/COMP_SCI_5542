@@ -87,8 +87,9 @@ st.title("🚛 CS 5542 — Trucking Logistics Dashboard")
 st.caption("Live connection to **Snowflake** · parameterized inputs · Altair charts")
 
 # ── tabs ─────────────────────────────────────────────────────────────────────
-tab_overview, tab_fleet, tab_routes, tab_fuel, tab_monitor, tab_analytics = st.tabs(
-    ["📊 Overview", "🚛 Fleet & Drivers", "🗺️ Routes", "⛽ Fuel Spend", "📈 Monitoring", "🔬 Analytics"]
+tab_overview, tab_fleet, tab_routes, tab_fuel, tab_monitor, tab_analytics, tab_exec = st.tabs(
+    ["📊 Overview", "🚛 Fleet & Drivers", "🗺️ Routes", "⛽ Fuel Spend",
+     "📈 Monitoring", "🔬 Analytics", "🎯 Executive"]
 )
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -644,3 +645,268 @@ with tab_analytics:
 
                 with st.expander("Full table"):
                     st.dataframe(df, use_container_width=True, hide_index=True)
+
+# ═════════════════════════════════════════════════════════════════════════════
+# TAB 7 — Executive  (auto-loading KPIs, heatmap, sparklines, SQL explorer)
+# ═════════════════════════════════════════════════════════════════════════════
+with tab_exec:
+    st.subheader("🎯 Executive Analytics Dashboard")
+    st.caption("Auto-loads key metrics on render · No button clicks required · Live SQL explorer")
+
+    # ── auto-load KPIs ──────────────────────────────────────────────────────
+    # These queries fire automatically when the tab is rendered.
+
+    _SQL_EXEC_KPI = """
+    SELECT
+        (SELECT COUNT(*)          FROM CS5542_WEEK5.PUBLIC.LOADS           WHERE load_status='Completed')   AS completed_loads,
+        (SELECT ROUND(SUM(revenue),0) FROM CS5542_WEEK5.PUBLIC.LOADS       WHERE load_status='Completed')   AS total_revenue,
+        (SELECT COUNT(*)          FROM CS5542_WEEK5.PUBLIC.TRIPS)                                          AS total_trips,
+        (SELECT COUNT(*)          FROM CS5542_WEEK5.PUBLIC.DRIVERS         WHERE employment_status='Active') AS active_drivers,
+        (SELECT COUNT(*)          FROM CS5542_WEEK5.PUBLIC.TRUCKS          WHERE status='Active')           AS active_trucks,
+        (SELECT ROUND(AVG(average_mpg),2) FROM CS5542_WEEK5.PUBLIC.TRIPS   WHERE trip_status='Completed')  AS fleet_avg_mpg,
+        (SELECT ROUND(SUM(total_cost),0) FROM CS5542_WEEK5.PUBLIC.FUEL_PURCHASES)                         AS total_fuel_cost,
+        (SELECT COUNT(*)          FROM CS5542_WEEK5.PUBLIC.SAFETY_INCIDENTS)                              AS total_incidents;
+    """
+
+    _SQL_TERMINAL_PERF = """
+    SELECT
+        d.home_terminal,
+        COUNT(DISTINCT d.driver_id)              AS drivers,
+        COUNT(t.trip_id)                         AS trips,
+        ROUND(SUM(l.revenue),0)                  AS revenue,
+        ROUND(AVG(t.average_mpg),2)              AS avg_mpg,
+        ROUND(AVG(t.idle_time_hours),2)          AS avg_idle_h
+    FROM CS5542_WEEK5.PUBLIC.DRIVERS d
+    JOIN CS5542_WEEK5.PUBLIC.TRIPS t  ON d.driver_id = t.driver_id
+    JOIN CS5542_WEEK5.PUBLIC.LOADS l  ON t.load_id   = l.load_id
+    WHERE t.trip_status='Completed' AND l.load_status='Completed'
+    GROUP BY d.home_terminal
+    ORDER BY revenue DESC;
+    """
+
+    _SQL_MONTHLY_SPARK = """
+    SELECT
+        DATE_TRUNC('MONTH', load_date) AS month,
+        ROUND(SUM(revenue),0)          AS revenue,
+        COUNT(load_id)                 AS loads
+    FROM CS5542_WEEK5.PUBLIC.LOADS
+    WHERE load_status='Completed'
+      AND load_date >= DATEADD('year',-2, CURRENT_DATE)
+    GROUP BY 1 ORDER BY 1;
+    """
+
+    # Run all three on tab render (cached for 2 min)
+    try:
+        kpi_df,  kpi_ms  = run_query(_SQL_EXEC_KPI)
+        term_df, term_ms = run_query(_SQL_TERMINAL_PERF)
+        spk_df,  spk_ms  = run_query(_SQL_MONTHLY_SPARK)
+
+        for q, ms, n in [
+            ("exec_kpi", kpi_ms, len(kpi_df)),
+            ("exec_terminal", term_ms, len(term_df)),
+            ("exec_sparkline", spk_ms, len(spk_df)),
+        ]:
+            log_event(team, user, q, ms, n)
+
+        exec_ok = True
+    except Exception as exc:
+        st.warning(f"⚠️ Could not load executive data: {exc}")
+        exec_ok = False
+
+    if exec_ok:
+        # ── Section A: KPI scorecards ─────────────────────────────────────
+        st.markdown("### 📊 Fleet KPIs  *(auto-refreshed every 2 min)*")
+        row = kpi_df.iloc[0] if not kpi_df.empty else {}
+
+        c1,c2,c3,c4 = st.columns(4)
+        c1.metric("Completed Loads",  f"{int(row.get('COMPLETED_LOADS',0)):,}")
+        c2.metric("Total Revenue",     f"${int(row.get('TOTAL_REVENUE',0)):,}")
+        c3.metric("Total Trips",       f"{int(row.get('TOTAL_TRIPS',0)):,}")
+        c4.metric("Total Fuel Cost",   f"${int(row.get('TOTAL_FUEL_COST',0)):,}")
+
+        c5,c6,c7,c8 = st.columns(4)
+        c5.metric("Active Drivers",    f"{int(row.get('ACTIVE_DRIVERS',0)):,}")
+        c6.metric("Active Trucks",     f"{int(row.get('ACTIVE_TRUCKS',0)):,}")
+        c7.metric("Fleet Avg MPG",     f"{row.get('FLEET_AVG_MPG',0):.2f}")
+        c8.metric("Safety Incidents",  f"{int(row.get('TOTAL_INCIDENTS',0)):,}")
+
+        st.divider()
+
+        # ── Section B: Terminal performance heatmap ───────────────────────
+        st.markdown("### 🌡️ Terminal Performance Heatmap")
+        if not term_df.empty:
+            # Normalise each metric to 0–1 for colour encoding
+            metrics = ["REVENUE","TRIPS","AVG_MPG","DRIVERS"]
+            norm = term_df.copy()
+            for m in metrics:
+                rng = norm[m].max() - norm[m].min()
+                norm[f"{m}_norm"] = (norm[m] - norm[m].min()) / rng if rng else 0.5
+
+            # Long-form for Altair rect heatmap
+            heat_rows = []
+            for _, r in norm.iterrows():
+                for m in metrics:
+                    heat_rows.append({
+                        "Terminal": r["HOME_TERMINAL"],
+                        "Metric":   m,
+                        "Value":    float(r[m]),
+                        "Norm":     float(r[f"{m}_norm"]),
+                        "Label":    f"{r[m]:,.1f}" if m in ("AVG_MPG",) else f"{int(r[m]):,}",
+                    })
+            heat_df = pd.DataFrame(heat_rows)
+
+            heatmap = (
+                alt.Chart(heat_df, title="Terminal Performance Heatmap (darker = higher)")
+                .mark_rect(cornerRadius=4)
+                .encode(
+                    x=alt.X("Metric:N",    title=None, axis=alt.Axis(labelAngle=0)),
+                    y=alt.Y("Terminal:N",  title=None, sort="-x"),
+                    color=alt.Color("Norm:Q",
+                                    scale=alt.Scale(scheme="blues"),
+                                    legend=None),
+                    tooltip=["Terminal:N","Metric:N","Label:N"],
+                )
+                .properties(height=max(180, len(norm)*38))
+            )
+            text_layer = (
+                alt.Chart(heat_df)
+                .mark_text(fontSize=11, fontWeight="bold", color="white")
+                .encode(
+                    x="Metric:N",
+                    y=alt.Y("Terminal:N", sort="-x"),
+                    text="Label:N",
+                    opacity=alt.condition(alt.datum.Norm > 0.4,
+                                          alt.value(1), alt.value(0)),
+                )
+            )
+            st.altair_chart(heatmap + text_layer, use_container_width=True)
+
+            with st.expander("Terminal raw data"):
+                st.dataframe(term_df, use_container_width=True, hide_index=True)
+
+        st.divider()
+
+        # ── Section C: Monthly trend sparklines ──────────────────────────
+        st.markdown("### 📈 24-Month Revenue Trend  *(with 3-month rolling avg)*")
+        if not spk_df.empty:
+            spk_df["MONTH"] = pd.to_datetime(spk_df["MONTH"])
+            spk_df["ROLLING3"] = spk_df["REVENUE"].rolling(3, min_periods=1).mean().round(0)
+
+            spk_long = spk_df.melt(
+                id_vars="MONTH",
+                value_vars=["REVENUE","ROLLING3"],
+                var_name="Series", value_name="Value"
+            )
+            sparkline = (
+                alt.Chart(spk_long)
+                .mark_line(point=True, strokeWidth=2)
+                .encode(
+                    x=alt.X("MONTH:T", title="Month"),
+                    y=alt.Y("Value:Q",  title="Revenue ($)",
+                             scale=alt.Scale(zero=False)),
+                    color=alt.Color("Series:N",
+                                    scale=alt.Scale(
+                                        domain=["REVENUE","ROLLING3"],
+                                        range=["#4a90d9","#e67e22"]
+                                    ),
+                                    legend=alt.Legend(title="Series")),
+                    strokeDash=alt.condition(
+                        alt.datum.Series == "ROLLING3",
+                        alt.value([6,3]), alt.value([0])
+                    ),
+                    tooltip=["MONTH:T","Series:N","Value:Q"],
+                )
+                .properties(height=270)
+            )
+            st.altair_chart(sparkline, use_container_width=True)
+
+        st.divider()
+
+        # ── Section D: Live SQL Explorer ─────────────────────────────────
+        st.markdown("### ⚡ Live SQL Explorer")
+        st.caption("Write any `SELECT` against `CS5542_WEEK5.PUBLIC.*`. Results are limited to 500 rows.")
+
+        _PRESETS = {
+            "Top 10 customers by revenue": """
+SELECT c.customer_name, COUNT(l.load_id) AS loads,
+       ROUND(SUM(l.revenue),2) AS total_revenue
+FROM   CS5542_WEEK5.PUBLIC.LOADS l
+JOIN   CS5542_WEEK5.PUBLIC.CUSTOMERS c ON l.customer_id=c.customer_id
+WHERE  l.load_status='Completed'
+GROUP  BY c.customer_name ORDER BY total_revenue DESC LIMIT 10;""",
+            "Driver safety ranking": """
+SELECT d.first_name||' '||d.last_name AS driver,
+       COUNT(*) AS incidents,
+       SUM(claim_amount) AS claims
+FROM   CS5542_WEEK5.PUBLIC.SAFETY_INCIDENTS si
+JOIN   CS5542_WEEK5.PUBLIC.DRIVERS d ON si.driver_id=d.driver_id
+GROUP  BY 1 ORDER BY incidents DESC LIMIT 20;""",
+            "Monthly fuel cost trend": """
+SELECT DATE_TRUNC('MONTH',purchase_date) AS month,
+       ROUND(SUM(total_cost),2) AS fuel_cost,
+       ROUND(SUM(gallons),0)    AS gallons
+FROM   CS5542_WEEK5.PUBLIC.FUEL_PURCHASES
+GROUP  BY 1 ORDER BY 1;""",
+            "Custom": "",
+        }
+
+        preset_choice = st.selectbox(
+            "Preset query", list(_PRESETS.keys()), key="exec_preset"
+        )
+        default_sql = _PRESETS[preset_choice]
+
+        user_sql = st.text_area(
+            "SQL (SELECT only — edit or write your own)",
+            value=default_sql,
+            height=130,
+            key="exec_sql",
+        )
+
+        ex_c1, ex_c2 = st.columns([1, 5])
+        run_it  = ex_c1.button("▶ Run", key="exec_run")
+        ex_c2.caption("Results capped at 500 rows · Query is logged")
+
+        if run_it and user_sql.strip():
+            safe_sql = user_sql.strip()
+            # Enforce read-only: block DML/DDL keywords
+            first_word = safe_sql.split()[0].upper()
+            if first_word not in ("SELECT", "WITH", "SHOW", "DESCRIBE", "LIST"):
+                st.error("Only SELECT / WITH / SHOW / DESCRIBE / LIST are allowed.")
+            else:
+                # Wrap in a LIMIT 500 subquery if no LIMIT already
+                if "limit" not in safe_sql.lower():
+                    safe_sql = f"SELECT * FROM ({safe_sql}) _lim LIMIT 500"
+                try:
+                    df, ms = run_query(safe_sql)
+                    log_event(team, user, "exec_sql_explorer", ms, len(df))
+                    st.caption(f"⏱ {ms} ms  ·  {len(df)} rows")
+                    st.dataframe(df, use_container_width=True, hide_index=True)
+
+                    # Auto-chart: if result has exactly one date/timestamp + one numeric col
+                    date_cols = [c for c in df.columns
+                                 if "date" in c.lower() or "month" in c.lower() or "time" in c.lower()]
+                    num_cols  = [c for c in df.columns
+                                 if df[c].dtype in ("float64","int64") and c not in date_cols]
+                    if date_cols and num_cols:
+                        st.markdown("*Auto-chart detected a time column — showing trend:*")
+                        dc, nc = date_cols[0], num_cols[0]
+                        try:
+                            df[dc] = pd.to_datetime(df[dc])
+                            auto = (
+                                alt.Chart(df)
+                                .mark_line(point=True, strokeWidth=2)
+                                .encode(
+                                    x=alt.X(f"{dc}:T", title=dc),
+                                    y=alt.Y(f"{nc}:Q", title=nc,
+                                            scale=alt.Scale(zero=False)),
+                                    tooltip=[f"{dc}:T", f"{nc}:Q"],
+                                )
+                                .properties(height=250)
+                            )
+                            st.altair_chart(auto, use_container_width=True)
+                        except Exception:
+                            pass
+                except Exception as exc:
+                    st.error(f"Query error: {exc}")
+        elif run_it:
+            st.warning("Enter a SQL query above.")

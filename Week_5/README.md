@@ -37,13 +37,28 @@ pip install -r requirements.txt
 ## Snowflake SQL Setup
 Run these scripts in a Snowflake Worksheet (in order):
 1. `sql/01_create_schema.sql` — creates database + 14 tables
-2. `sql/02_stage_and_load.sql` — warehouse, file format, stage, COPY INTO
+2. `sql/02_stage_and_load.sql` — warehouse, file format, internal stage, COPY INTO
 3. `sql/04_views.sql` — 5 derived views for the dashboard
 4. `sql/05_derived_analytics.sql` — 4 advanced derived analytics tables
+5. `sql/06_s3_pipeline.sql` — S3 storage integration, external stage, COPY INTO from S3
+
+> **Tip:** Steps 1–5 are fully automated by `scripts/run_pipeline.py` — see below.
 
 ## Load Data
 
-### Batch (all 7 tables at once — recommended)
+### 🤖 Automated pipeline (recommended)
+```bash
+# Load all 14 tables from S3, build views + derived analytics, log the run:
+py scripts/run_pipeline.py
+
+# Use local CSVs instead of S3:
+py scripts/run_pipeline.py --local
+
+# Skip storage integration creation (already exists):
+py scripts/run_pipeline.py --skip-s3-setup
+```
+
+### Manual batch (internal stage)
 ```bash
 python scripts/load_local_csv_to_stage.py --batch
 ```
@@ -87,6 +102,10 @@ streamlit run app/streamlit_app.py
   - `DT_TRUCK_HEALTH_SCORECARD` — composite truck health score (MPG + downtime + incidents)
   - `DT_ROUTE_DELIVERY_QUALITY` — on-time %, detention burden, per-mile revenue with PERCENT_RANK
   - `DT_MONTHLY_OPERATIONS_SUMMARY` — MoM growth (LAG), 3-month rolling avg, net margin estimate
+- **Extension 4: Automated S3 ingestion pipeline** — `scripts/run_pipeline.py` orchestrates the full pipeline in one command:
+  - Creates schema, S3 external stage (via `s3_integration`), COPY INTO all 14 tables from S3
+  - Runs `04_views.sql` and `05_derived_analytics.sql` post-load
+  - Prints row-count verification table and logs each run to `logs/pipeline_logs.csv`
 
 ## Demo Video Link
 - 
