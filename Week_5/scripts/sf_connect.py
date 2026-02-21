@@ -4,30 +4,50 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# ── Secret resolution ─────────────────────────────────────────────────────────
+# Priority: environment variable → Streamlit secrets → None
+# This makes the module work both locally (.env) and on Streamlit Cloud (secrets).
+
+def _get(key: str) -> str | None:
+    """Return the value for *key* from env vars or st.secrets (in that order)."""
+    val = os.getenv(key)
+    if val:
+        return val
+    try:
+        import streamlit as st
+        return st.secrets.get(key)
+    except Exception:
+        return None
+
+
 def get_conn():
     required = [
         "SNOWFLAKE_ACCOUNT", "SNOWFLAKE_USER",
         "SNOWFLAKE_WAREHOUSE", "SNOWFLAKE_DATABASE", "SNOWFLAKE_SCHEMA"
     ]
     # Password only required when NOT using externalbrowser / SSO
-    if not os.getenv("SNOWFLAKE_AUTHENTICATOR"):
+    if not _get("SNOWFLAKE_AUTHENTICATOR"):
         required.append("SNOWFLAKE_PASSWORD")
-    missing = [k for k in required if not os.getenv(k)]
+
+    missing = [k for k in required if not _get(k)]
     if missing:
-        raise RuntimeError(f"Missing env vars: {missing}. Fill .env from .env.example")
+        raise RuntimeError(
+            f"Missing Snowflake credentials: {missing}. "
+            "Set them in .env (local) or Streamlit Cloud → Manage app → Secrets."
+        )
 
     conn_kwargs = dict(
-        account=os.getenv("SNOWFLAKE_ACCOUNT"),
-        user=os.getenv("SNOWFLAKE_USER"),
-        password=os.getenv("SNOWFLAKE_PASSWORD"),
-        role=os.getenv("SNOWFLAKE_ROLE", None),
-        warehouse=os.getenv("SNOWFLAKE_WAREHOUSE"),
-        database=os.getenv("SNOWFLAKE_DATABASE"),
-        schema=os.getenv("SNOWFLAKE_SCHEMA"),
+        account=_get("SNOWFLAKE_ACCOUNT"),
+        user=_get("SNOWFLAKE_USER"),
+        password=_get("SNOWFLAKE_PASSWORD"),
+        role=_get("SNOWFLAKE_ROLE"),
+        warehouse=_get("SNOWFLAKE_WAREHOUSE"),
+        database=_get("SNOWFLAKE_DATABASE"),
+        schema=_get("SNOWFLAKE_SCHEMA"),
     )
 
-    # Optional external browser auth
-    authenticator = os.getenv("SNOWFLAKE_AUTHENTICATOR")
+    # Optional SSO / external browser auth
+    authenticator = _get("SNOWFLAKE_AUTHENTICATOR")
     if authenticator:
         conn_kwargs["authenticator"] = authenticator
         conn_kwargs.pop("password", None)
