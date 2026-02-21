@@ -63,11 +63,20 @@ def log_event(team: str, user: str, query_name: str, latency_ms: int, rows: int,
 
 @st.cache_data(ttl=120, show_spinner="Querying Snowflake …")
 def run_query(sql: str) -> tuple[pd.DataFrame, int]:
-    """Execute *sql* and return (DataFrame, latency_ms)."""
+    """Execute *sql* and return (DataFrame, latency_ms).
+
+    Uses cursor.execute + fetchall instead of pd.read_sql because
+    pd.read_sql is not fully supported by the Snowflake DBAPI connector.
+    """
     t0 = time.time()
     with get_conn() as conn:
-        df = pd.read_sql(sql, conn)
+        with conn.cursor() as cur:
+            cur.execute(sql)
+            rows = cur.fetchall()
+            cols = [desc[0] for desc in cur.description] if cur.description else []
+    df = pd.DataFrame(rows, columns=cols)
     return df, int((time.time() - t0) * 1000)
+
 
 
 def safe(text: str) -> str:
