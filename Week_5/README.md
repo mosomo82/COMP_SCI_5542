@@ -19,12 +19,16 @@ This starter kit provides a minimal, reproducible **Data → Snowflake → Query
 
 ## End-to-End Flow
 ```mermaid
-flowchart LR
-A[14 CSVs — Trucking Data] --> B[Snowflake Stage + COPY]
-B --> C["7 Tables (4 dim + 3 fact)"]
-C --> D[5 Views]
-D --> E[4-Tab Streamlit Dashboard]
-E --> F[Monitoring Logs]
+flowchart TD
+    A[14 CSVs — Synthetic Logistics Data] --> B[Automated Ingestion Pipeline: scripts/run_pipeline.py]
+    B --> C{Stage Selection}
+    C -->|Local| D[@CS5542_STAGE Internal]
+    C -->|S3| E[@CS5542_S3_STAGE External]
+    D & E --> F[Snowflake: CS5542_WEEK5.PUBLIC]
+    F --> G[14 Tables: Core + Extensions]
+    G --> H[Views & Derived Analytics]
+    H --> I[7-Tab Streamlit Dashboard]
+    I --> J[pipeline_logs.csv]
 ```
 
 ## Setup
@@ -89,23 +93,20 @@ streamlit run app/streamlit_app.py
 
 | Tab | Description |
 |---|---|
-| 📊 Overview | KPI cards + monthly revenue line chart (date-range filter) |
-| 🚛 Fleet & Drivers | Truck/driver performance (fuel-type multi-select, min-trips slider) |
-| 🗺️ Routes | Route scorecard (margin threshold, min-loads filter) |
-| ⛽ Fuel Spend | Fuel spend by state (state filter, top-N slider) |
+| 📊 Overview | KPI cards + monthly revenue line chart (date-range filter). |
+| 🚛 Fleet & Drivers | Truck/driver performance (fuel-type multi-select, min-trips slider). |
+| 🗺️ Routes | Route scorecard (margin threshold, min-loads filter). |
+| ⛽ Fuel Spend | Fuel spend by state (state filter, top-N slider). |
+| 📈 Monitoring | Performance stats, latency over time, and raw query logs. |
+| 🔬 Analytics | Advanced derived tables (Driver rankings, Truck health, Route quality). |
+| 🎯 Executive | Auto-loading KPIs, terminal heatmap, and live SQL explorer. |
 
 ## Extensions Completed
-- **Extension 1: Full dataset ingestion** — ingested all 14 trucking CSVs (added trailers, facilities, delivery_events, maintenance_records, safety_incidents, driver_monthly_metrics, truck_utilization_metrics)
-- **Extension 2: Pipeline monitoring** — auto-logging with `perf_note`, latency charts, per-query stats, and performance summary in `📈 Monitoring` tab
-- **Extension 3: Advanced derived analytics** — `05_derived_analytics.sql` creates 4 materialized tables using window functions (RANK, NTILE, PERCENT_RANK, LAG), CTEs, composite scoring, and cross-domain joins:
-  - `DT_DRIVER_PERFORMANCE_RANKED` — driver rankings, safety scores, percentile bands
-  - `DT_TRUCK_HEALTH_SCORECARD` — composite truck health score (MPG + downtime + incidents)
-  - `DT_ROUTE_DELIVERY_QUALITY` — on-time %, detention burden, per-mile revenue with PERCENT_RANK
-  - `DT_MONTHLY_OPERATIONS_SUMMARY` — MoM growth (LAG), 3-month rolling avg, net margin estimate
-- **Extension 4: Automated S3 ingestion pipeline** — `scripts/run_pipeline.py` orchestrates the full pipeline in one command:
-  - Creates schema, S3 external stage (via `s3_integration`), COPY INTO all 14 tables from S3
-  - Runs `04_views.sql` and `05_derived_analytics.sql` post-load
-  - Prints row-count verification table and logs each run to `logs/pipeline_logs.csv`
+- **Extension 1: Full dataset ingestion** — Ingested all 14 trucking CSVs, including trailers, facilities, maintenance_records, and more.
+- **Extension 2: Pipeline monitoring** — Dedicated `📈 Monitoring` tab with performance summary, latency charts, and query stats.
+- **Extension 3: Advanced derived analytics** — `05_derived_analytics.sql` creates materialized tables for driver rankings, truck health, and route quality.
+- **Extension 4: Automated S3 ingestion pipeline** — `scripts/run_pipeline.py` provides one-command orchestration for schema creation and S3 data loading.
+- **Extension 5: Interactive executive dashboard** — `🎯 Executive` tab with auto-loading KPIs, heatmap, and a live SQL explorer.
 
 ## Demo Video Link
 - 
