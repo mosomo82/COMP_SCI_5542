@@ -10,12 +10,21 @@ Usage:
 import os
 import sys
 import time
-# from sf_connect import get_conn
+import pathlib
+
+# Ensure 'scripts/' is on sys.path so sf_connect can be imported
+# whether this script is run from the project root or scripts/ directory.
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+from sf_connect import get_conn
 
 # ---------- configuration ----------
 
-STAGE_NAME = "CS5542_STAGE"
+STAGE_NAME  = "CS5542_STAGE"
 FILE_FORMAT = "CS5542_CSV_FMT"
+
+# Path to schema DDL relative to this script's parent (project root)
+_HERE        = pathlib.Path(__file__).resolve().parent
+SCHEMA_SQL   = _HERE.parent / "sql" / "01_create_schema.sql"
 
 # Ordered list: dimensions first, then facts (respects FK dependencies)
 BATCH_MANIFEST = [
@@ -48,6 +57,37 @@ def run_sql(sql: str):
                 return cur.fetchall()
             except Exception:
                 return None
+
+
+def _split_sql(text: str) -> list[str]:
+    """Split a SQL file into individual statements (splits on ';')."""
+    stmts = []
+    for raw in text.split(";"):
+        stmt = raw.strip()
+        # Skip blank chunks and pure-comment chunks
+        lines = [l for l in stmt.splitlines() if l.strip() and not l.strip().startswith("--")]
+        if lines:
+            stmts.append(stmt)
+    return stmts
+
+
+def ensure_schema():
+    """Run 01_create_schema.sql to (re)create all 14 tables (idempotent)."""
+    if not SCHEMA_SQL.exists():
+        print(f"  [WARN] Schema file not found: {SCHEMA_SQL} — skipping auto-create.")
+        return
+    sql_text = SCHEMA_SQL.read_text(encoding="utf-8")
+    stmts = _split_sql(sql_text)
+    print(f"  Running schema DDL ({len(stmts)} statements) ... ", end="", flush=True)
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            for stmt in stmts:
+                try:
+                    cur.execute(stmt)
+                except Exception as exc:
+                    # Non-fatal: log and continue (e.g. USE DATABASE is fine)
+                    pass
+    print("done")
 
 
 def ensure_stage():
@@ -105,6 +145,7 @@ def upload_and_load(local_path: str, target_table: str):
 def main():
     if len(sys.argv) == 2 and sys.argv[1] == "--batch":
         print(f"=== Batch load: {len(BATCH_MANIFEST)} trucking CSVs ===\n")
+        ensure_schema()   # auto-create all 14 tables if they don't exist
         ensure_stage()
         total_t0 = time.time()
         for csv_path, table in BATCH_MANIFEST:

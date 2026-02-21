@@ -1,8 +1,17 @@
 import os
+import pathlib
 import snowflake.connector
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 
-load_dotenv()
+# Explicitly load .env relative to this file's directory (project root neighbour),
+# so the module works regardless of the caller's CWD.
+_env_path = find_dotenv(
+    filename=".env",
+    raise_error_if_not_found=False,
+    usecwd=False,
+) or str(pathlib.Path(__file__).resolve().parents[1] / ".env")
+load_dotenv(_env_path, override=False)
+
 
 # ── Secret resolution ─────────────────────────────────────────────────────────
 # Priority: environment variable → Streamlit secrets → None

@@ -36,9 +36,10 @@ pip install -r requirements.txt
 
 ## Snowflake SQL Setup
 Run these scripts in a Snowflake Worksheet (in order):
-1. `sql/01_create_schema.sql` — creates database + 7 tables
+1. `sql/01_create_schema.sql` — creates database + 14 tables
 2. `sql/02_stage_and_load.sql` — warehouse, file format, stage, COPY INTO
 3. `sql/04_views.sql` — 5 derived views for the dashboard
+4. `sql/05_derived_analytics.sql` — 4 advanced derived analytics tables
 
 ## Load Data
 
@@ -81,6 +82,11 @@ streamlit run app/streamlit_app.py
 ## Extensions Completed
 - **Extension 1: Full dataset ingestion** — ingested all 14 trucking CSVs (added trailers, facilities, delivery_events, maintenance_records, safety_incidents, driver_monthly_metrics, truck_utilization_metrics)
 - **Extension 2: Pipeline monitoring** — auto-logging with `perf_note`, latency charts, per-query stats, and performance summary in `📈 Monitoring` tab
+- **Extension 3: Advanced derived analytics** — `05_derived_analytics.sql` creates 4 materialized tables using window functions (RANK, NTILE, PERCENT_RANK, LAG), CTEs, composite scoring, and cross-domain joins:
+  - `DT_DRIVER_PERFORMANCE_RANKED` — driver rankings, safety scores, percentile bands
+  - `DT_TRUCK_HEALTH_SCORECARD` — composite truck health score (MPG + downtime + incidents)
+  - `DT_ROUTE_DELIVERY_QUALITY` — on-time %, detention burden, per-mile revenue with PERCENT_RANK
+  - `DT_MONTHLY_OPERATIONS_SUMMARY` — MoM growth (LAG), 3-month rolling avg, net margin estimate
 
 ## Demo Video Link
 - 

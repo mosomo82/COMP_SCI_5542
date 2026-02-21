@@ -80,15 +80,15 @@ with st.sidebar:
     team = st.text_input("Team name", value="TeamX")
     user = st.text_input("Your name", value="Student")
     st.divider()
-    st.caption("Queries hit the 5 views created in `04_views.sql`.")
+    st.caption("Queries hit views (`04_views.sql`) and derived tables (`05_derived_analytics.sql`).")
 
 # ── title ────────────────────────────────────────────────────────────────────
 st.title("🚛 CS 5542 — Trucking Logistics Dashboard")
 st.caption("Live connection to **Snowflake** · parameterized inputs · Altair charts")
 
 # ── tabs ─────────────────────────────────────────────────────────────────────
-tab_overview, tab_fleet, tab_routes, tab_fuel, tab_monitor = st.tabs(
-    ["📊 Overview", "🚛 Fleet & Drivers", "🗺️ Routes", "⛽ Fuel Spend", "📈 Monitoring"]
+tab_overview, tab_fleet, tab_routes, tab_fuel, tab_monitor, tab_analytics = st.tabs(
+    ["📊 Overview", "🚛 Fleet & Drivers", "🗺️ Routes", "⛽ Fuel Spend", "📈 Monitoring", "🔬 Analytics"]
 )
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -395,3 +395,252 @@ with tab_monitor:
         st.dataframe(logs.sort_values("timestamp", ascending=False).head(100), use_container_width=True, hide_index=True)
     else:
         st.info("No logs yet. Run a query from any tab to start recording.")
+
+# ═════════════════════════════════════════════════════════════════════════════
+# TAB 6 — Analytics  (derived tables from 05_derived_analytics.sql)
+# ═════════════════════════════════════════════════════════════════════════════
+with tab_analytics:
+    st.subheader("Advanced Derived Analytics")
+    st.caption("Queries run against the 4 materialized tables built by `sql/05_derived_analytics.sql`. "
+               "Run that script in Snowflake once after loading data.")
+
+    an1, an2, an3, an4 = st.tabs([
+        "🧑‍✈️ Driver Rankings",
+        "🚛 Truck Health",
+        "🗺️ Route Quality",
+        "📅 Monthly Ops",
+    ])
+
+    # ── Sub-tab 1: Driver Performance Ranked ─────────────────────────────────
+    with an1:
+        st.markdown("#### Driver Performance — Ranked (`DT_DRIVER_PERFORMANCE_RANKED`)")
+        an1c1, an1c2 = st.columns(2)
+        with an1c1:
+            revenue_quartile = st.multiselect(
+                "Revenue quartile (1 = top 25%)",
+                [1, 2, 3, 4], default=[1, 2], key="an1_q"
+            )
+        with an1c2:
+            an1_limit = st.slider("Top N drivers", 5, 150, 30, key="an1_lim")
+
+        q_filter = ", ".join(str(q) for q in revenue_quartile) if revenue_quartile else "1,2,3,4"
+        sql_driver = f"""
+        SELECT
+            driver_name, home_terminal, cdl_class, years_experience,
+            total_trips, total_miles, total_revenue,
+            avg_mpg, avg_on_time_pct, safety_score,
+            revenue_rank, mpg_rank, revenue_quartile, mpg_decile
+        FROM CS5542_WEEK5.PUBLIC.DT_DRIVER_PERFORMANCE_RANKED
+        WHERE revenue_quartile IN ({q_filter})
+        ORDER BY revenue_rank ASC
+        LIMIT {an1_limit};
+        """
+        if st.button("Run Driver Rankings", key="btn_an1"):
+            df, ms = run_query(sql_driver)
+            log_event(team, user, "analytics_driver_ranked", ms, len(df))
+            st.caption(f"⏱ {ms} ms · {len(df)} rows")
+            if df.empty:
+                st.warning("No data — have you run `05_derived_analytics.sql` in Snowflake?")
+            else:
+                ak1, ak2, ak3 = st.columns(3)
+                ak1.metric("Avg Safety Score", f"{df['SAFETY_SCORE'].mean():.1f} / 100")
+                ak2.metric("Avg On-Time %",    f"{df['AVG_ON_TIME_PCT'].mean():.1f}%")
+                ak3.metric("Avg MPG",           f"{df['AVG_MPG'].mean():.2f}")
+
+                bar = (
+                    alt.Chart(df.head(20), title="Top Drivers by Revenue ($)")
+                    .mark_bar(cornerRadiusTopLeft=4, cornerRadiusTopRight=4)
+                    .encode(
+                        x=alt.X("TOTAL_REVENUE:Q", title="Revenue ($)"),
+                        y=alt.Y("DRIVER_NAME:N", sort="-x", title="Driver"),
+                        color=alt.Color("SAFETY_SCORE:Q",
+                                        scale=alt.Scale(scheme="redyellowgreen"),
+                                        legend=alt.Legend(title="Safety Score")),
+                        tooltip=["DRIVER_NAME:N", "TOTAL_REVENUE:Q",
+                                 "AVG_MPG:Q", "SAFETY_SCORE:Q", "AVG_ON_TIME_PCT:Q"],
+                    ).properties(height=420)
+                )
+                st.altair_chart(bar, use_container_width=True)
+                with st.expander("Full table"):
+                    st.dataframe(df, use_container_width=True, hide_index=True)
+
+    # ── Sub-tab 2: Truck Health Scorecard ────────────────────────────────────
+    with an2:
+        st.markdown("#### Truck Health Scorecard (`DT_TRUCK_HEALTH_SCORECARD`)")
+        an2c1, an2c2, an2c3 = st.columns(3)
+        with an2c1:
+            fuel_type_f = st.multiselect(
+                "Fuel type", ["Diesel", "CNG", "Electric"],
+                default=["Diesel", "CNG", "Electric"], key="an2_ft"
+            )
+        with an2c2:
+            min_health = st.slider("Min health score", 0, 100, 40, key="an2_hs")
+        with an2c3:
+            an2_limit = st.slider("Top N trucks", 5, 120, 30, key="an2_lim")
+
+        ft_filter = ", ".join(f"'{safe(f)}'" for f in fuel_type_f) if fuel_type_f else "'Diesel'"
+        sql_truck = f"""
+        SELECT
+            truck_id, make, model_year, fuel_type, status, home_terminal,
+            total_trips, total_miles, avg_mpg, total_revenue,
+            maintenance_events, total_maintenance_cost, maintenance_cost_per_mile,
+            incident_count, avg_utilization_pct, health_score,
+            revenue_rank, mpg_quartile
+        FROM CS5542_WEEK5.PUBLIC.DT_TRUCK_HEALTH_SCORECARD
+        WHERE fuel_type IN ({ft_filter})
+          AND health_score >= {min_health}
+        ORDER BY health_score DESC
+        LIMIT {an2_limit};
+        """
+        if st.button("Run Truck Health", key="btn_an2"):
+            df, ms = run_query(sql_truck)
+            log_event(team, user, "analytics_truck_health", ms, len(df))
+            st.caption(f"⏱ {ms} ms · {len(df)} rows")
+            if df.empty:
+                st.warning("No data — have you run `05_derived_analytics.sql` in Snowflake?")
+            else:
+                bk1, bk2, bk3 = st.columns(3)
+                bk1.metric("Avg Health Score",    f"{df['HEALTH_SCORE'].mean():.1f} / 100")
+                bk2.metric("Avg Utilization",     f"{df['AVG_UTILIZATION_PCT'].mean():.1f}%")
+                bk3.metric("Avg Maint Cost/Mile", f"${df['MAINTENANCE_COST_PER_MILE'].mean():.4f}")
+
+                scatter = (
+                    alt.Chart(df, title="Health Score vs MPG (bubble = revenue)")
+                    .mark_circle()
+                    .encode(
+                        x=alt.X("AVG_MPG:Q", title="Avg MPG"),
+                        y=alt.Y("HEALTH_SCORE:Q", title="Health Score"),
+                        size=alt.Size("TOTAL_REVENUE:Q", legend=alt.Legend(title="Revenue ($)")),
+                        color=alt.Color("FUEL_TYPE:N", legend=alt.Legend(title="Fuel")),
+                        tooltip=["TRUCK_ID:N", "MAKE:N", "MODEL_YEAR:Q",
+                                 "HEALTH_SCORE:Q", "AVG_MPG:Q", "TOTAL_REVENUE:Q"],
+                    ).properties(height=380)
+                )
+                st.altair_chart(scatter, use_container_width=True)
+                with st.expander("Full table"):
+                    st.dataframe(df, use_container_width=True, hide_index=True)
+
+    # ── Sub-tab 3: Route Delivery Quality ────────────────────────────────────
+    with an3:
+        st.markdown("#### Route Delivery Quality (`DT_ROUTE_DELIVERY_QUALITY`)")
+        an3c1, an3c2 = st.columns(2)
+        with an3c1:
+            min_ontime = st.slider("Min on-time event %", 0, 100, 0, key="an3_ot")
+        with an3c2:
+            an3_limit  = st.slider("Top N routes", 5, 100, 20, key="an3_lim")
+
+        sql_route_q = f"""
+        SELECT
+            route_label, typical_distance_miles,
+            total_loads, total_revenue, avg_revenue_per_load,
+            avg_detention_min, on_time_event_pct,
+            revenue_per_mile, low_detention_rank,
+            ROUND(detention_pct_rank * 100, 1) AS detention_pct_rank
+        FROM CS5542_WEEK5.PUBLIC.DT_ROUTE_DELIVERY_QUALITY
+        WHERE on_time_event_pct >= {min_ontime}
+        ORDER BY revenue_per_mile DESC
+        LIMIT {an3_limit};
+        """
+        if st.button("Run Route Quality", key="btn_an3"):
+            df, ms = run_query(sql_route_q)
+            log_event(team, user, "analytics_route_quality", ms, len(df))
+            st.caption(f"⏱ {ms} ms · {len(df)} rows")
+            if df.empty:
+                st.warning("No data — have you run `05_derived_analytics.sql` in Snowflake?")
+            else:
+                ck1, ck2, ck3 = st.columns(3)
+                ck1.metric("Avg On-Time %",     f"{df['ON_TIME_EVENT_PCT'].mean():.1f}%")
+                ck2.metric("Avg Detention",      f"{df['AVG_DETENTION_MIN'].mean():.0f} min")
+                ck3.metric("Avg Rev / Mile",     f"${df['REVENUE_PER_MILE'].mean():.2f}")
+
+                bar = (
+                    alt.Chart(df.head(15), title="Revenue per Mile by Route")
+                    .mark_bar(cornerRadiusTopLeft=4, cornerRadiusTopRight=4)
+                    .encode(
+                        x=alt.X("REVENUE_PER_MILE:Q", title="Revenue / Mile ($)"),
+                        y=alt.Y("ROUTE_LABEL:N", sort="-x", title="Route"),
+                        color=alt.Color(
+                            "ON_TIME_EVENT_PCT:Q",
+                            scale=alt.Scale(scheme="redyellowgreen"),
+                            legend=alt.Legend(title="On-Time %")
+                        ),
+                        tooltip=["ROUTE_LABEL:N", "REVENUE_PER_MILE:Q",
+                                 "ON_TIME_EVENT_PCT:Q", "AVG_DETENTION_MIN:Q",
+                                 "TOTAL_LOADS:Q"],
+                    ).properties(height=420)
+                )
+                st.altair_chart(bar, use_container_width=True)
+                with st.expander("Full table"):
+                    st.dataframe(df, use_container_width=True, hide_index=True)
+
+    # ── Sub-tab 4: Monthly Operations Summary ────────────────────────────────
+    with an4:
+        st.markdown("#### Monthly Operations Summary (`DT_MONTHLY_OPERATIONS_SUMMARY`)")
+        an4c1, an4c2 = st.columns(2)
+        with an4c1:
+            mo_start = st.date_input("From month", value=pd.Timestamp("2022-01-01"), key="an4_s")
+        with an4c2:
+            mo_end   = st.date_input("To month",   value=pd.Timestamp("2025-12-31"), key="an4_e")
+
+        sql_monthly = f"""
+        SELECT
+            month, loads, load_revenue, fuel_cost,
+            maintenance_cost, incidents, claim_amount,
+            est_net_margin, revenue_mom_pct, loads_mom_pct, revenue_3mo_avg
+        FROM CS5542_WEEK5.PUBLIC.DT_MONTHLY_OPERATIONS_SUMMARY
+        WHERE month >= '{mo_start}'
+          AND month <= '{mo_end}'
+        ORDER BY month;
+        """
+        if st.button("Run Monthly Ops", key="btn_an4"):
+            df, ms = run_query(sql_monthly)
+            log_event(team, user, "analytics_monthly_ops", ms, len(df))
+            st.caption(f"⏱ {ms} ms · {len(df)} rows")
+            if df.empty:
+                st.warning("No data — have you run `05_derived_analytics.sql` in Snowflake?")
+            else:
+                dk1, dk2, dk3, dk4 = st.columns(4)
+                dk1.metric("Total Revenue",    f"${df['LOAD_REVENUE'].sum():,.0f}")
+                dk2.metric("Total Fuel Cost",  f"${df['FUEL_COST'].sum():,.0f}")
+                dk3.metric("Total Incidents",  f"{df['INCIDENTS'].sum():,}")
+                dk4.metric("Avg Net Margin/mo", f"${df['EST_NET_MARGIN'].mean():,.0f}")
+
+                # Multi-line chart: revenue, 3-mo avg, net margin
+                df_melted = df.melt(
+                    id_vars="MONTH",
+                    value_vars=["LOAD_REVENUE", "REVENUE_3MO_AVG", "EST_NET_MARGIN"],
+                    var_name="Metric", value_name="Value"
+                )
+                line = (
+                    alt.Chart(df_melted, title="Monthly Revenue, 3-Mo Avg & Net Margin")
+                    .mark_line(point=True, strokeWidth=2)
+                    .encode(
+                        x=alt.X("MONTH:T", title="Month"),
+                        y=alt.Y("Value:Q",  title="USD ($)", scale=alt.Scale(zero=False)),
+                        color=alt.Color("Metric:N", legend=alt.Legend(title="Series")),
+                        tooltip=["MONTH:T", "Metric:N", "Value:Q"],
+                    ).properties(height=370)
+                )
+                st.altair_chart(line, use_container_width=True)
+
+                # MoM growth bar
+                mom = df.dropna(subset=["REVENUE_MOM_PCT"])
+                if not mom.empty:
+                    st.markdown("##### Month-over-Month Revenue Growth %")
+                    mom_bar = (
+                        alt.Chart(mom)
+                        .mark_bar()
+                        .encode(
+                            x=alt.X("MONTH:T", title="Month"),
+                            y=alt.Y("REVENUE_MOM_PCT:Q", title="MoM Growth (%)"),
+                            color=alt.condition(
+                                alt.datum.REVENUE_MOM_PCT > 0,
+                                alt.value("#2ecc71"), alt.value("#e74c3c")
+                            ),
+                            tooltip=["MONTH:T", "REVENUE_MOM_PCT:Q", "LOADS_MOM_PCT:Q"],
+                        ).properties(height=220)
+                    )
+                    st.altair_chart(mom_bar, use_container_width=True)
+
+                with st.expander("Full table"):
+                    st.dataframe(df, use_container_width=True, hide_index=True)
