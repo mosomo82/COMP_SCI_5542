@@ -1,2 +1,5 @@
 # CS5542 – Shared dependencies (Streamlit Cloud reads from repo root)
 -r Week_4/requirements.txt
+
+#CS5542 - Shared dependencies (Streamlit CLoud reads from repo root)
+-r Week_5/requirements.txt
