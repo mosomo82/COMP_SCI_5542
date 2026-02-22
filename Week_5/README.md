@@ -207,6 +207,17 @@ The CSVs were downloaded as-is and ingested into Snowflake via the staging scrip
 
 ---
 
+## 📂 Data Source
+
+All 14 CSV datasets in `data/` are sourced from the publicly available Kaggle dataset:
+
+> **[Logistics Operations Database](https://www.kaggle.com/datasets/yogape/logistics-operations-database)**  
+> Kaggle · *yogape* · Logistics / Transportation domain
+
+The CSVs were downloaded as-is and ingested into Snowflake via the staging scripts in `scripts/`.
+
+---
+
 ## 🎬 Demo & Notes
 
 * **Demo Video Link:** *(Insert link here)*
