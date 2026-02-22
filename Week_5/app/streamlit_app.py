@@ -96,9 +96,9 @@ st.title("🚛 CS 5542 — Trucking Logistics Dashboard")
 st.caption("Live connection to **Snowflake** · parameterized inputs · Altair charts")
 
 # ── tabs ─────────────────────────────────────────────────────────────────────
-tab_overview, tab_fleet, tab_routes, tab_fuel, tab_monitor, tab_analytics, tab_exec = st.tabs(
+tab_overview, tab_fleet, tab_routes, tab_fuel, tab_monitor, tab_analytics, tab_exec, tab_safety = st.tabs(
     ["📊 Overview", "🚛 Fleet & Drivers", "🗺️ Routes", "⛽ Fuel Spend",
-     "📈 Monitoring", "🔬 Analytics", "🎯 Executive"]
+     "📈 Monitoring", "🔬 Analytics", "🎯 Executive", "⚠️ Safety"]
 )
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -919,3 +919,175 @@ GROUP  BY 1 ORDER BY 1;""",
                     st.error(f"Query error: {exc}")
         elif run_it:
             st.warning("Enter a SQL query above.")
+
+# ═════════════════════════════════════════════════════════════════════════════
+# TAB 8 — Safety Incidents  (querying SAFETY_INCIDENTS)
+# ═════════════════════════════════════════════════════════════════════════════
+with tab_safety:
+    st.subheader("⚠️ Safety Incidents")
+    st.caption(
+        "Queries the `SAFETY_INCIDENTS` table. Filter by incident type, date range, "
+        "and state to explore fleet-wide safety trends."
+    )
+
+    # ── parameterized inputs ─────────────────────────────────────────────────
+    sf_c1, sf_c2, sf_c3 = st.columns(3)
+    with sf_c1:
+        incident_types = st.multiselect(
+            "Incident type",
+            ["Moving Violation", "Collision", "Equipment Failure",
+             "Near Miss", "Cargo Damage", "DOT Inspection"],
+            default=["Moving Violation", "Collision", "Equipment Failure",
+                     "Near Miss", "Cargo Damage", "DOT Inspection"],
+            key="sf_types",
+        )
+    with sf_c2:
+        sf_start = st.date_input("From date", value=pd.Timestamp("2022-01-01"), key="sf_start")
+    with sf_c3:
+        sf_end = st.date_input("To date", value=pd.Timestamp("2025-12-31"), key="sf_end")
+
+    sf_c4, sf_c5 = st.columns(2)
+    with sf_c4:
+        sf_state = st.text_input(
+            "State (comma-separated, or blank for all)", key="sf_state"
+        )
+    with sf_c5:
+        sf_limit = st.slider("Top N drivers", 5, 50, 15, key="sf_limit")
+
+    # ── build WHERE clauses ──────────────────────────────────────────────────
+    type_filter = (
+        ", ".join(f"'{safe(t)}'" for t in incident_types)
+        if incident_types else "'Moving Violation'"
+    )
+    state_clause = ""
+    if sf_state.strip():
+        states = ", ".join(f"'{safe(s.strip())}'" for s in sf_state.split(","))
+        state_clause = f"AND location_state IN ({states})"
+
+    sql_safety_kpi = f"""
+    SELECT
+        COUNT(*)                                              AS total_incidents,
+        ROUND(SUM(claim_amount), 0)                          AS total_claims,
+        ROUND(AVG(IFF(at_fault_flag, 1, 0)) * 100, 1)       AS at_fault_pct,
+        ROUND(AVG(IFF(injury_flag, 1, 0)) * 100, 1)         AS injury_pct,
+        ROUND(SUM(vehicle_damage_cost), 0)                   AS total_vehicle_damage,
+        ROUND(AVG(IFF(preventable_flag, 1, 0)) * 100, 1)    AS preventable_pct
+    FROM CS5542_WEEK5.PUBLIC.SAFETY_INCIDENTS
+    WHERE incident_type IN ({type_filter})
+      AND CAST(incident_date AS DATE) BETWEEN '{sf_start}' AND '{sf_end}'
+      {state_clause};
+    """
+
+    sql_safety_by_type = f"""
+    SELECT
+        incident_type,
+        COUNT(*)                     AS incidents,
+        ROUND(SUM(claim_amount), 0)  AS claims,
+        ROUND(AVG(claim_amount), 0)  AS avg_claim
+    FROM CS5542_WEEK5.PUBLIC.SAFETY_INCIDENTS
+    WHERE incident_type IN ({type_filter})
+      AND CAST(incident_date AS DATE) BETWEEN '{sf_start}' AND '{sf_end}'
+      {state_clause}
+    GROUP BY incident_type
+    ORDER BY incidents DESC;
+    """
+
+    sql_safety_drivers = f"""
+    SELECT
+        d.first_name || ' ' || d.last_name   AS driver_name,
+        d.home_terminal,
+        COUNT(si.incident_id)                AS total_incidents,
+        ROUND(SUM(si.claim_amount), 0)       AS total_claims,
+        SUM(IFF(si.at_fault_flag, 1, 0))    AS at_fault_count,
+        SUM(IFF(si.injury_flag, 1, 0))      AS injury_count
+    FROM CS5542_WEEK5.PUBLIC.SAFETY_INCIDENTS si
+    JOIN CS5542_WEEK5.PUBLIC.DRIVERS d ON si.driver_id = d.driver_id
+    WHERE si.incident_type IN ({type_filter})
+      AND CAST(si.incident_date AS DATE) BETWEEN '{sf_start}' AND '{sf_end}'
+      {state_clause}
+    GROUP BY driver_name, d.home_terminal
+    ORDER BY total_incidents DESC
+    LIMIT {sf_limit};
+    """
+
+    if st.button("Run Safety Query", key="btn_sf"):
+        try:
+            kpi_df, kpi_ms     = run_query(sql_safety_kpi)
+            type_df, type_ms   = run_query(sql_safety_by_type)
+            drv_df, drv_ms     = run_query(sql_safety_drivers)
+
+            total_ms = kpi_ms + type_ms + drv_ms
+            total_rows = len(type_df) + len(drv_df)
+            log_event(team, user, "safety_incidents", total_ms, total_rows)
+            st.caption(f"⏱ {total_ms} ms  ·  {total_rows} rows")
+
+            # ── KPI cards ────────────────────────────────────────────────────
+            if not kpi_df.empty:
+                row = kpi_df.iloc[0]
+                sk1, sk2, sk3, sk4 = st.columns(4)
+                sk1.metric("Total Incidents",    f"{int(row.get('TOTAL_INCIDENTS', 0)):,}")
+                sk2.metric("Total Claims",        f"${int(row.get('TOTAL_CLAIMS', 0)):,}")
+                sk3.metric("At-Fault Rate",       f"{row.get('AT_FAULT_PCT', 0):.1f}%")
+                sk4.metric("Injury Rate",          f"{row.get('INJURY_PCT', 0):.1f}%")
+
+                sk5, sk6 = st.columns(2)
+                sk5.metric("Vehicle Damage Cost", f"${int(row.get('TOTAL_VEHICLE_DAMAGE', 0)):,}")
+                sk6.metric("Preventable %",        f"{row.get('PREVENTABLE_PCT', 0):.1f}%")
+
+            st.divider()
+
+            # ── Chart: incidents by type ─────────────────────────────────────
+            if not type_df.empty:
+                st.markdown("#### Incidents by Type")
+                bar_type = (
+                    alt.Chart(type_df, title="Incident Count by Type")
+                    .mark_bar(cornerRadiusTopLeft=4, cornerRadiusTopRight=4)
+                    .encode(
+                        x=alt.X("INCIDENTS:Q", title="Count"),
+                        y=alt.Y("INCIDENT_TYPE:N", sort="-x", title="Incident Type"),
+                        color=alt.Color(
+                            "AVG_CLAIM:Q",
+                            scale=alt.Scale(scheme="orangered"),
+                            legend=alt.Legend(title="Avg Claim ($)"),
+                        ),
+                        tooltip=[
+                            "INCIDENT_TYPE:N", "INCIDENTS:Q",
+                            "CLAIMS:Q", "AVG_CLAIM:Q",
+                        ],
+                    )
+                    .properties(height=280)
+                )
+                st.altair_chart(bar_type, use_container_width=True)
+
+            st.divider()
+
+            # ── Chart: top drivers by incident count ────────────────────────
+            if not drv_df.empty:
+                st.markdown(f"#### Top {sf_limit} Drivers by Incident Count")
+                bar_drv = (
+                    alt.Chart(drv_df, title="Driver Incidents (colored by total claims)")
+                    .mark_bar(cornerRadiusTopLeft=4, cornerRadiusTopRight=4)
+                    .encode(
+                        x=alt.X("TOTAL_INCIDENTS:Q", title="Incidents"),
+                        y=alt.Y("DRIVER_NAME:N", sort="-x", title="Driver"),
+                        color=alt.Color(
+                            "TOTAL_CLAIMS:Q",
+                            scale=alt.Scale(scheme="orangered"),
+                            legend=alt.Legend(title="Total Claims ($)"),
+                        ),
+                        tooltip=[
+                            "DRIVER_NAME:N", "HOME_TERMINAL:N",
+                            "TOTAL_INCIDENTS:Q", "TOTAL_CLAIMS:Q",
+                            "AT_FAULT_COUNT:Q", "INJURY_COUNT:Q",
+                        ],
+                    )
+                    .properties(height=max(250, len(drv_df) * 28))
+                )
+                st.altair_chart(bar_drv, use_container_width=True)
+
+                with st.expander("Full driver safety table"):
+                    st.dataframe(drv_df, use_container_width=True, hide_index=True)
+
+        except Exception as exc:
+            st.error(f"Safety query error: {exc}")
+

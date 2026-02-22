@@ -49,7 +49,6 @@ Week_5/
 ├── logs/                       # Pipeline Monitoring
 │   └── pipeline_logs.csv       # Tracks ingestion success, errors, and latencies
 ├── scripts/                    # Ingestion & Orchestration Scripts
-│   ├── generate_data.py        # Python/Faker script for generating the CSVs
 │   ├── load_local_csv_to_stage.py # Local/Batch ingestion using internal staging
 │   └── run_pipeline.py         # Automated master orchestrator (Local & S3 modes)
 ├── sql/                        # Data Warehouse Definition & Analytics
@@ -192,6 +191,17 @@ streamlit run app/streamlit_app.py
 * [x] **Extension 3: Advanced derived analytics** — `05_derived_analytics.sql` creates materialized tables for driver rankings, truck health, and route quality.
 * [x] **Extension 4: Automated S3 ingestion pipeline** — `scripts/run_pipeline.py` provides one-command orchestration for schema creation and S3 data loading.
 * [x] **Extension 5: Interactive executive dashboard** — `🎯 Executive` tab with auto-loading KPIs, heatmap, and a live SQL explorer.
+
+---
+
+## 📂 Data Source
+
+All 14 CSV datasets in `data/` are sourced from the publicly available Kaggle dataset:
+
+> **[Logistics Operations Database](https://www.kaggle.com/datasets/yogape/logistics-operations-database)**  
+> Kaggle · *yogape* · Logistics / Transportation domain
+
+The CSVs were downloaded as-is and ingested into Snowflake via the staging scripts in `scripts/`.
 
 ---
 
