@@ -1,0 +1,96 @@
+---
+config:
+  layout: elk
+---
+flowchart LR
+ subgraph DataSources["Data Sources (CSVs)"]
+    direction LR
+        ods_customers["customers.csv"]
+        ods_drivers["drivers.csv"]
+        ods_trucks["trucks.csv"]
+        ods_routes["routes.csv"]
+        ods_loads["loads.csv"]
+        ods_trips["trips.csv"]
+  end
+ subgraph LocalPath["Local / Batch Ingestion"]
+        py_script["Python Script\n(e.g., load_data.py)"]
+        internal_stage[("Snowflake Internal Stage\n@my_internal_stage")]
+  end
+ subgraph CloudPath["Cloud / Automated Ingestion"]
+        s3_bucket[("AWS S3 Bucket\n(s3://my-data-bucket/)")]
+        snowpipe["Snowpipe\n(Auto-Ingest Trigger)"]
+        external_stage[("Snowflake External Stage\n(S3 Integration)")]
+  end
+ subgraph Ingestion["Ingestion Layer"]
+    direction TB
+        CloudPath
+        LocalPath
+  end
+ subgraph RawDataTables["Raw Data Layer (Tables)"]
+        T_CUSTOMERS["CUSTOMERS"]
+        T_DRIVERS["DRIVERS"]
+        T_TRUCKS["TRUCKS"]
+        T_ROUTES["ROUTES"]
+        T_LOADS["LOADS"]
+        T_TRIPS["TRIPS"]
+  end
+ subgraph DerivedAnalytics["Derived Analytics Layer (Views & Tables)"]
+        V_DRIVER_METRICS["VIEW: v_driver_metrics\n(Performance stats)"]
+        V_ROUTE_STATS["VIEW: v_route_stats\n(Delivery times, delays)"]
+        T_MONTHLY_SUMMARY["M. VIEW: monthly_ops_summary\n(Aggregated KPIs)"]
+  end
+ subgraph SnowflakeDW["Snowflake Data Warehouse"]
+    direction TB
+        DerivedAnalytics
+        RawDataTables
+  end
+ subgraph DashboardPages["Dashboard Pages"]
+        Page_Overview["Operations Overview"]
+        Page_Fleet["Fleet & Driver Performance"]
+        Page_Logistics["Route & Delivery Analysis"]
+  end
+ subgraph Presentation["Presentation Layer"]
+        DashboardPages
+        streamlit["Streamlit Dashboard\n(Python App)"]
+  end
+    py_script -- "1. PUT file://..." --> internal_stage
+    s3_bucket -- "1. Object Create Event" --> snowpipe
+    snowpipe -.-> external_stage
+    DataSources -- Read locally --> py_script
+    DataSources -. Upload to Cloud .-> s3_bucket
+    internal_stage -- "2. COPY INTO (Batch)" --> RawDataTables
+    snowpipe -- "2. COPY INTO (Automated)" --> RawDataTables
+    T_LOADS -- FK: customer_id --> T_CUSTOMERS
+    T_TRIPS -- FK: load_id --> T_LOADS
+    T_TRIPS -- FK: driver_id --> T_DRIVERS
+    T_TRIPS -- FK: truck_id --> T_TRUCKS
+    T_TRIPS -- FK: route_id --> T_ROUTES
+    T_DRIVERS -.- T_TRUCKS
+    T_DRIVERS --> V_DRIVER_METRICS
+    T_TRIPS --> V_DRIVER_METRICS & V_ROUTE_STATS
+    T_LOADS --> V_DRIVER_METRICS
+    T_ROUTES --> V_ROUTE_STATS
+    V_DRIVER_METRICS --> T_MONTHLY_SUMMARY
+    V_ROUTE_STATS --> T_MONTHLY_SUMMARY
+    streamlit -- SQL Queries --> DerivedAnalytics
+    streamlit -- "SQL Queries (Drill-down)" --> RawDataTables
+    streamlit --> Page_Overview & Page_Fleet & Page_Logistics
+
+     internal_stage:::storage
+     py_script:::process
+     external_stage:::storage
+     snowpipe:::process
+     s3_bucket:::storage
+     T_TRIPS:::storage
+     T_LOADS:::storage
+     T_ROUTES:::storage
+     T_TRUCKS:::storage
+     T_DRIVERS:::storage
+     T_CUSTOMERS:::storage
+     T_MONTHLY_SUMMARY:::storage
+     V_ROUTE_STATS:::view
+     V_DRIVER_METRICS:::view
+     streamlit:::process
+    classDef storage fill:#f9f9f9,stroke:#666,stroke-width:2px,stroke-dasharray: 5 5
+    classDef process fill:#e1f5fe,stroke:#0277bd,stroke-width:1px
+    classDef view fill:#e8f5e9,stroke:#2e7d32,stroke-width:1px,stroke-dasharray: 2 2
