@@ -181,6 +181,7 @@ streamlit run app/streamlit_app.py
 | 📈 **Monitoring** | Performance stats, latency over time, and raw query logs. |
 | 🔬 **Analytics** | Advanced derived tables (Driver rankings, Truck health, Route quality). |
 | 🎯 **Executive** | Auto-loading KPIs, terminal heatmap, and a live SQL explorer. |
+| ⚠️ **Safety Incidents** | Incident-type breakdown, top-10 driver incidents, parameterized filters. |
 
 ---
 
@@ -191,6 +192,7 @@ streamlit run app/streamlit_app.py
 * [x] **Extension 3: Advanced derived analytics** — `05_derived_analytics.sql` creates materialized tables for driver rankings, truck health, and route quality.
 * [x] **Extension 4: Automated S3 ingestion pipeline** — `scripts/run_pipeline.py` provides one-command orchestration for schema creation and S3 data loading.
 * [x] **Extension 5: Interactive executive dashboard** — `🎯 Executive` tab with auto-loading KPIs, heatmap, and a live SQL explorer.
+* [x] **Extension 6: Safety Incidents dashboard tab** — `⚠️ Safety Incidents` tab with incident-type breakdown, top-10 driver incidents, and parameterized filters.     
 
 ---
 
