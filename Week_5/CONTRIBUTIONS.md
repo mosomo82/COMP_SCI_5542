@@ -46,7 +46,7 @@
 
 ---
 
-### Member 3: Joe Vinas
+### Member 3: Joe Vinas (joelvinas)
 - Responsibilities:
   - Built the advanced derived analytics (`sql/05_derived_analytics.sql`) — 4 materialized analytics tables (Driver Rankings, Truck Health, Route Quality, and more)
   - Designed the AWS S3 integration pipeline (`sql/06_s3_pipeline.sql`) — storage integration, external stage setup, and `COPY INTO` from S3
