@@ -86,7 +86,7 @@ def safe(text: str) -> str:
 # ── sidebar ──────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.header("⚙️  Session")
-    team = st.text_input("Team name", value="TeamEVN")
+    team = st.text_input("Team name", value="TeamX")
     user = st.text_input("Your name", value="Student")
     st.divider()
     st.caption("Queries hit views (`04_views.sql`) and derived tables (`05_derived_analytics.sql`).")
@@ -96,9 +96,9 @@ st.title("🚛 CS 5542 — Trucking Logistics Dashboard")
 st.caption("Live connection to **Snowflake** · parameterized inputs · Altair charts")
 
 # ── tabs ─────────────────────────────────────────────────────────────────────
-tab_overview, tab_fleet, tab_routes, tab_fuel, tab_monitor, tab_analytics, tab_exec = st.tabs(
+tab_overview, tab_fleet, tab_routes, tab_fuel, tab_monitor, tab_analytics, tab_exec, tab_safety = st.tabs(
     ["📊 Overview", "🚛 Fleet & Drivers", "🗺️ Routes", "⛽ Fuel Spend",
-     "📈 Monitoring", "🔬 Analytics", "🎯 Executive""⚠️ Safety"]
+     "📈 Monitoring", "🔬 Analytics", "🎯 Executive", "⚠️ Safety"]
 )
 
 # ═════════════════════════════════════════════════════════════════════════════
