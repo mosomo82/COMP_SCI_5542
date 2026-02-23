@@ -19,7 +19,6 @@
   - Commit `e33559c` — Update pipeline scripts
   - Commit `141aefd` — Update ingestion and schema scripts
   - Commit `f8e17a1` — Update pipeline orchestration
-  - Commit `bf544a6` — Add Daniel and Joe to the project, divide work equally
   - Merge commits `9b03174`, `6756d9c` — Merge branch integrations
   - Commits `02bd4e2`, `fd2dbab` — Update `.gitignore` and README documentation
 - Tested:
