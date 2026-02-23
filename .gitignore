@@ -1,0 +1,71 @@
+# ==========================================
+# 📂 CS5542
+# ==========================================
+
+# --- Python & Snowpark ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# --- Virtual Environments (Team Collaboration) ---
+# Each team member (Tony, Daniel, Joel) should build their own local venv
+venv/
+.venv/
+env/
+.env/
+ENV/
+env.bak/
+venv.bak/
+
+# --- Security & Credentials ---
+# Critical: Protects Snowflake/AWS keys and local secrets
+.env
+.env.local
+.env.*.local
+secrets.toml
+snowflake_credentials.json
+
+# --- Data & Large Artifacts (CRITICAL) ---
+# GitHub limit is 100MB. US Accidents (3.06GB) and NOAA data MUST be ignored.
+*.csv
+*.parquet
+*.json
+*.geojson
+*.log
+data/
+reproducibility/golden_dataset/raw/
+
+# --- Jupyter & Development ---
+.ipynb_checkpoints
+.vscode/
+.idea/
+*.code-workspace
+.DS_Store
+
+# --- Snowflake/Cortex Specific ---
+.snowflake/
+output/
+temp_stages/
+
+# EXCEPTIONS: Force Git to track the empty folder placeholders
+!data/.gitkeep
+!logs/.gitkeep
