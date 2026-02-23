@@ -1,11 +1,9 @@
-# Week 5 Contributions (Required)
-
-## Team Name: Team mosomo82
+## Team Name: Team EVN
 ## Project Title: Logistics Operation Dashboard — Snowflake Integration
 
 ---
 
-### Member 1: Tony (mosomo82)
+### Member 1: Tony Nguyen (mosomo82)
 - Responsibilities:
   - Designed and implemented the Snowflake schema (`sql/01_create_schema.sql`) — 14 tables for the trucking logistics domain
   - Created the staging and loading SQL (`sql/02_stage_and_load.sql`) — warehouse config, file format, internal stage, and `COPY INTO`
