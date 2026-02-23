@@ -51,8 +51,6 @@ snowflake_credentials.json
 *.json
 *.geojson
 *.log
-data/
-reproducibility/golden_dataset/raw/
 
 # --- Jupyter & Development ---
 .ipynb_checkpoints
