@@ -86,7 +86,7 @@ def safe(text: str) -> str:
 # ── sidebar ──────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.header("⚙️  Session")
-    team = st.text_input("Team name", value="TeamX")
+    team = st.text_input("Team name", value="TeamEVN")
     user = st.text_input("Your name", value="Student")
     st.divider()
     st.caption("Queries hit views (`04_views.sql`) and derived tables (`05_derived_analytics.sql`).")
