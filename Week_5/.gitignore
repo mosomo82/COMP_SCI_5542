@@ -65,3 +65,7 @@ reproducibility/golden_dataset/raw/
 .snowflake/
 output/
 temp_stages/
+
+# EXCEPTIONS: Force Git to track the empty folder placeholders
+!data/.gitkeep
+!logs/.gitkeep
