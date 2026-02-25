@@ -30,8 +30,7 @@
   - Commit [`141aefd`](https://github.com/mosomo82/COMP_SCI_5542/commit/141aefd1934ab418d6e39474f96ac83391865913) — Update ingestion and schema scripts
   - Commit [`02bd4e2`](https://github.com/mosomo82/COMP_SCI_5542/commit/02bd4e292bfe6374fc3215ae7e0419ab6d869f53) — Update `.gitignore`
   - Commits [`fd2dbab`](https://github.com/mosomo82/COMP_SCI_5542/commit/fd2dbabc076580c3b1c6cfaefe2cd5e8a5550b38), [`23ea9cd`](https://github.com/mosomo82/COMP_SCI_5542/commit/23ea9cd0ed9e0df8623bc526d818cf5743ffb906) — Update README documentation
-  - Commit [`3ec53ca`](https://github.com/mosomo82/COMP_SCI_5542/commit/3ec53caf69dace7a4d04658d409d843504f1f9af) — Update CONTRIBUTIONS.md and README
-  - Commit [`fa7ed05`](https://github.com/mosomo82/COMP_SCI_5542/commit/fa7ed05864dd15734da1e1a345d5dbf316c823a4) — Update pipeline architecture diagrams/figures
+    
 - Tested:
   - Verified all 14 tables are created successfully in Snowflake (`01_create_schema.sql`)
   - Tested `COPY INTO` staging pipeline — confirmed CSV data loads with correct row counts
@@ -76,12 +75,11 @@
   - Assisted in synthetic data ingestion and schema validation
   - Provided support for automated pipe orchestration testing
 - Evidence (PR/commits):
-  - Commit `b04fca2` — Add files via upload (data CSVs and scripts)
-  - Commit `ccbcf95` — Add Week 5 requirements to `requirements.txt`
-  - Commit `30b7b19` — Delete exposed `.env` file for security
-  - Commit `a56842b` — Create `.gitignore` for project dependencies and artifacts
-  - Commits `4fdcbaa`, `0a836ac`, `619fdb0`, `fa0b139` — Clean up directory structure and data files
-  - Commits `486696f`, `e6508f4`, `23ea9cd` — Update README with results, improved clarity, and documentation
+  - Commit [`3b93508`](https://github.com/mosomo82/COMP_SCI_5542/commit/3b935089b181553227f9c1067a2eda777f0a039b) — Update Contributions.md to include JVinas
+  - Commit [`bfee410`](https://github.com/mosomo82/COMP_SCI_5542/pull/4/commits/bfee4108d0833d5670908841a1cd7a3cbc10f811) — Updated to reintroduce sql for derived analytics & s3 pipeline
+  - Commit [`b4eb440`](https://github.com/mosomo82/COMP_SCI_5542/pull/4/commits/b4eb440abc51369e448ab49d6df41c65fe8ed8c9) — Updated to reintroduce sql for derived analytics & s3 pipeline (final)
+  - [Pull Request #3](https://github.com/mosomo82/COMP_SCI_5542/pull/3): `jvinas` → `main` — Update Contributions.md to include JVinas; merged as commit [`156336b`](https://github.com/mosomo82/COMP_SCI_5542/commit/156336b58b648ef76d2d1a9dd9e1b5ea4bd21559)
+  - [Pull Request #4](https://github.com/mosomo82/COMP_SCI_5542/pull/4): `jvinas` → `main` — Merging SQL for derived analytics & S3 pipeline; merged as commit [`28561ac`](https://github.com/mosomo82/COMP_SCI_5542/commit/28561ac70a1f65481689aa7144dc97a797f39cb3)
 - Tested:
   - Verified all 4 derived analytics tables in `05_derived_analytics.sql` — confirmed correct materialized aggregations
   - Tested S3 integration pipeline (`06_s3_pipeline.sql`) — validated external stage and `COPY INTO` from S3 bucket
