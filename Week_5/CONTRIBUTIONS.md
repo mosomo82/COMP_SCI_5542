@@ -1,77 +1,5 @@
 # CONTRIBUTIONS.md — CS 5542 Lab 5
 
-> **Team:** CS 5542 Week 5 · Logistics Operations Dashboard  
-> **Repository:** [COMP_SCI_5542 / Week_5](https://github.com/)  
-> **Deadline:** Feb. 23, 2026 — 12:00 PM
-
----
-
-## Team Members & Responsibilities
-
-### Member 1 — Tony (Lead Engineer)
-
-**Implemented components:**
-
-| Component | Files |
-|---|---|
-| Snowflake environment setup (database, schema, warehouse, roles) | `sql/01_create_schema.sql` |
-| Internal staging + `COPY INTO` ingestion | `sql/02_stage_and_load.sql` |
-| 5 core analytical queries (revenue, efficiency, profitability, trends, fleet) | `sql/03_queries.sql` |
-| 5 derived views for dashboard | `sql/04_views.sql` |
-| 4 advanced materialized analytics tables (driver rankings, truck health, route quality, monthly ops) | `sql/05_derived_analytics.sql` |
-| AWS S3 external stage + `COPY INTO` from S3 | `sql/06_s3_pipeline.sql` |
-| Automated master orchestrator pipeline (local + S3 modes) | `scripts/run_pipeline.py` |
-| Manual batch CSV loader via internal stage | `scripts/load_local_csv_to_stage.py` |
-| Snowflake connection helper module | `scripts/sf_connect.py` |
-| 7-tab Streamlit dashboard (Overview, Fleet & Drivers, Routes, Fuel Spend, Monitoring, Analytics, Executive) | `app/streamlit_app.py` |
-| Pipeline logging (`pipeline_logs.csv`) | `logs/pipeline_logs.csv` |
-| Primary README documentation | `README.md` |
-
----
-
-### Member 2 — Daniel
-
-**Implemented components:**
-
-| Component | Files |
-|---|---|
-| Data source attribution — cited original Kaggle dataset, removed incorrect `generate_data.py` reference from README | `README.md` |
-| Credential template for safe GitHub commits | `.env.example` |
-| ⚠️ Safety Incidents dashboard tab — new 8th tab querying `SAFETY_INCIDENTS` with KPI cards, incident-type breakdown chart, top-10 driver incident chart, parameterized filters | `app/streamlit_app.py` |
-| Team contribution documentation | `CONTRIBUTIONS.md` |
-
----
-
-## Extensions Implemented
-
-| Extension | Implemented By | Files |
-|---|---|---|
-| Full dataset ingestion (14 tables including 5 extension tables) | Tony | `sql/01_create_schema.sql`, `sql/02_stage_and_load.sql` |
-| Pipeline monitoring tab with latency charts | Tony | `app/streamlit_app.py` (Tab 5) |
-| Advanced derived analytics (4 materialized tables) | Tony | `sql/05_derived_analytics.sql`, `app/streamlit_app.py` (Tab 6) |
-| Automated S3 ingestion pipeline (one-command orchestration) | Tony | `scripts/run_pipeline.py`, `sql/06_s3_pipeline.sql` |
-| Interactive Executive Dashboard (auto-load KPIs, heatmap, SQL explorer) | Tony | `app/streamlit_app.py` (Tab 7) |
-| Safety Incidents dashboard tab (cross-dataset incident analytics) | Daniel | `app/streamlit_app.py` (Tab 8) |
-
----
-
-## Commit Evidence
-
-> Each member's contributions are verifiable by filtering GitHub commits by author:
->
-> - **Tony's commits:** schema design, SQL scripts, ingestion scripts, core dashboard tabs
-> - **Daniel's commits:** `CONTRIBUTIONS.md`, `.env.example`, README data source section, Safety Incidents tab
-
----
-
-## Notes
-
-- The 14 CSV datasets in `data/` are sourced from the public Kaggle dataset [Logistics Operations Database](https://www.kaggle.com/datasets/yogape/logistics-operations-database) by *yogape*.
-- Snowflake credentials are stored in `.env` (gitignored). The `.env.example` template is safe for public repositories.
-- The pipeline has been tested on XSMALL warehouse. Cold starts on a suspended warehouse may add 5–10 s to the first query.
-
-# CONTRIBUTIONS.md — CS 5542 Lab 5
-
 > **Team Name:** EVN 
 > **Team Members:** Tony Nguyen (mosomo82), Daniel Evans (devans2718), Joe Vinas (jvinas)
 > **Project Title:** Logistics Operation Dashboard — Snowflake Integration
@@ -93,13 +21,17 @@
   - Assisted with dashboard feature integration and debugging
   - Managed security configurations and credential templates
 - Evidence (PR/commits):
-  - Commit `6458f57` — Initial Week 5 project setup
-  - Commit `fd3643d` — Update `sf_connect.py` with authentication improvements
-  - Commit `6f31f63` — Update `streamlit_app.py` with dashboard features
-  - Commit `e33559c` — Update pipeline scripts
-  - Commit `141aefd` — Update ingestion and schema scripts
-  - Commit `f8e17a1` — Update pipeline orchestration
-  - Commits `02bd4e2`, `fd2dbab` — Update `.gitignore` and README documentation
+  - Commit [`163b40b`](https://github.com/mosomo82/COMP_SCI_5542/commit/163b40b216b4ba1577fc308e1be81fae0b41f7b8) — Lab 5 Implementation (initial full project upload)
+  - Commit [`b04fca2`](https://github.com/mosomo82/COMP_SCI_5542/commit/b04fca2c325ff68f94961c3681a7bbe0d7a45ec6) — Add files via upload (data CSVs and scripts)
+  - Commit [`fd3643d`](https://github.com/mosomo82/COMP_SCI_5542/commit/fd3643d27ed95046a0286d434a129a475f116ed5) — Update `sf_connect.py` with authentication improvements
+  - Commit [`6f31f63`](https://github.com/mosomo82/COMP_SCI_5542/commit/6f31f6320eba76e92d633cee3c2f662d0e503c6a) — Update `streamlit_app.py` with dashboard features
+  - Commits [`519d5b4`](https://github.com/mosomo82/COMP_SCI_5542/commit/519d5b45b098472852f05f27c32667e123ca7cd3), [`7ee1f39`](https://github.com/mosomo82/COMP_SCI_5542/commit/7ee1f394e7a56da7135ff227c632cffbef285e40), [`9a1b022`](https://github.com/mosomo82/COMP_SCI_5542/commit/9a1b02220f873bebd6666191a9d08657ac913af4) — Update `streamlit_app.py` (iterative dashboard fixes)
+  - Commit [`e33559c`](https://github.com/mosomo82/COMP_SCI_5542/commit/e33559c9711e4c336fe3b675e747e093583eb34c) — Update pipeline scripts
+  - Commit [`141aefd`](https://github.com/mosomo82/COMP_SCI_5542/commit/141aefd1934ab418d6e39474f96ac83391865913) — Update ingestion and schema scripts
+  - Commit [`02bd4e2`](https://github.com/mosomo82/COMP_SCI_5542/commit/02bd4e292bfe6374fc3215ae7e0419ab6d869f53) — Update `.gitignore`
+  - Commits [`fd2dbab`](https://github.com/mosomo82/COMP_SCI_5542/commit/fd2dbabc076580c3b1c6cfaefe2cd5e8a5550b38), [`23ea9cd`](https://github.com/mosomo82/COMP_SCI_5542/commit/23ea9cd0ed9e0df8623bc526d818cf5743ffb906) — Update README documentation
+  - Commit [`3ec53ca`](https://github.com/mosomo82/COMP_SCI_5542/commit/3ec53caf69dace7a4d04658d409d843504f1f9af) — Update CONTRIBUTIONS.md and README
+  - Commit [`fa7ed05`](https://github.com/mosomo82/COMP_SCI_5542/commit/fa7ed05864dd15734da1e1a345d5dbf316c823a4) — Update pipeline architecture diagrams/figures
 - Tested:
   - Verified all 14 tables are created successfully in Snowflake (`01_create_schema.sql`)
   - Tested `COPY INTO` staging pipeline — confirmed CSV data loads with correct row counts
@@ -119,9 +51,12 @@
   - Coordinated overall project documentation and repository alignment
   - Assisted in initial environment setup and scaffolding
 - Evidence (PR/commits):
-  - Commit `d64aad7` — feat: Add initial project structure including README, CONTRIBUTIONS.md, `.env.example`, and a new Safety Incidents dashboard tab
-  - Branch `daniel` — Dedicated feature branch for Safety Incidents tab and project scaffolding
-  - Pull Request: `daniel` → `main` branch merge for Safety Incidents feature
+  - Commit [`d64aad7`](https://github.com/mosomo82/COMP_SCI_5542/commit/d64aad7e839b2dcc102333a6c1294f8ec4a1ea81) — feat: Add initial project structure including README, CONTRIBUTIONS.md, `.env.example`, and a new Safety Incidents dashboard tab *(Feb 22)*
+  - Commit [`f2c2ea1`](https://github.com/mosomo82/COMP_SCI_5542/commit/f2c2ea1f94e316c551dc200cdb453210cabe13ee) — feat: Add initial project structure including Safety Incidents dashboard tab *(branch: `daniel`)*
+  - Commit [`f919986`](https://github.com/mosomo82/COMP_SCI_5542/commit/f9199865aa1565ca89a8e7acb3109f7d238f1a61) — Add SQL files for analytical queries and derived views for dashboard (`sql/03_queries.sql`, `sql/04_views.sql`)
+  - Commit [`2af3d53`](https://github.com/mosomo82/COMP_SCI_5542/commit/2af3d533d51b4951456810ee1962b7c2b6ff110b) — Merge branch `daniel` (sync before PR)
+  - [Pull Request #1](https://github.com/mosomo82/COMP_SCI_5542/pull/1): `mosomo82/daniel` → `main` — Safety Incidents tab & initial project structure; merged as commit [`6d80a0a`](https://github.com/mosomo82/COMP_SCI_5542/commit/6d80a0a6214d10f296e7eb68ab2627e49b8e1ec3)
+  - [Pull Request #2](https://github.com/mosomo82/COMP_SCI_5542/pull/2): `mosomo82/add-sql-files-3-4` → `main` — Analytical queries & derived views SQL files; merged as commit [`f570678`](https://github.com/mosomo82/COMP_SCI_5542/commit/f570678a712cb5f846f0722215424bcbadbf8d4d)
 - Tested:
   - Validated all 5 analytical queries in `03_queries.sql` against loaded Snowflake data — confirmed correct aggregations and joins
   - Tested 5 derived views in `04_views.sql` — verified `SELECT *` returns expected columns and row counts

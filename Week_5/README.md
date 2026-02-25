@@ -30,7 +30,7 @@ Below is the complete directory structure for the Week 5 Logistics Dashboard pip
 ```text
 Week_5/
 ├── app/                        # Presentation Layer
-│   └── streamlit_app.py        # Main 7-tab Streamlit dashboard application
+│   └── streamlit_app.py        # Main 8-tab Streamlit dashboard application
 ├── data/                       # Synthetic Logistics Datasets (14 Core/Ext Tables)
 │   ├── customers.csv           # 200 rows 
 │   ├── drivers.csv             # 150 rows
@@ -70,7 +70,7 @@ Week_5/
 | Scope Item | Included this week | Deferred |
 | --- | --- | --- |
 | **Dataset(s)** | All 14 trucking tables *(customers, drivers, trucks, routes, loads, trips, fuel_purchases + trailers, facilities, delivery_events, maintenance_records, safety_incidents, driver/truck metrics)* | — |
-| **Feature(s)** | Schema + staging + `COPY INTO`, 5 analytical queries, 5 views, batch Python loader, 5-tab Streamlit dashboard, pipeline monitoring | — |
+| **Feature(s)** | Schema + staging + `COPY INTO`, 5 analytical queries, 5 views, batch Python loader, 8-tab Streamlit dashboard, pipeline monitoring | — |
 
 ---
 
@@ -181,6 +181,7 @@ streamlit run app/streamlit_app.py
 | 📈 Monitoring | Performance stats, latency over time, and raw query logs. |
 | 🔬 Analytics | Advanced derived tables (Driver rankings, Truck health, Route quality). |
 | 🎯 Executive | Auto-loading KPIs, terminal heatmap, and live SQL explorer. |
+| ⚠️ Safety | Cross-dataset incident analytics, top-driver risk charts, and claim cost analysis. |
 
 ## Extensions Completed
 - **Extension 1: Full dataset ingestion** — Ingested all 14 trucking CSVs, including trailers, facilities, maintenance_records, and more.
@@ -188,9 +189,16 @@ streamlit run app/streamlit_app.py
 - **Extension 3: Advanced derived analytics** — `05_derived_analytics.sql` creates materialized tables for driver rankings, truck health, and route quality.
 - **Extension 4: Automated S3 ingestion pipeline** — `scripts/run_pipeline.py` provides one-command orchestration for schema creation and S3 data loading.
 - **Extension 5: Interactive executive dashboard** — `🎯 Executive` tab with auto-loading KPIs, heatmap, and a live SQL explorer.
+- **Extension 6: Safety Incidents dashboard tab** — Dedicated `⚠️ Safety` tab querying the `SAFETY_INCIDENTS` table with KPI cards and hazard analysis charts.
 
 ## Demo Video Link
-- 
+- [📺 Watch the Project Demo on YouTube](https://youtu.be/aC4HItQJ1aM)
 
-## Notes / Bottlenecks
-- 
+## Notes / Bottlenecks  
+- **Security & IAM**: ACCOUNTADMIN is required to run the `STORAGE INTEGRATION` step once. AWS IAM roles must manually trust the Snowflake principal (found via `DESCRIBE`) for the S3 pipeline to work.
+- **Data Freshness**: The derived tables in `05_derived_analytics.sql` are "on-demand" materialized. They need a manual re-run (or a Snowflake Task) after new data loads to reflect the latest rankings and scores.
+- **Scaling Limits**: The Streamlit SQL Explorer caps results at 500 rows to prevent browser OOM. For massive datasets (>1M rows), analytics should be pushed to Snowflake views rather than processed in Pandas.
+- **Cold Starts**: The first query in a session may take 5–10s if the Snowflake warehouse is suspended. Subsequent cached queries (TTL: 2 min) are sub-second.
+- **S3 Connectivity**: The pipeline assumes CSVs are in the `/data/` prefix of the bucket. Metadata mismatches in S3 will cause `COPY INTO` failures logged in `pipeline_logs.csv`.
+ 
+---
