@@ -61,7 +61,7 @@
 >
 > - **Tony's commits:** schema design, SQL scripts, ingestion scripts, core dashboard tabs
 > - **Daniel's commits:** `CONTRIBUTIONS.md`, `.env.example`, README data source section, Safety Incidents tab
-
+> - **Joel's commits:** `CONTRIBUTIONS.md`
 ---
 
 ## Notes
@@ -73,7 +73,7 @@
 # CONTRIBUTIONS.md — CS 5542 Lab 5
 
 > **Team Name:** EVN 
-> **Team Members:** Tony Nguyen (mosomo82), Daniel Evans (devans2718), Joe Vinas (jvinas)
+> **Team Members:** Tony Nguyen (mosomo82), Daniel Evans (devans2718), Joel Vinas (joelvinas)
 > **Project Title:** Logistics Operation Dashboard — Snowflake Integration
 
 > **Deadline:** Feb. 24, 2026 — 11:59 PM
@@ -130,7 +130,7 @@
 
 ---
 
-### Member 3: Joe Vinas
+### Member 3: Joel Vinas
 - Responsibilities:
   - Built the advanced derived analytics (`sql/05_derived_analytics.sql`) — 4 materialized analytics tables (Driver Rankings, Truck Health, Route Quality, and more)
   - Designed the AWS S3 integration pipeline (`sql/06_s3_pipeline.sql`) — storage integration, external stage setup, and `COPY INTO` from S3
@@ -189,17 +189,17 @@
 | :--- | :--- | :--- | :--- |
 | **Tony Nguyen** | Infrastructure & Integration | Snowflake Schema, Automated Ingestion Pipeline, Environment Setup. | Dashboard Feature Integration, Security & Credentials management. |
 | **Daniel Evans** | Analytics & UI | Analytical Queries, Dashboard Views, Overview & Safety Tabs. | Project Documentation, Initial Structure setup. |
-| **Joe Vinas** | Advanced Features & S3 | Materialized Analytics, S3 Pipeline, Logistics & Executive Tabs. | Synthetic Data Ingestion & Validation. |
+| **Joel Vinas** | Advanced Features & S3 | Materialized Analytics, S3 Pipeline, Logistics & Executive Tabs. | Synthetic Data Ingestion & Validation. |
 
 ### Extensions Labor Breakdown
 
 | Extension | Primary Contributor | Secondary Support |
 | :--- | :--- | :--- |
-| **Ext 1: Full dataset ingestion** | Tony Nguyen | Joe Vinas |
-| **Ext 2: Pipeline monitoring** | Joe Vinas | Tony Nguyen |
-| **Ext 3: Advanced derived analytics** | Joe Vinas | Daniel Evans |
+| **Ext 1: Full dataset ingestion** | Tony Nguyen | Joel Vinas |
+| **Ext 2: Pipeline monitoring** | Joel Vinas | Tony Nguyen |
+| **Ext 3: Advanced derived analytics** | Joel Vinas | Daniel Evans |
 | **Ext 4: Automated S3 ingestion pipeline** | Tony Nguyen | Daniel Evans |
-| **Ext 5: Interactive executive dashboard** | Daniel Evans | Joe Vinas |
+| **Ext 5: Interactive executive dashboard** | Daniel Evans | Joel Vinas |
 | **Ext 6: Safety Incidents dashboard tab** | Daniel Evans | Tony Nguyen |
 
 
