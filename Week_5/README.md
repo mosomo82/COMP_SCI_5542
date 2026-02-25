@@ -194,11 +194,32 @@ streamlit run app/streamlit_app.py
 ## Demo Video Link
 - [📺 Watch the Project Demo on YouTube](https://youtu.be/aC4HItQJ1aM)
 
-## Notes / Bottlenecks  
-- **Security & IAM**: ACCOUNTADMIN is required to run the `STORAGE INTEGRATION` step once. AWS IAM roles must manually trust the Snowflake principal (found via `DESCRIBE`) for the S3 pipeline to work.
-- **Data Freshness**: The derived tables in `05_derived_analytics.sql` are "on-demand" materialized. They need a manual re-run (or a Snowflake Task) after new data loads to reflect the latest rankings and scores.
-- **Scaling Limits**: The Streamlit SQL Explorer caps results at 500 rows to prevent browser OOM. For massive datasets (>1M rows), analytics should be pushed to Snowflake views rather than processed in Pandas.
-- **Cold Starts**: The first query in a session may take 5–10s if the Snowflake warehouse is suspended. Subsequent cached queries (TTL: 2 min) are sub-second.
-- **S3 Connectivity**: The pipeline assumes CSVs are in the `/data/` prefix of the bucket. Metadata mismatches in S3 will cause `COPY INTO` failures logged in `pipeline_logs.csv`.
- 
+## Notes / Bottlenecks
+
+### Infrastructure & Security
+- **ACCOUNTADMIN Required**: The `STORAGE INTEGRATION` step in `06_s3_pipeline.sql` requires `ACCOUNTADMIN` privileges (one-time setup). AWS IAM roles must manually trust the Snowflake external ID found via `DESCRIBE INTEGRATION`.
+- **Credential Management**: All Snowflake and AWS credentials are stored in `.env` (gitignored). The `.env.example` template is safe for public repositories. Never commit `.env` to GitHub.
+
+### Data Ingestion
+- **S3 Connectivity**: The pipeline assumes CSVs are under the `/data/` prefix of the S3 bucket. Metadata mismatches (e.g., wrong headers, encoding) will cause `COPY INTO` failures, which are logged in `pipeline_logs.csv`.
+- **Data Freshness**: The derived tables in `05_derived_analytics.sql` are "on-demand" materialized. They require a manual re-run (or Snowflake Task) after new data loads to reflect updated rankings and scores.
+- **Batch vs. Streaming**: The current pipeline uses batch `COPY INTO`. For real-time ingestion, Snowpipe with S3 event notifications would be needed.
+
+### Dashboard Performance
+- **Cold Starts**: The first query in a session may take 5–10 seconds if the Snowflake warehouse (`XSMALL`) is suspended. Subsequent cached queries (TTL: 2 min) are sub-second.
+- **SQL Explorer Cap**: The Live SQL Explorer in the Executive tab caps results at 500 rows to prevent browser out-of-memory issues. Large-scale analytics should be pushed to Snowflake views rather than processed in Pandas.
+- **Query Caching**: All `run_query()` calls are cached by Streamlit with a 120-second TTL. Adjusting filters without clicking "Run" again returns the cached result.
+
+### Data Quality
+- **Source Data**: The 14 CSV datasets in `data/` are sourced from the public Kaggle dataset [Logistics Operations Database](https://www.kaggle.com/datasets/yogape/logistics-operations-database) by *yogape*. No synthetic generation scripts are used.
+- **Schema Validation**: Column types and constraints are enforced by the Snowflake DDL in `01_create_schema.sql`. CSV files with mismatched columns will fail at the `COPY INTO` stage.
+
+### Logging & Monitoring
+- **Query Audit Trail**: Every dashboard query is logged to `logs/pipeline_logs.csv` with timestamp, team, user, query name, latency, row count, and auto-generated performance notes.
+- **Error Tracking**: Failed queries log the exception message in the `error` column. The Monitoring tab displays error rate as a KPI card.
+
+### Deployment
+- **Streamlit Cloud**: The app is deployed at [cs5542lab5.streamlit.app](https://cs5542lab5.streamlit.app/). Snowflake credentials must be configured in the Streamlit Cloud secrets manager for cloud deployment.
+- **Local Development**: Run `streamlit run app/streamlit_app.py` with a valid `.env` file for local testing.
+
 ---

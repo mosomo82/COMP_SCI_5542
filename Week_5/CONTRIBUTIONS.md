@@ -135,23 +135,6 @@
 | **Ext 5: Interactive executive dashboard** | Daniel Evans | Joel Vinas |
 | **Ext 6: Safety Incidents dashboard tab** | Daniel Evans | Tony Nguyen |
 
-
-## Technical Reflection: Tony Nguyen
-
-Working on Lab 5 provided deep exposure to the full-stack data engineering lifecycle, from cloud infrastructure setup to automated Python orchestration.
-
-- **Snowflake-Native Development:** I gained hands-on experience designing a 14-table schema for the logistics domain. I learned the critical value of separating storage from compute and how to optimize warehouse usage (using X-Small for cost-efficiency) while maintaining performance.
-- **AWS S3 Integration:** Setting up the S3 bucket and IAM policies taught me the intricacies of cloud security. The most rewarding part was configuring the `STORAGE INTEGRATION` to allow Snowflake to securely access S3 without exposing long-term credentials.
-- **Data Pipelines:** Building the `run_pipeline.py` orchestrator helped me understand how to handle metadata-driven ingestion. I learned that for large datasets, using `COPY INTO` with partitioned S3 prefixes is significantly more robust than row-by-row inserts, especially regarding cost and throughput limitations.
-- **Challenges:** The primary challenge was the "plumbing"—ensuring the Python connector, Snowflake schema, and S3 external stages all aligned securely. Managing authentication across local and cloud environments required careful credential handling.
-
-**Production-Scale Roadmap:**
-To evolve this project into a production-grade system, I would implement:
-1. **Snowpipe:** Transition from batch runs to continuous auto-ingestion using Snowpipe for real-time availability.
-2. **dbt (Data Build Tool):** Integrate dbt to add automated data quality tests (null checks, referential integrity) post-ingestion.
-3. **Advanced Orchestration:** Use Apache Airflow or Snowflake Tasks to schedule dependencies between ingestion and materialized analytics.
-4. **Monitoring & Alerting:** Implement real-time notifications for pipeline failures or latency spikes.
-
 ## Notes
 
 - The 14 CSV datasets in `data/` are sourced from the public Kaggle dataset [Logistics Operations Database](https://www.kaggle.com/datasets/yogape/logistics-operations-database) by *yogape*.
