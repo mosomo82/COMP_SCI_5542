@@ -97,9 +97,7 @@ st.caption("Live connection to **Snowflake** · parameterized inputs · Altair c
 
 # ── tabs ─────────────────────────────────────────────────────────────────────
 tab_overview, tab_fleet, tab_routes, tab_fuel, tab_monitor, tab_analytics, tab_exec, tab_safety = st.tabs(
-tab_overview, tab_fleet, tab_routes, tab_fuel, tab_monitor, tab_analytics, tab_exec, tab_safety = st.tabs(
     ["📊 Overview", "🚛 Fleet & Drivers", "🗺️ Routes", "⛽ Fuel Spend",
-     "📈 Monitoring", "🔬 Analytics", "🎯 Executive", "⚠️ Safety"]
      "📈 Monitoring", "🔬 Analytics", "🎯 Executive", "⚠️ Safety"]
 )
 
