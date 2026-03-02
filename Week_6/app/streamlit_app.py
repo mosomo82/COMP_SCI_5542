@@ -1095,83 +1095,234 @@ with tab_safety:
             st.error(f"Safety query error: {exc}")
 
 # ═════════════════════════════════════════════════════════════════════════════
-# TAB 9 — AI Assistant  (Gemini integration)
+# TAB 9 — 🤖 AI Agent Chat  (Gemini + all 9 tools — Tony's Phase 3)
 # ═════════════════════════════════════════════════════════════════════════════
 with tab_ai:
-    st.subheader("🤖 AI Data Assistant")
-    st.caption("Ask me anything about the fleet, revenue, pipeline logs, or safety metrics! I can query Snowflake directly. Try asking: _'Which truck has the highest revenue, and what is its fuel type?'_")
+    st.subheader("🤖 AI Data Analytics Agent")
+    st.caption(
+        "Chat with a Gemini-powered agent that can query Snowflake in real time. "
+        "It has access to **all 9 specialized tools** covering revenue, fleet, routes, "
+        "deliveries, maintenance, fuel, pipeline logs, and safety."
+    )
 
-    # 1. Provide API Key via Streamlit input if it isn't in env/secrets
-    api_key = os.getenv("GEMINI_API_KEY") or (st.secrets.get("GEMINI_API_KEY") if hasattr(st, "secrets") else None)
+    # ── 1. API Key ────────────────────────────────────────────────────────────
+    api_key = os.getenv("GEMINI_API_KEY") or (
+        st.secrets.get("GEMINI_API_KEY") if hasattr(st, "secrets") else None
+    )
     if not api_key:
-        api_key = st.text_input("Enter your GEMINI_API_KEY to enable the assistant:", type="password")
+        api_key = st.text_input(
+            "Enter your GEMINI_API_KEY to enable the assistant:",
+            type="password",
+            key="ai_api_key_input",
+        )
         if not api_key:
-            st.warning("A Gemini API key is required to use the chatbot.")
+            st.warning("A Gemini API key is required to use the AI Agent.")
             st.stop()
 
-    # Configure Gemini once we have the key
     genai.configure(api_key=api_key)
 
-    # 2. Session State Initialization
+    # ── 2. Build the unified tool list (all 9 tools) ─────────────────────────
+    # Tony's 5 core tools are guaranteed to exist.
+    # Daniel's 2 + Joel's 2 are added dynamically so the app doesn't break
+    # if their PRs haven't merged yet.
+    _CORE_TOOLS = [
+        tools.query_snowflake,
+        tools.get_monthly_revenue,
+        tools.get_fleet_performance,
+        tools.get_pipeline_logs,
+        tools.get_safety_metrics,
+    ]
+
+    _EXTENDED_TOOL_NAMES = [
+        # Daniel's tools
+        "get_route_profitability",
+        "get_delivery_performance",
+        # Joel's tools
+        "get_maintenance_health",
+        "get_fuel_spend_analysis",
+    ]
+
+    agent_tools = list(_CORE_TOOLS)  # copy
+    _registered_names = [fn.__name__ for fn in _CORE_TOOLS]
+
+    for tool_name in _EXTENDED_TOOL_NAMES:
+        fn = getattr(tools, tool_name, None)
+        if callable(fn):
+            agent_tools.append(fn)
+            _registered_names.append(tool_name)
+
+    # ── 3. Session State Initialization ──────────────────────────────────────
     if "ai_messages" not in st.session_state:
         st.session_state.ai_messages = []
-        
-    if "gemini_chat" not in st.session_state:
-        SYSTEM_PROMPT = """You are a highly capable AI Data Analytics Agent for a trucking logistics company.
-        You have access to a suite of specialized tools that allow you to query the company's Snowflake database.
-        Your job is to answer user questions about revenue, fleet performance, pipeline logs, and safety metrics.
 
-        When the user asks a question:
-        1. Determine if you need to use a tool to fetch the data. If so, call the appropriate tool.
-        2. If the data returned is not sufficient, or prompts further questions, call another tool (Multi-step reasoning).
-        3. Once you have all the data you need, synthesize it into a clear, concise, and professional final response for the user. Do not expose raw JSON to the user unless explicitly asked.
-        4. If a tool returns an error, gracefully inform the user about the limitation or try a different approach.
-        """
-        
-        agent_tools = [
-            tools.query_snowflake,
-            tools.get_monthly_revenue,
-            tools.get_fleet_performance,
-            tools.get_pipeline_logs,
-            tools.get_safety_metrics
-        ]
-        
+    if "ai_tool_logs" not in st.session_state:
+        st.session_state.ai_tool_logs = []      # list of per-turn tool-call logs
+
+    if "ai_turn_count" not in st.session_state:
+        st.session_state.ai_turn_count = 0
+
+    # ── 4. System Prompt (covers all 9 tools) ────────────────────────────────
+    SYSTEM_PROMPT = (
+        "You are a highly capable AI Data Analytics Agent for a trucking logistics company.\n"
+        "You have access to a suite of specialized tools that query the company's Snowflake database.\n"
+        "Your job is to answer user questions about revenue, fleet performance, route profitability,\n"
+        "delivery performance, maintenance health, fuel spend, pipeline logs, and safety metrics.\n\n"
+        "When the user asks a question:\n"
+        "1. Determine if you need to use a tool to fetch the data. If so, call the appropriate tool.\n"
+        "2. If the data returned is not sufficient, or prompts further questions, call another tool (multi-step reasoning).\n"
+        "3. Once you have all the data you need, synthesize it into a clear, concise, and professional response.\n"
+        "   Do not expose raw JSON to the user unless explicitly asked.\n"
+        "4. If a tool returns an error, gracefully inform the user or try a different approach.\n"
+        "5. When comparing metrics across domains (e.g. routes vs. fuel), call the relevant tools in sequence.\n"
+    )
+
+    # ── 5. Initialize / Reinitialize the Gemini chat session ─────────────────
+    def _init_gemini_chat():
+        """Create a fresh Gemini GenerativeModel + chat session."""
+        model = genai.GenerativeModel(
+            model_name="gemini-2.5-flash",
+            tools=agent_tools,
+            system_instruction=SYSTEM_PROMPT,
+        )
+        return model.start_chat(enable_automatic_function_calling=True)
+
+    if "gemini_chat" not in st.session_state:
         try:
-            model = genai.GenerativeModel(
-                model_name='gemini-2.5-flash',
-                tools=agent_tools,
-                system_instruction=SYSTEM_PROMPT
-            )
-            # enable_automatic_function_calling=True is where the magic happens
-            st.session_state.gemini_chat = model.start_chat(enable_automatic_function_calling=True)
+            st.session_state.gemini_chat = _init_gemini_chat()
         except Exception as e:
             st.error(f"Failed to initialize Gemini model: {e}")
             st.stop()
 
-    # 3. Render traditional chat UI
-    for msg in st.session_state.ai_messages:
+    # ── 6. Sidebar controls for Agent tab ────────────────────────────────────
+    with st.sidebar:
+        st.divider()
+        st.markdown("#### 🤖 Agent Controls")
+
+        if st.button("🗑️  Clear Chat", key="btn_clear_chat"):
+            st.session_state.ai_messages = []
+            st.session_state.ai_tool_logs = []
+            st.session_state.ai_turn_count = 0
+            try:
+                st.session_state.gemini_chat = _init_gemini_chat()
+            except Exception as e:
+                st.error(f"Error resetting chat: {e}")
+            st.rerun()
+
+        with st.expander("🔧 Registered Tools"):
+            for i, name in enumerate(_registered_names, 1):
+                st.markdown(f"**{i}.** `{name}`")
+            st.caption(f"{len(_registered_names)} / 9 tools loaded")
+
+    # ── 7. Render chat history ───────────────────────────────────────────────
+    for idx, msg in enumerate(st.session_state.ai_messages):
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
 
-    # 4. Handle newly submitted prompt
-    if prompt := st.chat_input("Ask the logistics agent..."):
-        # Append and render user message
-        st.session_state.ai_messages.append({"role": "user", "content": prompt})
+            # Show tool-usage expander for assistant messages (Joel can expand this)
+            if msg["role"] == "assistant":
+                # Find matching tool log for this assistant turn
+                turn_idx = msg.get("turn")
+                if turn_idx is not None:
+                    matching_logs = [
+                        log for log in st.session_state.ai_tool_logs
+                        if log.get("turn") == turn_idx
+                    ]
+                    if matching_logs:
+                        with st.expander("🔧 Tool Usage"):
+                            for tl in matching_logs:
+                                st.markdown(f"- **{tl['tool']}** — {tl['status']}")
+
+    # ── 8. Handle new user prompt ────────────────────────────────────────────
+    if prompt := st.chat_input("Ask the logistics agent…"):
+        current_turn = st.session_state.ai_turn_count
+        st.session_state.ai_turn_count += 1
+
+        # Append + display user message
+        st.session_state.ai_messages.append({
+            "role": "user",
+            "content": prompt,
+            "turn": current_turn,
+        })
         with st.chat_message("user"):
             st.markdown(prompt)
 
-        # Trigger Gemini
+        # Call Gemini agent
         with st.chat_message("assistant"):
-            with st.spinner("Agent is thinking and querying data..."):
+            with st.spinner("🤖 Agent is thinking and querying data…"):
+                t0 = time.time()
                 try:
                     chat = st.session_state.gemini_chat
                     response = chat.send_message(prompt)
-                    
+                    latency_ms = int((time.time() - t0) * 1000)
+
+                    # ── Extract which tools Gemini called ────────────────────
+                    called_tools: list[str] = []
+                    try:
+                        for part in response.candidates[0].content.parts:
+                            if hasattr(part, "function_call") and part.function_call:
+                                called_tools.append(part.function_call.name)
+                    except Exception:
+                        pass  # graceful — not all responses have parts
+
+                    # Also inspect the full chat history for function calls in this turn
+                    try:
+                        for history_item in chat.history:
+                            for part in history_item.parts:
+                                if hasattr(part, "function_call") and part.function_call:
+                                    fn_name = part.function_call.name
+                                    if fn_name not in called_tools:
+                                        called_tools.append(fn_name)
+                    except Exception:
+                        pass
+
+                    # Record tool logs
+                    for tool_name in called_tools:
+                        st.session_state.ai_tool_logs.append({
+                            "turn": current_turn,
+                            "tool": tool_name,
+                            "status": "✅ success",
+                        })
+
+                    # Render response
                     st.markdown(response.text)
-                    st.session_state.ai_messages.append({"role": "assistant", "content": response.text})
-                    
+
+                    # Show inline tool-usage expander
+                    if called_tools:
+                        with st.expander("🔧 Tool Usage"):
+                            for tn in called_tools:
+                                st.markdown(f"- **{tn}** — ✅ success")
+
+                    # Save assistant message
+                    st.session_state.ai_messages.append({
+                        "role": "assistant",
+                        "content": response.text,
+                        "turn": current_turn,
+                    })
+
+                    # Log to pipeline log for monitoring tab integration
+                    log_event(
+                        team, user, "ai_agent_chat",
+                        latency_ms, len(called_tools),
+                    )
+
                 except Exception as e:
-                    error_msg = f"An error occurred while communicating with the agent: {str(e)}"
+                    latency_ms = int((time.time() - t0) * 1000)
+                    error_msg = f"❌ Agent error: {str(e)}"
                     st.error(error_msg)
-                    st.session_state.ai_messages.append({"role": "assistant", "content": error_msg})
+
+                    st.session_state.ai_messages.append({
+                        "role": "assistant",
+                        "content": error_msg,
+                        "turn": current_turn,
+                    })
+                    st.session_state.ai_tool_logs.append({
+                        "turn": current_turn,
+                        "tool": "agent",
+                        "status": f"❌ error: {str(e)[:80]}",
+                    })
+
+                    log_event(
+                        team, user, "ai_agent_chat",
+                        latency_ms, 0, error=str(e)[:200],
+                    )
 
