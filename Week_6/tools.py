@@ -1,0 +1,175 @@
+import os
+import csv
+import pandas as pd
+import pathlib
+import sys
+from typing import List, Dict, Any, Optional
+
+# Setup path to import sf_connect
+ROOT = pathlib.Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT / "scripts"))
+from sf_connect import get_conn
+
+LOG_PATH = ROOT / "logs" / "pipeline_logs.csv"
+
+def query_snowflake(sql_query: str) -> List[Dict[str, Any]]:
+    """Executes a read-only SQL query against the Snowflake database.
+    
+    Args:
+        sql_query (str): The SQL query string to execute.
+        
+    Returns:
+        List[Dict[str, Any]]: A list of dictionaries representing the query results.
+    """
+    try:
+        with get_conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute(sql_query)
+                rows = cur.fetchall()
+                cols = [desc[0] for desc in cur.description] if cur.description else []
+                
+        # Convert to a list of dicts for JSON serialization
+        df = pd.DataFrame(rows, columns=cols)
+        # Convert datetime objects to string using ISO format
+        for col in df.select_dtypes(include=['datetime64', 'datetimetz']).columns:
+            df[col] = df[col].dt.strftime('%Y-%m-%dT%H:%M:%S')
+        return df.to_dict(orient="records")
+    except Exception as e:
+        return [{"error": f"Failed to execute query: {str(e)}"}]
+
+
+def get_monthly_revenue(start_month: str, end_month: str) -> List[Dict[str, Any]]:
+    """Retrieves aggregated monthly revenue trends within a specified date range.
+    
+    Args:
+        start_month (str): Start month in 'YYYY-MM-DD' format (e.g. '2023-01-01').
+        end_month (str): End month in 'YYYY-MM-DD' format (e.g. '2025-12-31').
+        
+    Returns:
+        List[Dict[str, Any]]: A list of dictionaries containing monthly revenue data.
+    """
+    sql_overview = f"""
+    SELECT *
+    FROM CS5542_WEEK5.PUBLIC.V_MONTHLY_REVENUE
+    WHERE MONTH >= '{start_month}'
+      AND MONTH <= '{end_month}'
+    ORDER BY MONTH;
+    """
+    return query_snowflake(sql_overview)
+
+
+def get_fleet_performance(min_trips: int = 5, top_n: int = 30, fuel_types: Optional[List[str]] = None) -> List[Dict[str, Any]]:
+    """Retrieves truck performance metrics based on specified filters.
+    
+    Args:
+        min_trips (int): Minimum number of trips completed by a truck to be included. Defaults to 5.
+        top_n (int): Maximum number of top-performing trucks to return. Defaults to 30.
+        fuel_types (Optional[List[str]]): List of fuel types to include (e.g. ['Diesel', 'CNG', 'Electric']). Defaults to all if None.
+        
+    Returns:
+        List[Dict[str, Any]]: A list of dictionaries containing truck performance metrics.
+    """
+    if not fuel_types:
+        fuel_types = ["Diesel", "CNG", "Electric"]
+        
+    # SQL minimal escape
+    safe = lambda t: str(t).strip().replace("'", "''")
+    fuel_filter = ", ".join(f"'{safe(f)}'" for f in fuel_types)
+    
+    sql_fleet = f"""
+    SELECT
+        TRUCK_ID,
+        TRUCK_MAKE,
+        TRUCK_YEAR,
+        FUEL_TYPE,
+        DRIVER_NAME,
+        DRIVER_TERMINAL,
+        COUNT(*)                                 AS trips,
+        ROUND(SUM(ACTUAL_DISTANCE_MILES), 0)     AS total_miles,
+        ROUND(AVG(AVERAGE_MPG), 2)               AS avg_mpg,
+        ROUND(SUM(REVENUE), 2)                   AS total_revenue
+    FROM CS5542_WEEK5.PUBLIC.V_TRIP_PERFORMANCE
+    WHERE TRIP_STATUS = 'Completed'
+      AND FUEL_TYPE IN ({fuel_filter})
+    GROUP BY TRUCK_ID, TRUCK_MAKE, TRUCK_YEAR, FUEL_TYPE, DRIVER_NAME, DRIVER_TERMINAL
+    HAVING COUNT(*) >= {min_trips}
+    ORDER BY total_revenue DESC
+    LIMIT {top_n};
+    """
+    return query_snowflake(sql_fleet)
+
+
+def get_pipeline_logs(limit: int = 100) -> List[Dict[str, Any]]:
+    """Reads the automated ingestion pipeline logs to return system health and latency data.
+    
+    Args:
+        limit (int): Maximum number of recent log entries to return. Defaults to 100.
+        
+    Returns:
+        List[Dict[str, Any]]: A list of dictionaries representing log entries.
+    """
+    try:
+        if not LOG_PATH.exists() or LOG_PATH.stat().st_size == 0:
+            return [{"error": "Pipeline logs do not exist or are empty."}]
+            
+        logs_df = pd.read_csv(LOG_PATH)
+        # Sort so most recent logs are first
+        if "timestamp" in logs_df.columns:
+            logs_df["timestamp"] = pd.to_datetime(logs_df["timestamp"], errors="coerce")
+            logs_df = logs_df.sort_values(by="timestamp", ascending=False)
+            logs_df["timestamp"] = logs_df["timestamp"].dt.strftime('%Y-%m-%dT%H:%M:%S')
+            
+        logs_df = logs_df.head(limit)
+        
+        # Replace NaN with None
+        logs_df = logs_df.where(pd.notnull(logs_df), None)
+        return logs_df.to_dict(orient="records")
+    except Exception as e:
+        return [{"error": f"Failed to read logs: {str(e)}"}]
+
+
+def get_safety_metrics(
+    incident_types: Optional[List[str]] = None,
+    start_date: str = "2022-01-01",
+    end_date: str = "2025-12-31",
+    limit: int = 15
+) -> List[Dict[str, Any]]:
+    """Retrieves safety incident metrics for top drivers based on filters.
+    
+    Args:
+        incident_types (Optional[List[str]]): List of incident types to include (e.g. ['Collision', 'Near Miss']). Defaults to all if None.
+        start_date (str): Start date in 'YYYY-MM-DD' format. Defaults to '2022-01-01'.
+        end_date (str): End date in 'YYYY-MM-DD' format. Defaults to '2025-12-31'.
+        limit (int): Maximum number of top drivers by incident count to return. Defaults to 15.
+        
+    Returns:
+        List[Dict[str, Any]]: A list of dictionaries containing driver safety metrics.
+    """
+    if not incident_types:
+        incident_types = [
+            "Moving Violation", "Collision", "Equipment Failure",
+            "Near Miss", "Cargo Damage", "DOT Inspection"
+        ]
+        
+    # SQL minimal escape
+    safe = lambda t: str(t).strip().replace("'", "''")
+    type_filter = ", ".join(f"'{safe(t)}'" for t in incident_types)
+    
+    sql = f"""
+    SELECT
+        d.first_name || ' ' || d.last_name   AS driver_name,
+        d.home_terminal,
+        COUNT(si.incident_id)                AS total_incidents,
+        ROUND(SUM(si.claim_amount), 0)       AS total_claims,
+        SUM(IFF(si.at_fault_flag, 1, 0))    AS at_fault_count,
+        SUM(IFF(si.injury_flag, 1, 0))      AS injury_count
+    FROM CS5542_WEEK5.PUBLIC.SAFETY_INCIDENTS si
+    JOIN CS5542_WEEK5.PUBLIC.DRIVERS d ON si.driver_id = d.driver_id
+    WHERE si.incident_type IN ({type_filter})
+      AND CAST(si.incident_date AS DATE) BETWEEN '{start_date}' AND '{end_date}'
+    GROUP BY driver_name, d.home_terminal
+    ORDER BY total_incidents DESC
+    LIMIT {limit};
+    """
+    return query_snowflake(sql)
+
