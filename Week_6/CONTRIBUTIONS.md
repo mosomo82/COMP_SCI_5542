@@ -89,3 +89,4 @@
 | Advanced Analytics (Derived) | Joel Vinas |
 | AI Agent & Tool Binding | Tony Nguyen |
 | AI Tool Development | All Members (Team) |
+trigger
