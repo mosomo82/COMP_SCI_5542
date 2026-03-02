@@ -1,0 +1,20 @@
+68fcf89 - Tony : docs: add Lab 6 contribution addendum for Tony
+4458fd7 - Tony : feat(Tony): agent session setup with all 9 tools, chat lifecycle, tool logging
+21ee827 - Tony : Update implementation_plan.md
+4f14cd4 - Tony : Create implementation_plan.md
+508c7b9 - mosomo82 : Update CONTRIBUTIONS.md
+456053e - Tony : Merge branch 'main' of https://github.com/mosomo82/COMP_SCI_5542
+16ac3fb - Tony : Week 6
+6acf44b - devans2718 : Merge pull request #5 from mosomo82/fix/week5-requirements
+f2d7f83 - devans2718 : remove duplicated lines in streamlit_app.py
+70771e1 - devans2718 : fix: add missing Week_5/requirements.txt for Streamlit Cloud
+53a0c75 - Tony : Update
+cb95645 - Tony : Merge branch 'main' of https://github.com/mosomo82/COMP_SCI_5542
+71d4d10 - Tony : Update CONTRIBUTIONS.md
+28561ac - joelvinas : Merge pull request #4 from mosomo82/jvinas
+b4eb440 - Joel Vinas : Updated to reintroduce sql for derived analytics & s3 pipeline
+426c87a - Tony : Merge branch 'main' of https://github.com/mosomo82/COMP_SCI_5542
+34f3968 - Joel Vinas : Revert "Updated to reintroduce sql for derived analytics & s3 pipeline"
+bfee410 - Joel Vinas : Updated to reintroduce sql for derived analytics & s3 pipeline
+c1d142c - Tony : Update
+156336b - joelvinas : Merge pull request #3 from mosomo82/jvinas
