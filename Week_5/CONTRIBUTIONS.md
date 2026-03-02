@@ -105,7 +105,6 @@
 | 7-tab Streamlit dashboard (Overview, Fleet & Drivers, Routes, Fuel Spend, Monitoring, Analytics, Executive) | `app/streamlit_app.py` |
 | Pipeline logging (`pipeline_logs.csv`) | `logs/pipeline_logs.csv` |
 | Primary README documentation | `README.md` |
-| Data source attribution — cited original Kaggle dataset, removed incorrect `generate_data.py` reference from README | `README.md` |
 | Credential template for safe GitHub commits | `.env.example` |
 | ⚠️ Safety Incidents dashboard tab — new 8th tab querying `SAFETY_INCIDENTS` with KPI cards, incident-type breakdown chart, top-10 driver incident chart, parameterized filters | `app/streamlit_app.py` |
 | Team contribution documentation | `CONTRIBUTIONS.md` |
