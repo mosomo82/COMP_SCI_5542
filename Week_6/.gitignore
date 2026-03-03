@@ -5,3 +5,19 @@
 # EXCEPTIONS: Force Git to track the empty folder placeholders
 !Week_6/data/.gitkeep
 !Week_6/logs/.gitkeep
+
+# Temp folder
+temp/
+
+# Claude
+CLAUDE.md
+
+# Virtual environment
+.venv/
+
+# Python cache
+__pycache__/
+
+# Antigravity
+.antigravity/
+.agents/

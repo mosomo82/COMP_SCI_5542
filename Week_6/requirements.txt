@@ -1,0 +1,24 @@
+# ── CS 5542 Week 6 — Python Dependencies ──────────────────────────────────────
+# Install with: pip install -r requirements.txt
+#
+# Core packages used across agent.py, tools.py, streamlit_app.py,
+# scripts/sf_connect.py, and scripts/run_pipeline.py.
+# ──────────────────────────────────────────────────────────────────────────────
+
+# Snowflake connector (database access + optional pandas extras)
+snowflake-connector-python[pandas]>=3.10.0
+
+# Google Generative AI SDK (Gemini LLM + function-calling agent)
+google-generativeai>=0.8.0
+
+# Streamlit dashboard
+streamlit>=1.35.0
+
+# Data processing
+pandas>=2.2.0
+
+# Altair charting (used in streamlit_app.py)
+altair>=5.3.0
+
+# .env file loading (local credential management)
+python-dotenv>=1.0.0
