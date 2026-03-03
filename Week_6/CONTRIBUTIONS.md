@@ -34,7 +34,57 @@
 
 ---
 
-## Lab 6: Multi-Agent Analytics (In Progress - March 2, 2026)
+## Project Component Ownership
+
+| Segment | Files |
+|---|---|
+| Snowflake environment setup (database, schema, warehouse, roles) | `sql/01_create_schema.sql` |
+| Internal staging + `COPY INTO` ingestion | `sql/02_stage_and_load.sql` |
+| 5 core analytical queries (revenue, efficiency, profitability, trends, fleet) | `sql/03_queries.sql` |
+| 5 derived views for dashboard | `sql/04_views.sql` |
+| 4 advanced materialized analytics tables (driver rankings, truck health, route quality, monthly ops) | `sql/05_derived_analytics.sql` |
+| AWS S3 external stage + `COPY INTO` from S3 | `sql/06_s3_pipeline.sql` |
+| Automated master orchestrator pipeline (local + S3 modes) | `scripts/run_pipeline.py` |
+| Manual batch CSV loader via internal stage | `scripts/load_local_csv_to_stage.py` |
+| Snowflake connection helper module | `scripts/sf_connect.py` |
+| 7-tab Streamlit dashboard (Overview, Fleet & Drivers, Routes, Fuel Spend, Monitoring, Analytics, Executive) | `app/streamlit_app.py` |
+| Pipeline logging (`pipeline_logs.csv`) | `logs/pipeline_logs.csv` |
+| Primary README documentation | `README.md` |
+| Data source attribution — cited original Kaggle dataset, removed incorrect `generate_data.py` reference from README | `README.md` |
+| Credential template for safe GitHub commits | `.env.example` |
+| ⚠️ Safety Incidents dashboard tab — new 8th tab querying `SAFETY_INCIDENTS` with KPI cards, incident-type breakdown chart, top-10 driver incident chart, parameterized filters | `app/streamlit_app.py` |
+| Team contribution documentation | `CONTRIBUTIONS.md` |
+| Full dataset ingestion (14 tables including 5 extension tables) | `sql/01_create_schema.sql`, `sql/02_stage_and_load.sql` |
+| Pipeline monitoring tab with latency charts | `app/streamlit_app.py` (Tab 5) |
+| Advanced derived analytics (4 materialized tables) | `sql/05_derived_analytics.sql`, `app/streamlit_app.py` (Tab 6) |
+| Automated S3 ingestion pipeline (one-command orchestration) | `scripts/run_pipeline.py`, `sql/06_s3_pipeline.sql` |
+| Interactive Executive Dashboard (auto-load KPIs, heatmap, SQL explorer) | `app/streamlit_app.py` (Tab 7) |
+| Safety Incidents dashboard tab (cross-dataset incident analytics) | `app/streamlit_app.py` (Tab 8) | 
+
+## Division of Labor Summary
+
+| Name | Role | Primary Contributions | Secondary Support |
+| :--- | :--- | :--- | :--- |
+| **Tony Nguyen** | Infrastructure & Integration | Snowflake Schema, Automated Ingestion Pipeline, Environment Setup. | Dashboard Feature Integration, Security & Credentials management. |
+| **Daniel Evans** | Analytics & UI | Analytical Queries, Dashboard Views, Overview & Safety Tabs. | Project Documentation, Initial Structure setup. |
+| **Joel Vinas** | Advanced Features & S3 | Materialized Analytics, S3 Pipeline, Logistics & Executive Tabs. | Synthetic Data Ingestion & Validation. |
+
+### Extensions Labor Breakdown
+
+| Extension | Primary Contributor | Secondary Support |
+| :--- | :--- | :--- |
+| **Ext 1: Full dataset ingestion** | Tony Nguyen | Joel Vinas |
+| **Ext 2: Pipeline monitoring** | Joel Vinas | Tony Nguyen |
+| **Ext 3: Advanced derived analytics** | Joel Vinas | Daniel Evans |
+| **Ext 4: Automated S3 ingestion pipeline** | Tony Nguyen | Daniel Evans |
+| **Ext 5: Interactive executive dashboard** | Daniel Evans | Joel Vinas |
+| **Ext 6: Safety Incidents dashboard tab** | Daniel Evans | Tony Nguyen |
+
+---
+
+# ADDENDUM: Lab 6 — Multi-Agent Analytics
+
+## Phase 3 Status (March 2, 2026)
 
 ### Member 1: Tony Nguyen (mosomo82) — Backend & AI Lead
 - **Responsibilities:**
@@ -53,7 +103,7 @@
   - **Tool Development (Phase 2):** Implementing `get_route_profitability` and `get_delivery_performance`.
   - **UI/UX Polish:** Working on chat message formatting and history visualization.
   - **Evaluation (Phase 4):** Writing the `task4_evaluation_report.md` and recording the demo video.
-- **Evidence (Lab 6 Commits):**
+ - **Evidence (Lab 6 Commits):**
   - Commit [`70771e1`](https://github.com/mosomo82/COMP_SCI_5542/commit/70771e1) — fix: add missing Week_5/requirements.txt for Streamlit Cloud.
   - Commit [`f2d7f83`](https://github.com/mosomo82/COMP_SCI_5542/commit/f2d7f83) — remove duplicated lines in streamlit_app.py.
 
@@ -68,7 +118,7 @@
 
 ---
 
-## Division of Labor Summary (Lab 6)
+## Lab 6 Division of Labor Summary
 
 | Member | Roles | Tools | Deliverables |
 |---|---|---|---|
@@ -76,11 +126,9 @@
 | **Daniel** | UI & Evaluation | Tools 6-7 (Analytical) | `task4_report.md`, Demo Video |
 | **Joel** | Documentation & Logging | Tools 8-9 (Operational) | `README.md`, Screenshots |
 
----
-
 ## Project Component Ownership
 
-| Segment | Primary Owner |
+| Segment |Owners |
 |---|---|
 | Snowflake DB & Staging | Tony Nguyen |
 | Data Ingestion Pipelines | Tony Nguyen / Joel Vinas |
@@ -89,4 +137,5 @@
 | Advanced Analytics (Derived) | Joel Vinas |
 | AI Agent & Tool Binding | Tony Nguyen |
 | AI Tool Development | All Members (Team) |
-trigger
+
+---
