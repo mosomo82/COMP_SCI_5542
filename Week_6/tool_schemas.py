@@ -111,4 +111,57 @@ tool_schemas = [
             }
         }
     }
+    ,
+    {
+        "type": "function",
+        "function": {
+            "name": "get_route_profitability",
+            "description": "Retrieves route profitability metrics from V_ROUTE_SCORECARD, including revenue, fuel cost, gross profit, margin percentage, and average MPG per route.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "min_loads": {
+                        "type": "integer",
+                        "description": "Minimum number of completed loads for a route to be included. Defaults to 3."
+                    },
+                    "min_margin_pct": {
+                        "type": "number",
+                        "description": "Minimum gross margin percentage to filter routes. Defaults to 0.0."
+                    },
+                    "top_n": {
+                        "type": "integer",
+                        "description": "Maximum number of routes to return, sorted by gross profit descending. Defaults to 20."
+                    }
+                }
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_delivery_performance",
+            "description": "Retrieves delivery event performance aggregated by city and state, including on-time rates and average detention times from the DELIVERY_EVENTS table.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "event_type": {
+                        "type": "string",
+                        "description": "Type of delivery event to filter on. Expected values: 'Delivery' or 'Pickup'. Defaults to 'Delivery'."
+                    },
+                    "start_date": {
+                        "type": "string",
+                        "description": "Start date in 'YYYY-MM-DD' format. Defaults to '2022-01-01'."
+                    },
+                    "end_date": {
+                        "type": "string",
+                        "description": "End date in 'YYYY-MM-DD' format. Defaults to '2025-12-31'."
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "description": "Maximum number of city/state rows to return, ordered by total events. Defaults to 20."
+                    }
+                }
+            }
+        }
+    }
 ]
