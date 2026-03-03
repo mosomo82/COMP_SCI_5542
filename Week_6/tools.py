@@ -173,3 +173,58 @@ def get_safety_metrics(
     """
     return query_snowflake(sql)
 
+
+def get_route_profitability(
+    min_loads: int = 3, min_margin_pct: float = 0.0, top_n: int = 20
+) -> List[Dict[str, Any]]:
+    """Retrieves route profitability metrics including revenue, fuel cost, and margin.
+
+    Args:
+        min_loads (int): Minimum completed loads for a route to be included. Defaults to 3.
+        min_margin_pct (float): Minimum gross margin percentage. Defaults to 0.0.
+        top_n (int): Max routes to return, sorted by gross profit. Defaults to 20.
+
+    Returns:
+        List[Dict[str, Any]]: List of dicts with route_label, total_loads, total_revenue,
+            gross_profit, margin_pct, avg_mpg.
+    """
+    sql = f"""
+    SELECT route_label, total_loads, total_revenue, total_fuel_cost,
+           gross_profit, margin_pct, avg_mpg
+    FROM CS5542_WEEK5.PUBLIC.V_ROUTE_SCORECARD
+    WHERE total_loads >= {min_loads} AND margin_pct >= {min_margin_pct}
+    ORDER BY gross_profit DESC LIMIT {top_n};
+    """
+    return query_snowflake(sql)
+
+
+def get_delivery_performance(
+    event_type: str = "Delivery",
+    start_date: str = "2022-01-01",
+    end_date: str = "2025-12-31",
+    limit: int = 20
+) -> List[Dict[str, Any]]:
+    """Retrieves delivery event performance including on-time rates and detention times.
+
+    Args:
+        event_type (str): 'Delivery' or 'Pickup'. Defaults to 'Delivery'.
+        start_date (str): Start date in 'YYYY-MM-DD' format. Defaults to '2022-01-01'.
+        end_date (str): End date in 'YYYY-MM-DD' format. Defaults to '2025-12-31'.
+        limit (int): Max rows to return. Defaults to 20.
+
+    Returns:
+        List[Dict[str, Any]]: List of dicts with city, state, event counts,
+            on-time rate, avg detention minutes.
+    """
+    safe_type = event_type.replace("'", "''")
+    sql = f"""
+    SELECT de.location_city, de.location_state, COUNT(*) AS total_events,
+           ROUND(AVG(CASE WHEN de.on_time_flag THEN 1 ELSE 0 END)*100,1) AS on_time_pct,
+           ROUND(AVG(de.detention_minutes),1) AS avg_detention_min
+    FROM CS5542_WEEK5.PUBLIC.DELIVERY_EVENTS de
+    WHERE de.event_type = '{safe_type}'
+      AND CAST(de.scheduled_datetime AS DATE) BETWEEN '{start_date}' AND '{end_date}'
+    GROUP BY de.location_city, de.location_state
+    ORDER BY total_events DESC LIMIT {limit};
+    """
+    return query_snowflake(sql)

@@ -3,15 +3,20 @@
 > **Team:** Tony Nguyen (`mosomo82`), Daniel Evans (`devans2718`), Joel Vinas (`joelvinas`)  
 > **Repository:** `mosomo82/COMP_SCI_5542` → `Week_6/`
 
+> [!NOTE]
+> **Last updated:** 2026-03-02 by Daniel Evans  
+> **Status:** Phase 2 (Daniel) ✅ complete — PR open on `daniel-lab6` → `main`.  
+> Phase 2 (Joel) ⏳ pending. Phase 3 blocked until both Phase 2 PRs merge.
+
 ---
 
 ## Division of Labor Summary
 
 | Member | Tools | Streamlit Chat (shared) | Other Deliverables |
 |---|---|---|---|
-| **Tony** | 5 existing ✅ | Agent session + wiring | `task1_antigravity_report.md` ✅, tests ✅, register new tools |
-| **Daniel** | 2 new | Chat UI + history | `task4_evaluation_report.md`, demo video |
-| **Joel** | 2 new | Tool logs + formatting | `README.md`, `CONTRIBUTIONS.md`, screenshots |
+| **Tony** | 5 existing ✅ | Agent session + wiring | `task1_antigravity_report.md` ✅, tests ✅, register new tools ⬅️ **ACTION NEEDED** |
+| **Daniel** | 2 new ✅ | Chat UI + history | `task4_evaluation_report.md`, demo video |
+| **Joel** | 2 new ⏳ | Tool logs + formatting | `README.md`, `CONTRIBUTIONS.md`, screenshots |
 
 > After all work: **9 total tools** in `tools.py`
 
@@ -66,64 +71,18 @@ Tony built the entire agent infrastructure that Daniel and Joel build upon:
 
 ## Phase 2: New Tools (Parallel — Daniel & Joel)
 
-### 👤 Daniel Evans — 2 New Tools
+### 👤 Daniel Evans — 2 New Tools ✅ COMPLETE
 
-#### Tool 6: `get_route_profitability`
-Queries `V_ROUTE_SCORECARD` for route-level profit margins.
+> Implemented 2026-03-02 on branch `daniel-lab6`. PR open → `main`.  
+> `python test_tools.py` exits 0. All 7 tools verified.
 
-```python
-def get_route_profitability(
-    min_loads: int = 3, min_margin_pct: float = 0.0, top_n: int = 20
-) -> List[Dict[str, Any]]:
-    """Retrieves route profitability metrics including revenue, fuel cost, and margin.
-    Args:
-        min_loads: Minimum completed loads for a route to be included. Defaults to 3.
-        min_margin_pct: Minimum gross margin percentage. Defaults to 0.0.
-        top_n: Max routes to return, sorted by gross profit. Defaults to 20.
-    Returns:
-        List of dicts with route_label, total_loads, total_revenue, gross_profit, margin_pct, avg_mpg.
-    """
-    sql = f"""
-    SELECT route_label, total_loads, total_revenue, total_fuel_cost,
-           gross_profit, margin_pct, avg_mpg
-    FROM CS5542_WEEK5.PUBLIC.V_ROUTE_SCORECARD
-    WHERE total_loads >= {min_loads} AND margin_pct >= {min_margin_pct}
-    ORDER BY gross_profit DESC LIMIT {top_n};
-    """
-    return query_snowflake(sql)
-```
+#### Tool 6: `get_route_profitability` ✅
+Queries `V_ROUTE_SCORECARD` for route-level profit margins. Implemented in `tools.py` + schema in `tool_schemas.py`.
 
-#### Tool 7: `get_delivery_performance`
-Queries `DELIVERY_EVENTS` for on-time rates and detention analysis.
+#### Tool 7: `get_delivery_performance` ✅
+Queries `DELIVERY_EVENTS` for on-time rates and detention analysis. Implemented in `tools.py` + schema in `tool_schemas.py`.
 
-```python
-def get_delivery_performance(
-    event_type: str = "Delivery", start_date: str = "2022-01-01",
-    end_date: str = "2025-12-31", limit: int = 20
-) -> List[Dict[str, Any]]:
-    """Retrieves delivery event performance including on-time rates and detention times.
-    Args:
-        event_type: 'Delivery' or 'Pickup'. Defaults to 'Delivery'.
-        start_date/end_date: Date range in 'YYYY-MM-DD' format.
-        limit: Max rows to return. Defaults to 20.
-    Returns:
-        List of dicts with city, state, event counts, on-time rate, avg detention minutes.
-    """
-    safe_type = event_type.replace("'", "''")
-    sql = f"""
-    SELECT de.location_city, de.location_state, COUNT(*) AS total_events,
-           ROUND(AVG(CASE WHEN de.on_time_flag THEN 1 ELSE 0 END)*100,1) AS on_time_pct,
-           ROUND(AVG(de.detention_minutes),1) AS avg_detention_min
-    FROM CS5542_WEEK5.PUBLIC.DELIVERY_EVENTS de
-    WHERE de.event_type = '{safe_type}'
-      AND CAST(de.scheduled_datetime AS DATE) BETWEEN '{start_date}' AND '{end_date}'
-    GROUP BY de.location_city, de.location_state
-    ORDER BY total_events DESC LIMIT {limit};
-    """
-    return query_snowflake(sql)
-```
-
-**Steps:** Add to `tools.py` + `tool_schemas.py` → test → commit → PR (`daniel/route-delivery-tools` → `main`)
+**Steps:** ~~Add to `tools.py` + `tool_schemas.py`~~ ✅ → ~~test~~ ✅ → ~~commit~~ ✅ → PR open ⏳ awaiting review/merge
 
 ---
 
@@ -235,9 +194,20 @@ PR: `team/streamlit-agent-chat` → `main` — all 3 review and merge.
 ## Phase 4: Evaluation, Demo & Documentation
 
 ### 👤 Tony — Register New Tools + Final Integration
-1. After Daniel's and Joel's tool PRs merge, update `agent.py`:
-   - Add `tools.get_route_profitability`, `tools.get_delivery_performance`, `tools.get_maintenance_health`, `tools.get_fuel_spend_analysis` to the `agent_tools` list
-2. Run `python test_agent.py` to confirm all 9 tools bind correctly
+
+> [!IMPORTANT]
+> **Daniel's PR is open (`daniel-lab6` → `main`).** Once you merge it, complete steps 1–2 below.
+> Joel's tools will follow — do a second registration pass after his PR merges, or do both at once.
+
+1. After merging Daniel's PR, update `agent.py` — add to the `agent_tools` list:
+   ```python
+   tools.get_route_profitability,
+   tools.get_delivery_performance,
+   # Add Joel's once his PR merges:
+   # tools.get_maintenance_health,
+   # tools.get_fuel_spend_analysis,
+   ```
+2. Run `python test_agent.py` to confirm Gemini binds all tools correctly
 3. Write individual `CONTRIBUTION.md` for Canvas submission
 4. Branch: `tony/register-tools` → PR → merge
 
