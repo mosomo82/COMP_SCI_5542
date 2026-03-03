@@ -42,5 +42,23 @@ def run_tests():
     except Exception as e:
         print(f"Error: {e}")
 
+    print("\n-----------------------\nTesting get_route_profitability...")
+    try:
+        res = tools.get_route_profitability(min_loads=3, top_n=2)
+        print(f"Result count: {len(res)}")
+        if len(res) > 0:
+            print(f"First item: {res[0]}")
+    except Exception as e:
+        print(f"Error: {e}")
+
+    print("\n-----------------------\nTesting get_delivery_performance...")
+    try:
+        res = tools.get_delivery_performance(event_type="Delivery", limit=2)
+        print(f"Result count: {len(res)}")
+        if len(res) > 0:
+            print(f"First item: {res[0]}")
+    except Exception as e:
+        print(f"Error: {e}")
+
 if __name__ == "__main__":
     run_tests()
