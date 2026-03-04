@@ -247,7 +247,7 @@ See [`task4_evaluation_report.md`](task4_evaluation_report.md) for full analysis
 
 ## 📺 Demo Video
 
-- [Watch the Project Demo on YouTube](https://youtu.be/aC4HItQJ1aM)
+- [Watch the Project Demo on YouTube](https://youtu.be/GfhWJHOUlaU)
 
 ---
 
