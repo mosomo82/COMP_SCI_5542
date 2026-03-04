@@ -46,8 +46,30 @@
 ## Technical Reflection: Joel Vinas
 Working with this team on combining the previous work into a cohesive Lab 5 helped me to better understand how we intend to push the components we've built so far into an integrated final system.
 
-- **Data Analysis** We found a number of datasets related to the logistical operations and logistical issues. As this was an area of experience and interest, I delved into the data and the relationships in order to find meaningful metrics to work with. Ultimately, this was a poor use of time as my insights didn't provide much momentum towards the larger system.
+- **Data Analysis** We found a number of datasets related to the logistical operations/issues. Ultimately, this was a poor use of time as my insights didn't provide much momentum towards the larger system.
+- **AWS S3 Integration:** I've set up S3 integrations before, but never on an autonomous, unattended system via Python. By collaborating with the team, I was able to better understand how to complete the implementation.
+- **Challenges:** I found my lack of skill in writing code to be an incredible pitfall. Although I was able to get LLMs to assist me with writing the code, each prompt response created new errors which required follow-up prompts to resolve.
 
-- **AWS S3 Integration:** I've set up S3 integrations before, but never on an autonomous, unattended system via Python. By collaborating with the team, I was able to better understand how to complete the implementation, and get this service working.
+---
 
-- **Challenges:** I found my lack of skill in writing code to be an incredible pitfall. Although I was able to get LLMs to assist me with writing the code, each prompt response created new errors which required follow-up prompts to resolve and understand the underlying cause. I was grateful to work with a team on this project. Where I understood the theory, their experience alongside LLM assistance was able to help us deliver working code.
+# ADDENDUM: Lab 6 — Multi-Agent Analytics (Completed March 3, 2026)
+
+### Member 3: Joel Vinas (joelvinas / JVinas_Work)
+- **Responsibilities:**
+  - **Tool Development (Phase 2):** Designed and implemented the operational tools `get_maintenance_health` and `get_fuel_spend_analysis` in `tools.py`.
+  - **Tool Schema Definitions:** Authored the JSON schemas for the new tools in `tool_schemas.py`, ensuring proper integration with Gemini's function calling.
+  - **AI Integration UI (Phase 3):** Developed the "🔧 Tool Usage" execution logs in the Streamlit `🤖 AI Assistant` tab, providing transparency for the agent's multi-step reasoning.
+  - **Agent Formatting:** Enhanced the markdown formatting for AI responses, including KPI tables and performance notes.
+  - **Final Documentation (Phase 4):** Led the overhaul of the project `README.md` to reflect the 9-tool agentic state and updated the final Lab 6 screenshots.
+- **Evidence (Lab 6 Commits):**
+  - Commit [`28561ac`](https://github.com/mosomo82/COMP_SCI_5542/commit/28561ac) — Merge pull request #4 from mosomo82/jvinas.
+  - Commit [`b4eb440`](https://github.com/mosomo82/COMP_SCI_5542/commit/b4eb440) — Updated to reintroduce sql for derived analytics & s3 pipeline.
+  - Commit [`bfee410`](https://github.com/mosomo82/COMP_SCI_5542/commit/bfee410) — Updated to reintroduce sql for derived analytics & s3 pipeline (Lab 6 prep).
+- **Verification:**
+  - Verified `get_maintenance_health` returns accurate cost breakdowns for trucks.
+  - Tested `get_fuel_spend_analysis` with state-level filtering across Snowflake datasets.
+  - Confirmed the Streamlit "Tool Usage" expanders correctly display tool arguments and raw response data during agent sessions.
+  - Validated that the final `README.md` and `implementation_plan.md` correctly reflect the 9-tool synchronized state.
+
+### Technical Reflection: Lab 6
+During Lab 6, I focused on making the AI's internal processes visible to the end-user. Building the tool execution logs in Streamlit was particularly rewarding as it bridged the gap between raw Python logic and a user-friendly analytical experience. Implementing the maintenance and fuel tools also allowed me to apply the complex SQL joining patterns I developed in Lab 5 to a new, agentic context.
