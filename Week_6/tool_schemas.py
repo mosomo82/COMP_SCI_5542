@@ -177,19 +177,18 @@ tool_schemas = [
                         "description": "'Scheduled', 'Unscheduled', or 'Inspection'. None = all. Defaults to all if not provided."
                     },
                     "start_date": {
-                        "type": "date",
+                        "type": "string",
                         "description": "Start date in 'YYYY-MM-DD' format (e.g., '2023-01-01')."
                     },
                     "end_date": {
-                        "type": "date",
+                        "type": "string",
                         "description": "End date in 'YYYY-MM-DD' format (e.g., '2025-12-31')."
                     },
                     "top_n":{
                         "type": "integer",
                         "description": "Maximum number of trucks to return, sorted by total cost. Defaults to 20."
                     } 
-                },
-                "required": ["start_month", "end_month"]
+                }
             }
         }
     },
@@ -202,15 +201,17 @@ tool_schemas = [
                 "type": "object",
                 "properties": {
                     "states": {
-                        "type": "list",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
                         "description": "State abbreviations to filter (e.g. ['TX','CA']). None = all."
                     },
                     "top_n": {
                         "type": "integer",
                         "description": "Max locations to return. Defaults to 15."
                     }
-                },
-                "required": ["states", "top_n"]
+                }
             }
         }
     }    

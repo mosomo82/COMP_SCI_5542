@@ -27,7 +27,8 @@ try:
                                                              tools.get_safety_metrics, 
                                                              tools.get_route_profitability, 
                                                              tools.get_delivery_performance, 
-                                                             tools.get_maintenance_health])
+                                                             tools.get_maintenance_health,
+                                                             tools.get_fuel_spend_analysis])
     chat = model.start_chat()
     print("Agent setup and tool binding valid.")
     sys.exit(0)

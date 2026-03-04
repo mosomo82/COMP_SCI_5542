@@ -23,7 +23,8 @@ genai.configure(api_key=api_key)
 # ── 1. Define the System Prompt ───────────────────────────────────────────────
 SYSTEM_PROMPT = """You are a highly capable AI Data Analytics Agent for a trucking logistics company.
 You have access to a suite of specialized tools that allow you to query the company's Snowflake database.
-Your job is to answer user questions about revenue, fleet performance, pipeline logs, and safety metrics.
+Your job is to answer user questions about revenue, fleet performance, pipeline logs, safety metrics, 
+route profitability, delivery performance, maintenance health, and fuel spend analysis.
 
 When the user asks a question:
 1. Determine if you need to use a tool to fetch the data. If so, call the appropriate tool.
@@ -43,7 +44,8 @@ agent_tools = [
     tools.get_safety_metrics,
     tools.get_route_profitability,
     tools.get_delivery_performance,
-    tools.get_maintenance_health
+    tools.get_maintenance_health,
+    tools.get_fuel_spend_analysis
 ]
 
 # ── 3. Agent Execution Loop ───────────────────────────────────────────────────
