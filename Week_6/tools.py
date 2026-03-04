@@ -73,7 +73,7 @@ def query_snowflake(sql_query: str) -> List[Dict[str, Any]]:
         return [{"error": f"Failed to execute query: {str(e)}"}]
 
 
-def get_monthly_revenue(start_month: str, end_month: str) -> List[Dict[str, Any]]:
+def get_monthly_revenue(start_month="2023-01-01", end_month="2025-12-31") -> List[Dict[str, Any]]:
     """Retrieves aggregated monthly revenue trends within a specified date range.
     
     Args:
@@ -167,8 +167,8 @@ def get_pipeline_logs(limit: int = 100) -> List[Dict[str, Any]]:
 
 def get_safety_metrics(
     incident_types: Optional[List[str]] = None,
-    start_date: str = "2022-01-01",
-    end_date: str = "2025-12-31",
+    start_date="2022-01-01",
+    end_date="2025-12-31",
     limit: int = 15
 ) -> List[Dict[str, Any]]:
     """Retrieves safety incident metrics for top drivers based on filters.
@@ -239,8 +239,8 @@ def get_route_profitability(
 
 def get_delivery_performance(
     event_type: str = "Delivery",
-    start_date: str = "2022-01-01",
-    end_date: str = "2025-12-31",
+    start_date="2022-01-01",
+    end_date="2025-12-31",
     limit: int = 20
 ) -> List[Dict[str, Any]]:
     """Retrieves delivery event performance including on-time rates and detention times.
@@ -271,8 +271,8 @@ def get_delivery_performance(
     return query_snowflake(sql)
 
 def get_maintenance_health(
-    maintenance_type: Optional[str] = None, start_date: str = "2022-01-01",
-    end_date: str = "2025-12-31", top_n: int = 20
+    maintenance_type: Optional[str] = None, start_date="2022-01-01",
+    end_date="2025-12-31", top_n: int = 20
 ) -> List[Dict[str, Any]]:
     """Retrieves truck maintenance health metrics including costs, downtime, and event counts.
     Args:
