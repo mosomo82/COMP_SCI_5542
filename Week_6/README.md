@@ -69,99 +69,48 @@ Week_6/
 ```
 ---
 
-## 🎯 Week 6 Scope (≈50%)
+## 🎯 Lab 6 Scope (Multi-Agent Analytics)
 
 | Scope Item | Included this week | Deferred |
 | --- | --- | --- |
-| **Dataset(s)** | All 14 trucking tables *(customers, drivers, trucks, routes, loads, trips, fuel_purchases + trailers, facilities, delivery_events, maintenance_records, safety_incidents, driver/truck metrics)* | — |
-| **Feature(s)** | Schema + staging + `COPY INTO`, 5 analytical queries, 5 views, batch Python loader, 8-tab Streamlit dashboard, pipeline monitoring | — |
+| **AI Integration** | Gemini 2.5 Flash Agent with 9 specialized data tools | — |
+| **Dataset(s)** | All 14 trucking tables (including safety, maintenance, fuel) | — |
+| **Feature(s)** | 9 Python agent tools, Tool schemas, CLI agent loop, 9-tab Streamlit dashboard | — |
+
+---
+
+## 🤖 AI Data Analytics Agent
+
+The dashboard now features an autonomous **AI Data Analytics Agent** powered by Google Gemini 2.5 Flash. The agent can reason across 9 specialized tools to answer complex operational questions.
+
+### Agent Tools
+1.  **`query_snowflake`**: Arbitrary read-only SQL queries.
+2.  **`get_monthly_revenue`**: Aggregated revenue trends.
+3.  **`get_fleet_performance`**: Truck metrics (trips, miles, MPG, revenue).
+4.  **`get_pipeline_logs`**: System health and ingestion latency.
+5.  **`get_safety_metrics`**: Driver incident analytics and claims.
+6.  **`get_route_profitability`**: Margin analysis by route.
+7.  **`get_delivery_performance`**: On-time rates and detention times.
+8.  **`get_maintenance_health`**: Maintenance costs, labor, and downtime.
+9.  **`get_fuel_spend_analysis`**: Regional fuel spend breakdown.
 
 ---
 
 ## 🚀 Setup Instructions
 
 **1. Configure Environment**
-Copy the example environment file and fill in your Snowflake credentials.
+Copy the example environment file and fill in your Snowflake and Gemini credentials.
 
 ```bash
 cp .env.example .env
-
+# Ensure GEMINI_API_KEY is populated for the Agent to function.
 ```
 
 **2. Install Dependencies**
 
 ```bash
 pip install -r requirements.txt
-
 ```
-
----
-
-## ❄️ Snowflake SQL Setup
-
-Run these scripts in a Snowflake Worksheet (in order).
-
-> 💡 **Tip:** Steps 1–5 are fully automated by `scripts/run_pipeline.py` (see the Load Data section below).
-
-1. `sql/01_create_schema.sql` — Creates database + 14 tables.
-2. `sql/02_stage_and_load.sql` — Configures warehouse, file format, internal stage, and executes `COPY INTO`.
-3. `sql/04_views.sql` — Generates 5 derived views for the dashboard.
-4. `sql/05_derived_analytics.sql` — Builds 4 advanced derived analytics tables.
-5. `sql/06_s3_pipeline.sql` — Sets up S3 storage integration, external stage, and runs `COPY INTO` from S3.
-
----
-
-## 📥 Load Data
-
-Choose your preferred ingestion method below:
-
-### 🤖 Automated Pipeline (Recommended)
-
-Load all 14 tables from S3, build views + derived analytics, and log the run in one command:
-
-```bash
-python scripts/run_pipeline.py
-
-```
-
-*Alternative pipeline flags:*
-
-```bash
-# Use local CSVs instead of S3
-python scripts/run_pipeline.py --local
-
-# Skip storage integration creation (if it already exists)
-python scripts/run_pipeline.py --skip-s3-setup
-
-```
-
-### 📂 Manual Batch (Internal Stage)
-
-```bash
-python scripts/load_local_csv_to_stage.py --batch
-
-```
-
-### 📄 Single Table Loading
-
-```bash
-python scripts/load_local_csv_to_stage.py data/customers.csv CUSTOMERS
-python scripts/load_local_csv_to_stage.py data/drivers.csv DRIVERS
-# ... repeat for other tables as needed
-
-```
-
----
-
-## 🧠 Analytical Queries
-
-Run `sql/03_queries.sql` after loading your data to test these core insights:
-
-1. **Revenue by Customer:** Top customers by total completed-load revenue.
-2. **Driver Fuel Efficiency:** Average MPG per driver, ranked.
-3. **Route Profitability:** Revenue minus fuel cost per route (4-table join).
-4. **Monthly Revenue Trend:** Time-series analysis utilizing `DATE_TRUNC`.
-5. **Truck Fleet Utilization:** Filtered multi-join with aggregation.
 
 ---
 
@@ -171,29 +120,30 @@ Launch the interactive application locally:
 
 ```bash
 streamlit run app/streamlit_app.py
-
 ```
 
 ### Dashboard Layout
 
 | Tab | Description |
 |---|---|
-| 📊 Overview | KPI cards + monthly revenue line chart (date-range filter). |
-| 🚛 Fleet & Drivers | Truck/driver performance (fuel-type multi-select, min-trips slider). |
-| 🗺️ Routes | Route scorecard (margin threshold, min-loads filter). |
-| ⛽ Fuel Spend | Fuel spend by state (state filter, top-N slider). |
-| 📈 Monitoring | Performance stats, latency over time, and raw query logs. |
-| 🔬 Analytics | Advanced derived tables (Driver rankings, Truck health, Route quality). |
-| 🎯 Executive | Auto-loading KPIs, terminal heatmap, and live SQL explorer. |
-| ⚠️ Safety | Cross-dataset incident analytics, top-driver risk charts, and claim cost analysis. |
+| 📊 Overview | KPI cards + monthly revenue line chart. |
+| 🚛 Fleet & Drivers | Truck/driver performance filtering. |
+| 🗺️ Routes | Route scorecard and margin thresholds. |
+| ⛽ Fuel Spend | Fuel spend analysis by state/city. |
+| 📈 Monitoring | Performance stats and latency charts. |
+| 🔬 Analytics | Advanced materialized analytics tables. |
+| 🎯 Executive | Auto-loading KPIs and live SQL explorer. |
+| ⚠️ Safety | Driver hazard analysis and claim cost charts. |
+| 🤖 Agent Chat | **NEW:** Interactive AI chat powered by Gemini and 9 tools. |
 
 ## Extensions Completed
-- **Extension 1: Full dataset ingestion** — Ingested all 14 trucking CSVs, including trailers, facilities, maintenance_records, and more.
-- **Extension 2: Pipeline monitoring** — Dedicated `📈 Monitoring` tab with performance summary, latency charts, and query stats.
-- **Extension 3: Advanced derived analytics** — `05_derived_analytics.sql` creates materialized tables for driver rankings, truck health, and route quality.
-- **Extension 4: Automated S3 ingestion pipeline** — `scripts/run_pipeline.py` provides one-command orchestration for schema creation and S3 data loading.
-- **Extension 5: Interactive executive dashboard** — `🎯 Executive` tab with auto-loading KPIs, heatmap, and a live SQL explorer.
-- **Extension 6: Safety Incidents dashboard tab** — Dedicated `⚠️ Safety` tab querying the `SAFETY_INCIDENTS` table with KPI cards and hazard analysis charts.
+- **Extension 1: Full dataset ingestion** — Ingested all 14 trucking CSVs.
+- **Extension 2: Pipeline monitoring** — Dedicated `📈 Monitoring` tab.
+- **Extension 3: Advanced derived analytics** — Materialized tables for rankings.
+- **Extension 4: Automated S3 ingestion pipeline** — One-command orchestration.
+- **Extension 5: Interactive executive dashboard** — Auto-loading KPIs and heatmap.
+- **Extension 6: Safety Incidents dashboard tab** — Dedicated incident analytics.
+- **Extension 7: AI Data Analytics Agent** — Integrated Gemini 2.5 Flash with 9-tool automated function calling.
 
 ## Demo Video Link
 - [📺 Watch the Project Demo on YouTube](https://youtu.be/aC4HItQJ1aM)
