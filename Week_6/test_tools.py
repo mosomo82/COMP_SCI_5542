@@ -60,5 +60,23 @@ def run_tests():
     except Exception as e:
         print(f"Error: {e}")
 
+    print("\n-----------------------\nTesting get_maintenance_health...")
+    try:
+        res = tools.get_maintenance_health(maintenance_type="None", start_date="2023-01-01", end_date="2023-02-01", top_n=20)
+        print(f"Result count: {len(res)}")
+        if len(res) > 0:
+            print(f"First item: {res[0]}")
+    except Exception as e:
+        print(f"Error: {e}")
+
+    print("\n-----------------------\nTesting get_fuel_spend_analysis...")
+    try:
+        res = tools.get_fuel_spend_analysis(states=["CA", "TX"], top_n=20)
+        print(f"Result count: {len(res)}")
+        if len(res) > 0:
+            print(f"First item: {res[0]}")
+    except Exception as e:
+        print(f"Error: {e}")
+
 if __name__ == "__main__":
     run_tests()

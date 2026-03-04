@@ -40,7 +40,10 @@ agent_tools = [
     tools.get_monthly_revenue,
     tools.get_fleet_performance,
     tools.get_pipeline_logs,
-    tools.get_safety_metrics
+    tools.get_safety_metrics,
+    tools.get_route_profitability,
+    tools.get_delivery_performance,
+    tools.get_maintenance_health
 ]
 
 # ── 3. Agent Execution Loop ───────────────────────────────────────────────────
