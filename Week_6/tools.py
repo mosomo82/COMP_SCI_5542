@@ -228,3 +228,57 @@ def get_delivery_performance(
     ORDER BY total_events DESC LIMIT {limit};
     """
     return query_snowflake(sql)
+
+def get_maintenance_health(
+    maintenance_type: Optional[str] = None, start_date: str = "2022-01-01",
+    end_date: str = "2025-12-31", top_n: int = 20
+) -> List[Dict[str, Any]]:
+    """Retrieves truck maintenance health metrics including costs, downtime, and event counts.
+    Args:
+        maintenance_type: 'Scheduled', 'Unscheduled', or 'Inspection'. None = all.
+        start_date/end_date: Date range in 'YYYY-MM-DD' format.
+        top_n: Max trucks to return, sorted by total cost. Defaults to 20.
+    Returns:
+        List of dicts with truck_id, make, model_year, maintenance_events, total_cost, avg_downtime.
+    """
+    type_clause = ""
+    if maintenance_type:
+        safe = maintenance_type.replace("'", "''")
+        type_clause = f"AND mr.maintenance_type = '{safe}'"
+    sql = f"""
+    SELECT mr.truck_id, tk.make, tk.model_year, tk.fuel_type,
+           COUNT(*) AS maintenance_events,
+           ROUND(SUM(mr.total_cost),2) AS total_cost,
+           ROUND(AVG(mr.downtime_hours),1) AS avg_downtime_hours,
+           ROUND(SUM(mr.labor_cost),2) AS total_labor_cost,
+           ROUND(SUM(mr.parts_cost),2) AS total_parts_cost
+    FROM CS5542_WEEK5.PUBLIC.MAINTENANCE_RECORDS mr
+    JOIN CS5542_WEEK5.PUBLIC.TRUCKS tk ON mr.truck_id = tk.truck_id
+    WHERE mr.maintenance_date BETWEEN '{start_date}' AND '{end_date}' {type_clause}
+    GROUP BY mr.truck_id, tk.make, tk.model_year, tk.fuel_type
+    ORDER BY total_cost DESC LIMIT {top_n};
+    """
+    return query_snowflake(sql)
+
+def get_fuel_spend_analysis(
+    states: Optional[List[str]] = None, top_n: int = 15
+) -> List[Dict[str, Any]]:
+    """Retrieves fuel spend analysis aggregated by state and city.
+    Args:
+        states: State abbreviations to filter (e.g. ['TX','CA']). None = all.
+        top_n: Max locations to return. Defaults to 15.
+    Returns:
+        List of dicts with state, city, total spend, gallons, avg price per gallon.
+    """
+    state_clause = ""
+    if states:
+        safe = lambda s: str(s).strip().replace("'", "''")
+        state_filter = ", ".join(f"'{safe(s)}'" for s in states)
+        state_clause = f"WHERE location_state IN ({state_filter})"
+    sql = f"""
+    SELECT location_state, location_city, purchases,
+           total_gallons, avg_price_per_gallon, total_spend
+    FROM CS5542_WEEK5.PUBLIC.V_FUEL_SPEND {state_clause}
+    ORDER BY total_spend DESC LIMIT {top_n};
+    """
+    return query_snowflake(sql)

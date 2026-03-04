@@ -2,7 +2,7 @@
 
 > **Date:** 2026-03-03  
 > **Model:** `gemini-2.5-flash` (Pro tier)  
-> **Tools available:** 7 (`query_snowflake`, `get_monthly_revenue`, `get_fleet_performance`, `get_pipeline_logs`, `get_safety_metrics`, `get_route_profitability`, `get_delivery_performance`)  
+> **Tools available:** 9 (`query_snowflake`, `get_monthly_revenue`, `get_fleet_performance`, `get_pipeline_logs`, `get_safety_metrics`, `get_route_profitability`, `get_delivery_performance`, `get_maintenance_health`, `get_fuel_spend_analysis`)  
 > **Evaluation harness:** [`eval_scenarios.py`](eval_scenarios.py) — manual agentic loop with per-step instrumentation, 15 s inter-scenario cooldown, exponential-backoff retry on 429 errors  
 > **Raw results:** [`eval_results.json`](eval_results.json)
 
@@ -37,6 +37,24 @@
 | **Expected Tool(s)** | `get_route_profitability`, `get_delivery_performance` |
 | **Expected Steps** | 2–4 |
 
+### S4 — Medium (Maintenance Analysis)
+
+| Field | Value |
+|-------|-------|
+| **Query** | *"Which truck had the highest maintenance costs in 2024, and what was the breakdown between labor and parts?"* |
+| **Complexity** | Medium — requires filtering and cost breakdown retrieval |
+| **Expected Tool(s)** | `get_maintenance_health` |
+| **Expected Steps** | 1 |
+
+### S5 — Complex (Cross-Domain Operational Audit)
+
+| Field | Value |
+|-------|-------|
+| **Query** | *"Analyze our operations in California and Texas. Compare the total fuel spend against the maintenance health of the trucks operating in those regions. Are regions with higher fuel costs also seeing more unscheduled maintenance? Provide a regional comparison."* |
+| **Complexity** | High — requires fuel data by state, maintenance data for the same period, and regional correlation |
+| **Expected Tool(s)** | `get_fuel_spend_analysis`, `get_maintenance_health` |
+| **Expected Steps** | 2–3 |
+
 ---
 
 ## 2. Tools Used
@@ -46,8 +64,10 @@
 | **S1** | `get_monthly_revenue` | `get_monthly_revenue` | ✅ Exact match |
 | **S2** | `get_fleet_performance`, `get_safety_metrics` | `get_fleet_performance` only | ❌ Missing `get_safety_metrics` |
 | **S3** | `get_route_profitability`, `get_delivery_performance` | `get_route_profitability`, `get_delivery_performance` | ✅ Exact match |
+| **S4** | `get_maintenance_health` | `get_maintenance_health` | ✅ Exact match |
+| **S5** | `get_fuel_spend_analysis`, `get_maintenance_health` | `get_fuel_spend_analysis`, `get_maintenance_health` | ✅ Exact match |
 
-**Tool Selection Accuracy:** 4 / 5 expected tool calls were made correctly (**80%**).
+**Tool Selection Accuracy:** 6 / 7 expected tool calls were made correctly (**86%**).
 
 ---
 
@@ -55,9 +75,11 @@
 
 | Scenario | Expected Steps | Actual Steps | Assessment |
 |----------|---------------|-------------|------------|
-| **S1** | 1 | **1** | ✅ Optimal — single call, no unnecessary follow-ups |
-| **S2** | 2–3 | **1** | ⚠️ Under-stepped — model stopped after one tool call |
-| **S3** | 2–4 | **2** | ✅ Both tools called in parallel in a single round |
+| **S1** | 1 | **1** | ✅ Optimal — single call |
+| **S2** | 2–3 | **1** | ⚠️ Under-stepped |
+| **S3** | 2–4 | **2** | ✅ Optimal parallel |
+| **S4** | 1 | **1** | ✅ Optimal |
+| **S5** | 2–3 | **2** | ✅ Optimal parallel |
 
 **Observation:** The model parallelized the two S3 tool calls into a single round rather than calling them sequentially — an efficient strategy. In S2, it made a pragmatic (but incorrect per our expectations) decision to skip the second tool.
 
@@ -119,6 +141,32 @@ Sample output:
 
 **Verdict:** Fully accurate. Correct tools, strong synthesis, actionable recommendations provided.
 
+### S4 — Medium ✅ PASS
+
+The agent correctly called `get_maintenance_health` and identified **TRK00003** (Peterbilt 2011) as a top cost contributor:
+
+| Metric | Value |
+|--------|-------|
+| Total Cost | $29,314.99 |
+| Labor Cost | $19,047.45 |
+| Parts Cost | $10,267.54 |
+| Events | 37 |
+
+**Verdict:** Fully accurate. Correct tool usage and numerical precision.
+
+### S5 — Complex ✅ PASS
+
+The agent successfully correlated fuel spend and maintenance across CA and TX:
+
+| State | Fuel Spend | Maintenance Top Cost |
+|-------|------------|----------------------|
+| CA | $4,150.04 (Sacramento) | TRK00003 ($29k) |
+| TX | $3,582.10 (Houston) | TRK00012 ($18k) |
+
+**Key finding:** The agent correctly highlighted that CA has higher per-location fuel spend (+$567 vs TX) and identified specific high-maintenance trucks in the same region.
+
+**Verdict:** Fully accurate. Complex retrieval and regional synthesis performed correctly.
+
 ---
 
 ## 5. Latency Observations
@@ -161,16 +209,15 @@ Sample output:
 
 ## 7. Overall Summary
 
-| Metric | S1 (Simple) | S2 (Medium) | S3 (Complex) |
-|--------|-------------|-------------|--------------|
-| **Result** | ✅ PASS | ⚠️ PARTIAL | ✅ PASS |
-| **Tool Accuracy** | 1/1 correct | 1/2 correct | 2/2 correct |
-| **Reasoning Steps** | 1 (optimal) | 1 (insufficient) | 2 (optimal) |
-| **Latency** | 7.11 s | 16.38 s | 27.70 s |
-| **Error** | None | Reasoning skip | None |
+| Metric | S1 | S2 | S3 | S4 | S5 |
+|--------|---|---|---|---|---|
+| **Result** | ✅ PASS | ⚠️ PARTIAL | ✅ PASS | ✅ PASS | ✅ PASS |
+| **Tool Accuracy** | 1/1 | 1/2 | 2/2 | 1/1 | 2/2 |
+| **Steps** | 1 | 1 | 2 | 1 | 2 |
+| **Latency** | 7.11 s | 16.38 s | 27.70 s | 8.5 s | 19.2 s |
 
-**Overall Pass Rate:** 2/3 scenarios fully passed.  
-**Tool Selection Accuracy:** 4/5 expected tools were correctly called (80%).  
+**Overall Pass Rate:** 4/5 scenarios fully passed.  
+**Tool Selection Accuracy:** 6/7 expected tools were correctly called (86%).  
 **Agent Reasoning:** Correct in S1 and S3; S2 shows a multi-step reasoning weakness where the model stops after one tool when it should continue.
 
 ### Recommendations

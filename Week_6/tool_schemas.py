@@ -163,5 +163,56 @@ tool_schemas = [
                 }
             }
         }
-    }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_maintenance_health",
+            "description": "Retrieves truck maintenance health metrics including costs, downtime, and event counts.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "maintenance_type": {
+                        "type": "string",
+                        "description": "'Scheduled', 'Unscheduled', or 'Inspection'. None = all. Defaults to all if not provided."
+                    },
+                    "start_date": {
+                        "type": "string",
+                        "description": "Start date in 'YYYY-MM-DD' format (e.g., '2023-01-01')."
+                    },
+                    "end_date": {
+                        "type": "string",
+                        "description": "End date in 'YYYY-MM-DD' format (e.g., '2025-12-31')."
+                    },
+                    "top_n":{
+                        "type": "integer",
+                        "description": "Maximum number of trucks to return, sorted by total cost. Defaults to 20."
+                    } 
+                }
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_fuel_spend_analysis",
+            "description": "Retrieves fuel spend analysis aggregated by state and city.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "states": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "State abbreviations to filter (e.g. ['TX','CA']). None = all."
+                    },
+                    "top_n": {
+                        "type": "integer",
+                        "description": "Max locations to return. Defaults to 15."
+                    }
+                }
+            }
+        }
+    }    
 ]

@@ -21,7 +21,14 @@ genai.configure(api_key=api_key)
 
 try:
     # Test generation and tool bindings
-    model = genai.GenerativeModel('gemini-2.5-flash', tools=[tools.get_monthly_revenue])
+    model = genai.GenerativeModel('gemini-2.5-flash', tools=[tools.get_monthly_revenue,
+                                                             tools.get_fleet_performance, 
+                                                             tools.get_pipeline_logs, 
+                                                             tools.get_safety_metrics, 
+                                                             tools.get_route_profitability, 
+                                                             tools.get_delivery_performance, 
+                                                             tools.get_maintenance_health,
+                                                             tools.get_fuel_spend_analysis])
     chat = model.start_chat()
     print("Agent setup and tool binding valid.")
     sys.exit(0)
