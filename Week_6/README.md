@@ -1,4 +1,4 @@
-# 🚚 CS 5542 — Week 5: Logistics Operation Dashboard
+# 🚚 CS 5542 — Week 6: Logistics Operation Dashboard
 
 *A minimal, reproducible Data Engineering pipeline: Data → Snowflake → Query → App → Logging*
 
@@ -12,7 +12,7 @@
 
 ## 🔗 Live Deployment
 
-> **Streamlit Cloud:** [🚀 Launch Lab5_Streamlit_Cloud](https://cs5542lab5.streamlit.app/)
+> **Streamlit Cloud:** [🚀 Launch Lab6_Streamlit_Cloud](https://cs5542lab5.streamlit.app/)
 
 ---
 
@@ -25,10 +25,10 @@
 
 ## 🗂️ Project Structure
 
-Below is the complete directory structure for the Week 5 Logistics Dashboard pipeline. It is organized into distinct layers for data generation, SQL execution, Python orchestration, and front-end visualization.
+Below is the complete directory structure for the Week 6 Logistics Dashboard pipeline. It is organized into distinct layers for data generation, SQL execution, Python orchestration, and front-end visualization.
 
 ```text
-Week_5/
+Week_6/
 ├── app/                        # Presentation Layer
 │   └── streamlit_app.py        # Main 8-tab Streamlit dashboard application
 ├── data/                       # Synthetic Logistics Datasets (14 Core/Ext Tables)
@@ -48,6 +48,10 @@ Week_5/
 │   └── truck_utilization_metrics.csv
 ├── logs/                       # Pipeline Monitoring
 │   └── pipeline_logs.csv       # Tracks ingestion success, errors, and latencies
+├── reports/                    # Reports delivered
+│   ├── CONTRIBUTIONS_DE.md     # Contributions by Daniel Evans
+│   ├── CONTRIBUTIONS_JV.md     # Contributions by Joel Vinas
+│   └── CONTRIBUTIONS_TN.md     # Contributions by Tony Nguyen
 ├── scripts/                    # Ingestion & Orchestration Scripts
 │   ├── load_local_csv_to_stage.py # Local/Batch ingestion using internal staging
 │   └── run_pipeline.py         # Automated master orchestrator (Local & S3 modes)
@@ -59,13 +63,13 @@ Week_5/
 │   ├── 05_derived_analytics.sql# 4 advanced materialized analytics tables
 │   └── 06_s3_pipeline.sql      # AWS Storage Integration & External Stage setup
 ├── .env.example                # Template for Snowflake & AWS credentials
-├── CONTRIBUTIONS.md            # Individual team member accountability log
+├── CONTRIBUTIONS.md            # Collective Team Member accountability log
 ├── README.md                   # Primary documentation
 └── requirements.txt            # Python package dependencies
 ```
 ---
 
-## 🎯 Week 5 Scope (≈50%)
+## 🎯 Week 6 Scope (≈50%)
 
 | Scope Item | Included this week | Deferred |
 | --- | --- | --- |
