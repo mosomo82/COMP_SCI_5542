@@ -12,7 +12,7 @@
 
 ## 🔗 Live Deployment
 
-> **Streamlit Cloud:** [🚀 Launch Lab6_Streamlit_Cloud](https://cs5542lab5.streamlit.app/)
+> **Streamlit Cloud:** [🚀 Launch Lab6_Streamlit_Cloud](https://cs5542logisticsai.streamlit.app/)
 
 ---
 
