@@ -1,5 +1,6 @@
 import os
 import csv
+import datetime
 import pandas as pd
 import pathlib
 import sys
@@ -11,6 +12,38 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from sf_connect import get_conn
 
 LOG_PATH = ROOT / "logs" / "pipeline_logs.csv"
+
+def _ensure_str(val) -> str:
+    """Coerce datetime.date / datetime.datetime to 'YYYY-MM-DD' string.
+    Gemini sometimes passes date objects instead of strings."""
+    if isinstance(val, (datetime.date, datetime.datetime)):
+        return val.strftime("%Y-%m-%d")
+    return str(val)
+
+def _sanitize_value(val):
+    """Convert a single value to a JSON-safe / Gemini-safe type.
+    Snowflake returns datetime.date, Decimal, etc. that the Gemini SDK
+    cannot coerce when sending function results back to the model."""
+    import decimal
+    if val is None:
+        return None
+    if isinstance(val, (datetime.datetime,)):
+        return val.strftime('%Y-%m-%dT%H:%M:%S')
+    if isinstance(val, (datetime.date,)):
+        return val.strftime('%Y-%m-%d')
+    if isinstance(val, decimal.Decimal):
+        # Preserve precision: use float for numeric
+        return float(val)
+    if isinstance(val, bytes):
+        return val.decode('utf-8', errors='replace')
+    if isinstance(val, (int, float, str, bool)):
+        return val
+    # Fallback: stringify anything else
+    return str(val)
+
+def _sanitize_records(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Sanitize every value in a list of dicts for Gemini SDK serialization."""
+    return [{k: _sanitize_value(v) for k, v in row.items()} for row in records]
 
 def query_snowflake(sql_query: str) -> List[Dict[str, Any]]:
     """Executes a read-only SQL query against the Snowflake database.
@@ -33,7 +66,9 @@ def query_snowflake(sql_query: str) -> List[Dict[str, Any]]:
         # Convert datetime objects to string using ISO format
         for col in df.select_dtypes(include=['datetime64', 'datetimetz']).columns:
             df[col] = df[col].dt.strftime('%Y-%m-%dT%H:%M:%S')
-        return df.to_dict(orient="records")
+        records = df.to_dict(orient="records")
+        # Sanitize all values (Decimal, date, etc.) for Gemini SDK
+        return _sanitize_records(records)
     except Exception as e:
         return [{"error": f"Failed to execute query: {str(e)}"}]
 
@@ -48,6 +83,8 @@ def get_monthly_revenue(start_month: str, end_month: str) -> List[Dict[str, Any]
     Returns:
         List[Dict[str, Any]]: A list of dictionaries containing monthly revenue data.
     """
+    start_month = _ensure_str(start_month)
+    end_month = _ensure_str(end_month)
     sql_overview = f"""
     SELECT *
     FROM CS5542_WEEK5.PUBLIC.V_MONTHLY_REVENUE
@@ -152,6 +189,8 @@ def get_safety_metrics(
         ]
         
     # SQL minimal escape
+    start_date = _ensure_str(start_date)
+    end_date = _ensure_str(end_date)
     safe = lambda t: str(t).strip().replace("'", "''")
     type_filter = ", ".join(f"'{safe(t)}'" for t in incident_types)
     
@@ -216,6 +255,8 @@ def get_delivery_performance(
         List[Dict[str, Any]]: List of dicts with city, state, event counts,
             on-time rate, avg detention minutes.
     """
+    start_date = _ensure_str(start_date)
+    end_date = _ensure_str(end_date)
     safe_type = event_type.replace("'", "''")
     sql = f"""
     SELECT de.location_city, de.location_state, COUNT(*) AS total_events,
@@ -241,6 +282,8 @@ def get_maintenance_health(
     Returns:
         List of dicts with truck_id, make, model_year, maintenance_events, total_cost, avg_downtime.
     """
+    start_date = _ensure_str(start_date)
+    end_date = _ensure_str(end_date)
     type_clause = ""
     if maintenance_type:
         safe = maintenance_type.replace("'", "''")

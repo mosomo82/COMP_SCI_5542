@@ -83,11 +83,26 @@ def run_agent():
             # 4. Steps 2-3 repeat until Gemini returns a final text response.
             response = chat.send_message(user_input)
             
-            print(f"\n🚛 Agent: {response.text}")
+            # Safely extract text — response.text crashes if the model
+            # returned only function-call parts with no text part.
+            try:
+                answer = response.text
+            except ValueError:
+                # Fallback: try to extract text from parts manually
+                text_parts = [
+                    p.text for p in response.candidates[0].content.parts
+                    if hasattr(p, "text") and p.text
+                ]
+                answer = "\n".join(text_parts) if text_parts else (
+                    "I processed your request but couldn't generate a text summary. "
+                    "Please try rephrasing your question."
+                )
+            
+            print(f"\n🚛 Agent: {answer}")
             
         except Exception as e:
-            print(f"\n❌ Loop Error: {str(e)}")
-            print("The agent encountered an unexpected error and recovered.")
+            print(f"\n❌ Agent error: {str(e)}")
+            print("The agent encountered an error but is still running. Try another question.")
 
 if __name__ == "__main__":
     run_agent()

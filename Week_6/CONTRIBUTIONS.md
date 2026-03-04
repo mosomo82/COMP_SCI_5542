@@ -84,58 +84,82 @@
 
 # ADDENDUM: Lab 6 — Multi-Agent Analytics
 
-## Phase 3 Status (March 2, 2026)
+> **Lab 6 Deadline:** March 3, 2026 — 11:59 PM
+
+## Lab 6 Contributions (Final — March 3, 2026)
 
 ### Member 1: Tony Nguyen (mosomo82) — Backend & AI Lead
 - **Responsibilities:**
-  - **Core Infrastructure (Phase 1):** Built the toolset foundation in `tools.py` (Tools 1-5) and the core agent logic in `agent.py`.
-  - **System Integration:** Authored the `task1_antigravity_report.md` regarding automated assistance from Antigravity.
-  - **Streamlit Session Integration (Phase 3):** Wired the AI Agent into the dashboard. Developed the robust `st.session_state` management system and dynamic tool registration logic that enables multi-member parallel development.
-- **Evidence (Lab 6 Commits):**
-  - Commit [`68fcf89`](https://github.com/mosomo82/COMP_SCI_5542/commit/68fcf89) — docs: add Lab 6 contribution addendum for Tony.
+  - **Phase 1 (Infrastructure):** Built the toolset foundation in `tools.py` (Tools 1–5) and the core agent logic in `agent.py`.
+  - **Phase 1 (Documentation):** Authored the `task1_antigravity_report.md` regarding automated assistance from Antigravity.
+  - **Phase 3 (Streamlit Integration):** Wired the AI Agent into the dashboard. Developed the `st.session_state` management system and dynamic tool registration logic that enables multi-member parallel development.
+- **Evidence (Lab 6 Commits & PRs):**
+  - **PR [#6](https://github.com/mosomo82/COMP_SCI_5542/pull/6)** — `tony/lab6-agent-integration` → `main` (merged at `86504e5`)
   - Commit [`4458fd7`](https://github.com/mosomo82/COMP_SCI_5542/commit/4458fd7) — feat(Tony): agent session setup with all 9 tools, chat lifecycle, tool logging.
+  - Commit [`68fcf89`](https://github.com/mosomo82/COMP_SCI_5542/commit/68fcf89) — docs: add Lab 6 contribution addendum for Tony.
+  - Commit [`4f14cd4`](https://github.com/mosomo82/COMP_SCI_5542/commit/4f14cd4) — Create implementation_plan.md.
+  - Commit [`21ee827`](https://github.com/mosomo82/COMP_SCI_5542/commit/21ee827) — Update implementation_plan.md.
+  - Commit [`a02710b`](https://github.com/mosomo82/COMP_SCI_5542/commit/a02710b) — Update implementation_plan.md.
 - **Verification:**
-  - Confirmed agent binds to all active tools and maintains multi-turn conversation history.
+  - Confirmed agent binds to all 9 active tools and maintains multi-turn conversation history.
   - Validated tool-usage transparency via the sidebar and message expanders.
 
-### Member 2: Daniel Evans (devans2718)
+### Member 2: Daniel Evans (devans2718) — Tools & Evaluation Lead
 - **Responsibilities:**
-  - **Tool Development (Phase 2):** Implementing `get_route_profitability` and `get_delivery_performance`.
-  - **UI/UX Polish:** Working on chat message formatting and history visualization.
-  - **Evaluation (Phase 4):** Writing the `task4_evaluation_report.md` and recording the demo video.
- - **Evidence (Lab 6 Commits):**
+  - **Phase 2 (Tool Development):** Implemented `get_route_profitability` (Tool 6) and `get_delivery_performance` (Tool 7) in `tools.py` and `tool_schemas.py`.
+  - **Phase 3 (Chat UI):** Built the Streamlit chat input loop, message history, display loop, and loading spinner.
+  - **Phase 4 (Evaluation):** Authored the `task4_evaluation_report.md` (5-scenario evaluation) and `eval_scenarios.py` harness. Authored `CONTRIBUTIONS_DE.md`.
+- **Evidence (Lab 6 Commits & PRs):**
+  - **PR [#7](https://github.com/mosomo82/COMP_SCI_5542/pull/7)** — `daniel-lab6` → `main` (merged at `3a4e860`)
+  - **PR [#5](https://github.com/mosomo82/COMP_SCI_5542/pull/5)** — `fix/week5-requirements` → `main` (merged at `6acf44b`)
+  - Commit [`54dccd5`](https://github.com/mosomo82/COMP_SCI_5542/commit/54dccd5) — feat(daniel): add get_route_profitability and get_delivery_performance tools.
+  - Commit [`923e986`](https://github.com/mosomo82/COMP_SCI_5542/commit/923e986) — docs: update implementation_plan.md to reflect Phase 2 completion.
+  - Commit [`06d1b71`](https://github.com/mosomo82/COMP_SCI_5542/commit/06d1b71) — docs: Add individual contribution report for Lab 6.
   - Commit [`70771e1`](https://github.com/mosomo82/COMP_SCI_5542/commit/70771e1) — fix: add missing Week_5/requirements.txt for Streamlit Cloud.
   - Commit [`f2d7f83`](https://github.com/mosomo82/COMP_SCI_5542/commit/f2d7f83) — remove duplicated lines in streamlit_app.py.
 
-### Member 3: Joel Vinas (joelvinas)
+### Member 3: Joel Vinas (joelvinas) — Tools & Documentation Lead
 - **Responsibilities:**
-  - **Tool Development (Phase 2):** Implementing `get_maintenance_health` and `get_fuel_spend_analysis`.
-  - **Logging & Formatting:** Enhancing the AI response formatting and tool execution logging.
-  - **Final Documentation:** Updating README and screenshots for the final submission.
-- **Evidence (Lab 6 Commits):**
-  - Commit [`28561ac`](https://github.com/mosomo82/COMP_SCI_5542/commit/28561ac) — Merge pull request #4 from mosomo82/jvinas.
-  - Commit [`b4eb440`](https://github.com/mosomo82/COMP_SCI_5542/commit/b4eb440) — Updated to reintroduce sql for derived analytics & s3 pipeline.
+  - **Phase 2 (Tool Development):** Implemented `get_maintenance_health` (Tool 8) and `get_fuel_spend_analysis` (Tool 9) in `tools.py` and `tool_schemas.py`.
+  - **Phase 3 (Logging & Formatting):** Enhanced AI response formatting and tool execution logging.
+  - **Phase 4 (Documentation):** Updated README, implementation plan, and screenshots for final submission. Authored `CONTRIBUTIONS_JV.md`.
+- **Evidence (Lab 6 Commits & PRs):**
+  - **PR [#8](https://github.com/mosomo82/COMP_SCI_5542/pull/8)** — `jvinas_20260303` → `main` (merged at `5febcc2`)
+  - **PR [#9](https://github.com/mosomo82/COMP_SCI_5542/pull/9)** — `jvinas_20260303` → `main` (merged at `1e1e54f`)
+  - Commit [`2c01629`](https://github.com/mosomo82/COMP_SCI_5542/commit/2c01629) — Updated code per implementation plan: agent.py, test_agent.py, test_tools.py, tool_schemas.py, tools.py. Added CONTRIBUTIONS_JV.
+  - Commit [`0e801b1`](https://github.com/mosomo82/COMP_SCI_5542/commit/0e801b1) — Updated agent.py, test_agent.py, tool_schemas.py and implementation_plan.md.
+  - Commit [`6c4fe75`](https://github.com/mosomo82/COMP_SCI_5542/commit/6c4fe75) — Updated implementation_plan.md, readme.md and task4_evaluation_report per implementation plan.
+  - Commit [`eb13dc6`](https://github.com/mosomo82/COMP_SCI_5542/commit/eb13dc6) — Manually updated README.md to reference Week 6 and Contribution documents.
+  - Commit [`cc996b3`](https://github.com/mosomo82/COMP_SCI_5542/commit/cc996b3) — Updated CONTRIBUTIONS_JV.md to reflect changes for Lab 6.
+  - Commit [`36ee326`](https://github.com/mosomo82/COMP_SCI_5542/commit/36ee326) — updated contributions_jv.md to include GitHub link.
 
 ---
 
 ## Lab 6 Division of Labor Summary
 
-| Member | Roles | Tools | Deliverables |
+| Member | Roles | Tools Owned | Primary Deliverables |
 |---|---|---|---|
-| **Tony** | AI Infrastructure & Integration | Tools 1-5 (Core) | `agent.py`, `tools.py`, `task1_report.md` |
-| **Daniel** | UI & Evaluation | Tools 6-7 (Analytical) | `task4_report.md`, Demo Video |
-| **Joel** | Documentation & Logging | Tools 8-9 (Operational) | `README.md`, Screenshots |
+| **Tony Nguyen** | AI Infrastructure & Integration | Tools 1–5 (Core) | `agent.py`, `tools.py`, `task1_antigravity_report.md` |
+| **Daniel Evans** | Tools, Chat UI & Evaluation | Tools 6–7 (Analytical) | `task4_evaluation_report.md`, `eval_scenarios.py`, Demo Video |
+| **Joel Vinas** | Tools, Documentation & Logging | Tools 8–9 (Operational) | `README.md`, Screenshots, Implementation Plan updates |
 
-## Project Component Ownership
+## Lab 6 Project Component Ownership
 
-| Segment |Owners |
+| Segment | Owner(s) |
 |---|---|
 | Snowflake DB & Staging | Tony Nguyen |
 | Data Ingestion Pipelines | Tony Nguyen / Joel Vinas |
 | Core Analytics & Views | Daniel Evans |
 | Dashboard UI & Monitoring | Joel Vinas / Daniel Evans |
 | Advanced Analytics (Derived) | Joel Vinas |
-| AI Agent & Tool Binding | Tony Nguyen |
-| AI Tool Development | All Members (Team) |
+| AI Agent Architecture (`agent.py`) | Tony Nguyen |
+| Tools 1–5 (`query_snowflake`, `get_monthly_revenue`, `get_fleet_performance`, `get_pipeline_logs`, `get_safety_metrics`) | Tony Nguyen |
+| Tools 6–7 (`get_route_profitability`, `get_delivery_performance`) | Daniel Evans |
+| Tools 8–9 (`get_maintenance_health`, `get_fuel_spend_analysis`) | Joel Vinas |
+| Streamlit Agent Chat Tab (Session Wiring) | Tony Nguyen |
+| Streamlit Agent Chat Tab (Chat UI) | Daniel Evans |
+| Streamlit Agent Chat Tab (Tool Logging) | Joel Vinas |
+| Evaluation Harness & Report | Daniel Evans |
+| Individual Reports | All Members |
 
 ---
