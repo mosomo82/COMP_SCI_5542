@@ -3,8 +3,8 @@
 > **Team Name:** EVN 
 > **Team Members:** Tony Nguyen (mosomo82), Daniel Evans (devans2718), Joel Vinas (joelvinas)
 > **Project Title:** Logistics Operation Dashboard — Snowflake Integration
-
-> **Deadline:** Feb. 24, 2026 — 11:59 PM
+> **GitHub Link:** https://github.com/mosomo82/COMP_SCI_5542
+> **Lab 6 Deadline:** March 3, 2026
 
 ---
 
