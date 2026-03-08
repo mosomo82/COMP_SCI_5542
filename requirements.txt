@@ -3,3 +3,9 @@
 
 #CS5542 - Shared dependencies (Streamlit CLoud reads from repo root)
 -r Week_5/requirements.txt
+
+#CS5542 - Shared dependencies (Streamlit CLoud reads from repo root)
+-r Week_6/requirements.txt
+
+#CS5542 - Shared dependencies (Streamlit CLoud reads from repo root)
+-r Week_7/ReMindRag/requirements.txt
