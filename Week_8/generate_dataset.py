@@ -48,11 +48,9 @@ def generate_example():
         )
 
     return {
-        "messages": [
-            {"role": "system", "content": "You are the HyperLogistics Validation & Safety Agent. You provide explainable, constraint-compliant rerouting justifications for middle-mile logistics based on real-time weather, accidents, and US DOT physical constraints (bridge clearance/weight limits)."},
-            {"role": "user", "content": query},
-            {"role": "assistant", "content": response}
-        ]
+        "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+        "input": f"{query} Context: Route options include {primary_route} and {alt_route}.",
+        "output": response
     }
 
 def main():
@@ -62,10 +60,9 @@ def main():
     for _ in range(num_examples):
         dataset.append(generate_example())
         
-    output_file = "synthetic_rerouting_dataset.jsonl"
+    output_file = "instruction_dataset.json"
     with open(output_file, "w") as f:
-        for item in dataset:
-            f.write(json.dumps(item) + "\n")
+        json.dump(dataset, f, indent=2)
             
     print(f"Successfully generated {num_examples} examples in {output_file}")
     

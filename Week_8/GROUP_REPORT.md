@@ -13,9 +13,10 @@ To teach the model domain-specific constraints (e.g., DOT bridge weight/height l
 
 A Python script (`week8/generate_dataset.py`) was created to simulate Area Manager queries regarding real-time disruptions. This script programmatically combined constraints from `SILVER.BRIDGE_INVENTORY_GEO` and simulated events from `SILVER.WEATHER_ALERTS` to generate 100 query-response pairs. These pairs establish the exact reasoning patterns the model must follow to safely veto or approve a route.
 
-The resulting dataset is saved in JSONL format at `week8/synthetic_rerouting_dataset.jsonl`.
+The resulting dataset is saved in JSON format containing 100 `instruction`, `input`, and `output` pairs at `week8/instruction_dataset.json`.
 
 ## 4. Model Adaptation Method
+*(To be completed: Detail whether Instruction Tuning, PEFT, or Prompt Adaptation was used, the parameters, and how it was integrated into Snowflake Cortex/Gemini.)*
 **Method Chosen:** Prompt Adaptation (Few-Shot Prompting)
 
 Instead of full fine-tuning, we adapted the model by dynamically injecting expert-level, validated routing examples from our synthetic dataset into the system prompt. By using highly engineered few-shot prompting, we condition the Snowflake Cortex inference engine to adopt the rigid, deterministic reasoning required for safety-critical systems while maintaining cost efficiency and agility.
