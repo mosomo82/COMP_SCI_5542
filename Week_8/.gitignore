@@ -1,0 +1,28 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environments
+venv/
+env/
+.env
+.venv
+env.bak/
+venv.bak/
+
+# Local Model Adapters and Checkpoints
+# We don't want to upload full LLM weights/adapters to GitHub!
+adapted_model/
+checkpoints/
+runs/
+*.safetensors
+*.bin
+
+# Streamlit
+.streamlit/
+*.log
+
+# Caches
+.cache/
+.pytest_cache/
