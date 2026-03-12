@@ -1,5 +1,7 @@
 # Week 8 Plan: Domain Adaptation
 
+**Live Demo:** [https://cs5542lab8.streamlit.app/](https://cs5542lab8.streamlit.app/)
+
 This document acts as our roadmap to upgrade HyperLogistics from a standard RAG system to a Domain-Specialized AI Assistant focused on **Explainable Rerouting & Safety Justification**.
 
 ## 🚀 Steps to Complete Lab 8
