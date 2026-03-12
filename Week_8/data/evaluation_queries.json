@@ -1,0 +1,112 @@
+[
+  {
+    "id": "Q1",
+    "type": "standard",
+    "instruction": "Severe thunderstorm on Route A, reroute needed from Dallas to Austin.",
+    "input": "Route A (I-35): High winds and hail reported. Route B (US-281): Clear skies. Vehicle height: 13ft. Route B Bridge Limit: 14ft.",
+    "output": "APPROVE"
+  },
+  {
+    "id": "Q2",
+    "type": "standard",
+    "instruction": "Traffic collision on I-10 Eastbound, requesting reroute.",
+    "input": "I-10 E blocked for 3 hours. Alternate route via Hwy 90 is clear, adds 45 mins. Load is non-perishable.",
+    "output": "APPROVE"
+  },
+  {
+    "id": "Q3",
+    "type": "standard",
+    "instruction": "Bridge maintenance on I-80, investigate alternate route via local roads.",
+    "input": "Alternate route includes Main St bridge with 10ft clearance. Vehicle height is 12ft.",
+    "output": "VETO"
+  },
+  {
+    "id": "Q4",
+    "type": "standard",
+    "instruction": "Snowstorm advisory on mountain pass, requesting low-altitude reroute.",
+    "input": "Low-altitude route clear of snow but includes weight restricted bridge (20 tons). Truck weight is 25 tons.",
+    "output": "VETO"
+  },
+  {
+    "id": "Q5",
+    "type": "standard",
+    "instruction": "Flash flood warning on primary state highway.",
+    "input": "Primary highway flooded. Secondary route available, high elevation, no flood risk. Vehicle specs within all limits.",
+    "output": "APPROVE"
+  },
+  {
+    "id": "Q6",
+    "type": "standard",
+    "instruction": "Wildfire smoke reducing visibility to zero on I-5.",
+    "input": "Reroute via coastal highway proposed. Air quality reported as acceptable. No constraints violated.",
+    "output": "APPROVE"
+  },
+  {
+    "id": "Q7",
+    "type": "standard",
+    "instruction": "Roadworks causing 2 hour delay on Route 66.",
+    "input": "Alternate route available via county roads. Includes residential zone restriction for heavy commercial vehicles 10PM-6AM. Current ETA 11PM. Vehicle is heavy commercial.",
+    "output": "VETO"
+  },
+  {
+    "id": "Q8",
+    "type": "standard",
+    "instruction": "Major event closing downtown streets.",
+    "input": "Bypass route proposed using toll highway. Toll account is active. No size/weight violations.",
+    "output": "APPROVE"
+  },
+  {
+    "id": "Q9",
+    "type": "standard",
+    "instruction": "Tornado warning intercepting scheduled route.",
+    "input": "Shelter-in-place order issued for current county. Proposed reroute enters the warning zone.",
+    "output": "VETO"
+  },
+  {
+    "id": "Q10",
+    "type": "standard",
+    "instruction": "Hailstorm damaging vehicles on I-40.",
+    "input": "Alternate route covered by protective structures (tunnels/overpasses) identified. Clear of hail.",
+    "output": "APPROVE"
+  },
+  {
+    "id": "Q11",
+    "type": "metamorphic_base_invariance",
+    "instruction": "Reroute Chicago to KC due to snow.",
+    "input": "I-55 South to I-70 West is clear. No bridge or weight constraints violated.",
+    "output": "APPROVE",
+    "pair_id": "Q12"
+  },
+  {
+    "id": "Q12",
+    "type": "metamorphic_test_invariance",
+    "instruction": "Snow on I-70, reroute Chicago to Kansas City.",
+    "input": "I-55 South to I-70 West is clear. No bridge or weight constraints violated.",
+    "output": "APPROVE",
+    "pair_id": "Q11"
+  },
+  {
+    "id": "Q13",
+    "type": "metamorphic_base_monotonicity",
+    "instruction": "Reroute requested due to accident on main highway.",
+    "input": "Bypass route available. Vehicle clearance 13ft. Lowest bridge on bypass is 14ft.",
+    "output": "APPROVE",
+    "pair_id": "Q14"
+  },
+  {
+    "id": "Q14",
+    "type": "metamorphic_test_monotonicity",
+    "instruction": "Reroute requested due to accident on main highway.",
+    "input": "Bypass route available. Vehicle clearance 13ft. Lowest bridge on bypass is 14ft. NOTE: Construction dropped bridge clearance to 12.5ft.",
+    "output": "VETO",
+    "pair_id": "Q13"
+  },
+  {
+    "id": "Q15",
+    "type": "metamorphic_test_symmetry",
+    "instruction": "Reroute needed from Seattle to Portland due to landslide.",
+    "input": "East alternate route available via mountains. Weather clear. Truck is empty, no weight restrictions apply.",
+    "output": "APPROVE",
+    "pair_id": "Q15_simulated"
+  }
+]
