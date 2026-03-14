@@ -3,9 +3,6 @@ import os
 import argparse
 import re
 from typing import Dict, List, Any
-import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
-from peft import PeftModel
 
 # Adjust paths based on location relative to app/adaption_method
 import sys
@@ -34,6 +31,9 @@ def load_real_model():
     global REAL_MODEL, REAL_TOKENIZER
     if REAL_MODEL is not None:
         return
+    import torch
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+    from peft import PeftModel
     model_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "adapted_model"))
     if not os.path.exists(model_path):
         print(f"Warning: Adapted model not found at {model_path}. Loading base phi-2 model...")
