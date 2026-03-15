@@ -26,3 +26,6 @@ runs/
 # Caches
 .cache/
 .pytest_cache/
+
+# Temp
+temp/
