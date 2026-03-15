@@ -69,6 +69,7 @@ def load_real_model():
         sys.exit(1)
 
 def run_real_inference(prompt: str) -> str:
+    import torch
     global REAL_MODEL, REAL_TOKENIZER
     load_real_model()
     inputs = REAL_TOKENIZER(prompt, return_tensors="pt").to(REAL_MODEL.device)
