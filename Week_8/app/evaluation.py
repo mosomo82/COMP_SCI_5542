@@ -174,6 +174,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--mode", type=str, choices=["mock", "real"], default="mock")
     parser.add_argument("--queries", type=str, default="data/evaluation_queries.json")
+    parser.add_argument("--verbose", action="store_true", help="Print full model output for each query")
     args = parser.parse_args()
     
     print(f"Loading queries from {args.queries}...")
@@ -225,6 +226,8 @@ def main():
         })
         
         print(f"[{q_id}] Expected: {expected} | Predicted: {pred_decision} | ACC: {acc}")
+        if args.verbose:
+            print(f"  >>> {prediction}\n")
         
     print("\n--- Summary Statistics ---")
     print(f"Overall Accuracy: {(total_acc / len(queries)) * 100:.1f}%")
