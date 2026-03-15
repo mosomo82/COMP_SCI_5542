@@ -3,7 +3,12 @@
 ## Student: Joel Vinas
 
 ### 1. Description of Individual Contributions
-*(Detail the specific tasks you completed for the lab, such as...)*
+For Component 2, Advanced Prompt Adaptation:
+
+* Built `prompt_adaptation.py` to implement three specific, advanced prompting strategies to handle user queries regarding rerouting.
+* Designed a **Self-Consistent Chain-of-Thought (SC-CoT)** strategy to generate three independent reasoning chains (Disruption Assessment → Route Analysis → Constraint Check → Decision) and aggregate them through majority voting, maximizing accuracy by returning the consensus with the best-justified reasoning trace.
+* Implemented a **ReAct (Reasoning + Acting)** paradigm to explicitly show the step-by-step logic, simulating "Thoughts" and "Actions" to assess constraints before determining a final APPROVE/VETO outcome.
+* Developed a **Structured System Prompt (Few-Shot)** framework that intelligently injects three relevant examples from the instruction dataset to handle disruptions based on similarities.
 
 ### 2. Contribution Percentage
 **33.3%** *(Adjust if needed based on team consensus)*
@@ -14,4 +19,4 @@
 * **Commit 2:** [Hash/Link] - ...
 
 ### 4. AI Tools Used
-*(Describe how you used AI tools for your part of the assignment.)*
+The Advanced Prompt Adaptation component features and the implementation in `prompt_adaptation.py` were developed entirely with the assistance of an AI agent, Google Antigravity. This work was done collaboratively during a team consensus call, where the agent was instructed to review the overall system requirements and output the code logic as specified by the group, successfully demonstrating AI-driven problem-solving and task delegation in a real-time setting.

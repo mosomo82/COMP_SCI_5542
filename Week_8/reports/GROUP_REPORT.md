@@ -99,9 +99,9 @@ Week_8/
 
 | Student | Contribution | Percentage |
 | :--- | :--- | :--- |
-| **Tony Nguyen** | *(Enter contribution)* | 33.3% |
-| **Joel Vinas** | *(Enter contribution)* | 33.3% |
-| **Daniel DP Evans** | *(Enter contribution)* | 33.3% |
+| **Tony Nguyen** | Component 1: PEFT Fine-Tuning. Modified prompts, scripted the dataset generation pipeline (`generate_dataset.py`), tested PEFT configurations (`peft_finetuning.py`), and managed the adapter models training on Colab. | 33.3% |
+| **Joel Vinas** | Component 2: Advanced Prompt Adaptation. Built `prompt_adaptation.py` implementing SC-CoT, ReAct, and Structured Few-Shot reasoning strategies for rerouting decision queries. | 33.3% |
+| **Daniel DP Evans** | Component 3: Integration & Demo Dashboard. Developed the `demo_dashboard.py` Streamlit app for strategy comparison and engineered the `evaluation.py` automated scoring framework including metamorphic tests. | 33.3% |
 
 ## 8. Use of AI Development Tools
 We utilized the **Google Antigravity AI Agent** operating on a local windows environment to assist with:
