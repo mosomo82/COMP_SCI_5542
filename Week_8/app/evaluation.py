@@ -32,7 +32,7 @@ def load_real_model():
     if REAL_MODEL is not None:
         return
     import torch
-    from transformers import AutoModelForCausalLM, AutoTokenizer
+    from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
     from peft import PeftModel
     model_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "adapted_model"))
     if not os.path.exists(model_path):
@@ -40,14 +40,27 @@ def load_real_model():
         model_path = "microsoft/phi-2"
     else:
         print(f"Loading adapted model from {model_path}...")
-    
+
+    # Match the 4-bit quantization used during QLoRA training for consistency
+    # and to keep memory footprint portable across hardware (Colab T4, ~8GB+ cards).
+    bnb_config = BitsAndBytesConfig(
+        load_in_4bit=True,
+        bnb_4bit_compute_dtype=torch.float16,
+        bnb_4bit_use_double_quant=True,
+    )
+
     try:
         REAL_TOKENIZER = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
         if REAL_TOKENIZER.pad_token is None:
             REAL_TOKENIZER.pad_token = REAL_TOKENIZER.eos_token
-            
-        print("Loading base model (microsoft/phi-2)...")
-        base_model = AutoModelForCausalLM.from_pretrained("microsoft/phi-2", device_map="auto", trust_remote_code=True)
+
+        print("Loading base model (microsoft/phi-2) in 4-bit...")
+        base_model = AutoModelForCausalLM.from_pretrained(
+            "microsoft/phi-2",
+            quantization_config=bnb_config,
+            device_map="auto",
+            trust_remote_code=True,
+        )
         print("Applying adapter weights...")
         REAL_MODEL = PeftModel.from_pretrained(base_model, model_path)
         REAL_MODEL.eval()
