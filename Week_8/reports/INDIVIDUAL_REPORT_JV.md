@@ -15,8 +15,8 @@ For Component 2, Advanced Prompt Adaptation:
 
 ### 3. Repository Evidence
 *(Provide links or commit hashes mapping to your work)*
-* **Commit 1:** [Hash/Link] - ...
+* **Commit 1:** [[e355f6f](https://github.com/mosomo82/COMP_SCI_5542/commit/e355f6f1bfe22715568ec15870d166b4d6106737)] - ...
 * **Commit 2:** [Hash/Link] - ...
 
 ### 4. AI Tools Used
-The Advanced Prompt Adaptation component features and the implementation in `prompt_adaptation.py` were developed entirely with the assistance of an AI agent, Google Antigravity. This work was done collaboratively during a team consensus call, where the agent was instructed to review the overall system requirements and output the code logic as specified by the group, successfully demonstrating AI-driven problem-solving and task delegation in a real-time setting.
+The Advanced Prompt Adaptation component features and the implementation in `prompt_adaptation.py` were developed with the assistance of AI agents, **Google Antigravity AI Agent** and **Claude Code**. This work was done collaboratively during a team consensus call, where the agent was instructed to review the overall system requirements and output the code logic as specified by the group, successfully demonstrating AI-driven problem-solving and task delegation in a real-time setting.
