@@ -40,7 +40,7 @@ Three prompting strategies were implemented in `prompt_adaptation.py`:
 
 We evaluated the baseline Phi-2 model against our PEFT-adapted model using our custom 15-query `evaluation_queries.json` dataset (which features 5 strict metamorphic testing pairs for invariance, monotonicity, and symmetry).
 - **Baseline Accuracy**: 60.0%
-- **Adapted Accuracy**: [Pending final GPU physical run value]
+- **Adapted Accuracy**: 40.0%
 - **Metamorphic Testing**: The reasoning CoT chains built through prompt adaptation demonstrated strong logistical awareness when facing changing constraints (like bridge clearance differences) forcing VETO decisions successfully       .
 
 ### 5.1 Standard Metrics
@@ -63,7 +63,7 @@ We evaluated the baseline Phi-2 model against our PEFT-adapted model using our c
 | Test | Type | Result |
 | :--- | :--- | :---: |
 | Q11 vs Q12 | **Invariance** — rephrased query yields same decision | ✅ PASS |
-| Q13 vs Q14 | **Monotonicity** — adding bridge violation flips APPROVE → VETO | ⏳ Pending |
+| Q13 vs Q14 | **Monotonicity** — adding bridge violation flips APPROVE → VETO | ❌ FAIL |
 | Q15 | **Symmetry** — swapping origin/destination preserves decision | ✅ PASS |
 
 ### 5.4 Key Takeaway
@@ -101,7 +101,7 @@ Week_8/
 | :--- | :--- | :--- |
 | **Tony Nguyen** | Component 1: PEFT Fine-Tuning. Modified prompts, scripted the dataset generation pipeline (`generate_dataset.py`), tested PEFT configurations (`peft_finetuning.py`), and managed the adapter models training on Colab. | 33.3% |
 | **Joel Vinas** | Component 2: Advanced Prompt Adaptation. Built `prompt_adaptation.py` implementing SC-CoT, ReAct, and Structured Few-Shot reasoning strategies for rerouting decision queries. | 33.3% |
-| **Daniel DP Evans** | Component 3: Integration & Demo Dashboard. Developed the `demo_dashboard.py` Streamlit app for strategy comparison and engineered the `evaluation.py` automated scoring framework including metamorphic tests. | 33.3% |
+| **Daniel Evans** | Component 3: Integration & Demo Dashboard. Developed the `demo_dashboard.py` Streamlit app for strategy comparison and engineered the `evaluation.py` automated scoring framework including metamorphic tests. | 33.3% |
 
 ## 8. Use of AI Development Tools
 We utilized the **Google Antigravity AI Agent** operating on a local windows environment to assist with:
