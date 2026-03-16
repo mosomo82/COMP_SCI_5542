@@ -1,9 +1,10 @@
 # EVN HyperLogistics — RVCC Venture Competition Application
 
-**Venture:** EVN HyperLogistics
-**Product:** HyperLogistics — Safety-compliant, explainable AI rerouting for middle-mile logistics
-**Date:** March 15, 2026
-**Team:** Tony Nguyen · Daniel Evans · Joel Vinas
+**Venture:** EVN HyperLogistics  
+**Product:** HyperLogistics — Safety-compliant, explainable AI rerouting for middle-mile logistics  
+**Date:** March 15, 2026  
+**Team:** Tony Nguyen · Daniel Evans · Joel Vinas  
+**Demo Video:** [https://youtu.be/-6J1uZ75uXY](https://youtu.be/-6J1uZ75uXY)
 
 ---
 
