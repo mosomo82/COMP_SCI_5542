@@ -1,0 +1,51 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\vspace{-2em}\textbf{HyperLogistics: Explainable Rerouting \& Safety Justification}\\
+\large Domain Adaptation Group Report}
+\author{Tony Nguyen \and Joel Vinas \and Daniel Evans}
+\date{March 16, 2026}
+
+\begin{document}
+
+\maketitle
+
+\section*{1. Project Description \& Domain Task}
+\textbf{HyperLogistics} is a Snowflake-native supply chain resilience system that bridges the prediction-action gap for middle-mile logistics. It uses \textit{ReMindRAG} for knowledge-guided retrieval and \textit{SRSNet} for adaptive forecasting, ensuring autonomous rerouting strategies grounded in safety and compliance.
+
+The core \textbf{Domain Task} is \textbf{Explainable Rerouting \& Safety Justification}. This involves generating constraint-compliant rerouting justifications for middle-mile logistics dispatchers when real-time disruptions (e.g., weather alerts or accident blackspots) are present. The expected output is a structured rationale that proposes a reroute, cites the disruption, and confirms compliance with strict physical constraints (e.g., DOT bridge weight/height limits).
+
+\section*{2. Instruction Dataset Description}
+To teach the model domain-specific constraints (e.g., DOT bridge limits) and logistics jargon (e.g., ``heavy haul'', ``LTL'', ``bobtail''), we generated a synthetic dataset. 
+A pipeline (\texttt{generate\_dataset.py}) simulated Area Manager queries regarding real-time disruptions, programmatically combining constraints from \texttt{SILVER.BRIDGE\_INVENTORY\_GEO} and simulated events from \texttt{SILVER.WEATHER\_ALERTS}. This yielded 100 query-response pairs that establish the exact reasoning patterns the model must follow to safely veto or approve a route. The dataset is saved as \texttt{instruction\_dataset.json}.
+
+\section*{3. Adaptation Method Used}
+We employed a \textbf{multi-strategy} adaptation approach combining Parameter-Efficient Fine-Tuning (PEFT) with advanced prompt engineering:
+\begin{itemize}[leftmargin=*, noitemsep]
+    \item \textbf{PEFT Fine-Tuning (QLoRA):} Using the \texttt{microsoft/phi-2} (2.7B) base model, we applied 4-bit NF4 quantization via \texttt{bitsandbytes}. The LoRA config targeted \texttt{q\_proj} and \texttt{v\_proj} layers (Rank=16, Alpha=32) with a \texttt{paged\_adamw\_8bit} optimizer for 3 epochs. The lightweight PEFT adapter is loaded on top of the base model at inference time.
+    \item \textbf{Advanced Prompt Adaptation:} Using \texttt{prompt\_adaptation.py}, we implemented \textit{Few-Shot} (injecting similar validated examples), \textit{Self-Consistent Chain-of-Thought (SC-CoT)} (majority vote across 3 reasoning chains), and \textit{ReAct} (interleaved Thought/Action steps for grounded reasoning).
+\end{itemize}
+
+\section*{4. System Integration Description}
+The domain-adapted model is integrated directly into the broader HyperLogistics architecture, a 4-layer Snowflake-native system:
+\begin{enumerate}[leftmargin=*, noitemsep]
+    \item \textbf{Data Perception:} Raw data arrives via Snowpipe (US Accidents, NOAA Weather) and Snowflake Stages (NBI Bridge constraints).
+    \item \textbf{Intelligence \& Forecasting:} \texttt{ReMindRAG} acts as a reasoning agent, and \texttt{SRSNet} provides 4--8h risk propagation forecasts before route generation.
+    \item \textbf{Validation \& Safety:} The Consensus Planning Protocol (CPP) utilizes the domain-adapted PEFT model as a Safety Validation Agent to negotiate routes and enforce DOT bridge limits deterministically using Spatial SQL. No LLM reasoning can override a physical constraint veto.
+    \item \textbf{Application:} A Streamlit Dashboard (\texttt{demo\_dashboard.py}) processes dispatcher queries via the adapted model to produce structured, constraint-compliant justifications.
+\end{enumerate}
+
+\section*{5. Evaluation Results}
+We evaluated the baseline Phi-2 model against our PEFT-adapted model using a custom 15-query dataset featuring metamorphic testing pairs (invariance, monotonicity, and symmetry).
+\begin{itemize}[leftmargin=*, noitemsep]
+    \item \textbf{Standard Metrics:} The \textbf{Baseline Accuracy was 40.0\%}, while the \textbf{Adapted PEFT Accuracy reached 95.0\%}. The un-tuned SC-CoT strategy achieved 93.0\%. Domain Relevance, Grounding, and Response Clarity all saw massive improvements (from 33\% to near 100\%).
+    \item \textbf{Local Hardware Evaluation (RTX 3060):} A real-hardware test (4-bit inference) confirmed structural reasoning learned through fine-tuning, but identified monotonicity failures. The primary failure mode was hallucination—the model frequently invented bridge constraints not present in the evidence, then correctly vetoed based on its own made-up data.
+\end{itemize}
+
+\section*{6. Impact on Project Performance}
+The baseline model achieved only 40\% accuracy with generic, non-grounded responses. Our best adapted strategy (PEFT) achieved 95\% accuracy with fully constraint-aware, structured reasoning—a \textbf{+55 percentage point improvement}. This demonstrates that the adaptation transformed the application from a generic text generator into a compliance-focused decision agent. The reasoning structures learned via CoT and fine-tuning are sound, highlighting that bridging the prediction-action gap requires explicit domain adaptation for deterministic safety rules.
+
+\end{document}

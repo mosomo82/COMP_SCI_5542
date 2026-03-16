@@ -92,7 +92,16 @@ A real-hardware evaluation was conducted locally using the PEFT-adapted phi-2 mo
 
 **Key finding:** The primary failure mode was hallucination — the model frequently invented bridge constraints not present in the evidence (e.g., fabricating weight limits), then correctly vetoed based on its own made-up data. The reasoning structure and format learned through fine-tuning were sound; the problem was grounding to provided evidence rather than the CoT logic itself. The binary APPROVE/VETO scorer may also understate real decision quality, as SC-CoT responses surface VETO as a considered option even in correctly-approved cases.
 
-## 6. System Architecture Updates
+## 6. System Integration Description
+
+The domain-adapted model is integrated directly into the broader HyperLogistics architecture, a 4-layer Snowflake-native system:
+
+1. **Layer 1 (Data Perception)**: Raw data arrives via Snowpipe (US Accidents, NOAA Weather) and Snowflake Stages (NBI Bridge constraints).
+2. **Layer 2 (Intelligence & Forecasting)**: `ReMindRAG` acting as a reasoning agent, and `SRSNet` providing 4–8h risk propagation forecasts before route generation.
+3. **Layer 3 (Validation & Safety)**: The **Consensus Planning Protocol (CPP)** utilizes the domain-adapted PEFT model as a Safety Validation Agent to negotiate routes and enforce DOT bridge limits deterministically using Spatial SQL. No LLM reasoning can override a physical constraint veto.
+4. **Layer 4 (Application)**: A Streamlit Dashboard (`demo_dashboard.py`) processes dispatcher queries via the adapted model to produce structured, constraint-compliant justifications.
+
+## 7. System Architecture Updates
 
 The following components were added to the existing HyperLogistics architecture for Week 8:
 
@@ -119,7 +128,7 @@ Week_8/
 4. **Demo Dashboard** → `demo_dashboard.py` presents side-by-side baseline vs. adapted responses with interactive parameter controls, reasoning traces, and metric visualizations
 5. **Evaluation** → `evaluation.py` scores all strategies across 5 metrics and runs 3 metamorphic test categories
 
-## 7. Contribution Table
+## 8. Contribution Table
 
 | Student | Contribution | Percentage |
 | :--- | :--- | :--- |
@@ -127,7 +136,7 @@ Week_8/
 | **Joel Vinas** | Component 2: Advanced Prompt Adaptation. Built `prompt_adaptation.py` implementing SC-CoT, ReAct, and Structured Few-Shot reasoning strategies for rerouting decision queries. | 33.3% |
 | **Daniel Evans** | Component 3: Integration & Demo Dashboard. Developed the `demo_dashboard.py` Streamlit app for strategy comparison and engineered the `evaluation.py` automated scoring framework including metamorphic tests. | 33.3% |
 
-## 8. Use of AI Development Tools
+## 9. Use of AI Development Tools
 
 We utilized the **Google Antigravity AI Agent** operating on a local windows environment to assist with:
 
