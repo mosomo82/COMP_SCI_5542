@@ -28,6 +28,8 @@ Individual contributions on branch `daniel-lab08-a`. These changes are to obtain
 * **Commit 2:** `b2ff504` — Use 4-bit quantization in evaluation.py --mode real
 * **Commit 3:** `bc0b8cf` — Fix torch scope error in run_real_inference
 * **Commit 4:** `5ea7522` — Add --verbose flag to evaluation.py
+* **Commit 5:** `4a6b47e` — Update evaluation metrics and report results
+* **Commit 6:** `6967ff7` — Finalize individual report and local GPU evaluation results
 
 ### 4. AI Tools Used
 

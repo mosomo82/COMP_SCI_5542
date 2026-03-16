@@ -3,16 +3,19 @@
 ## Student: Tony Nguyen
 
 ### 1. Description of Individual Contributions
-*(Detail the specific tasks you completed for the lab, such as modifying the prompts, scripting the dataset pipeline, testing PEFT configurations, or connecting Snowflake Cortex functions...)*
+- **PEFT Fine-Tuning**: Optimized `phi-2` model adaptation using QLoRA configurations, managing the training pipeline in Google Colab.
+- **Dataset Engineering**: Scripted the `generate_dataset.py` pipeline to synthesize domain-specific instruction pairs from logistics and weather data.
+- **Hardware Integration**: Tested and validated PEFT adapter loading on local GPU infrastructure to ensure consistency between training and inference environments.
+- **Prompt Optimization**: Iterated on instruction formats to improve grounding and reduce hallucinations in the adapted model's responses.
 
 ### 2. Contribution Percentage
-**33.3%** *(Adjust if needed based on team consensus)*
+**33.3%**
 
 ### 3. Repository Evidence
-*(Provide links or commit hashes mapping to your work)*
-* **Commit 1:** [Hash/Link] - Setup week 8 structure
-* **Commit 2:** [Hash/Link] - ...
-* **Commit 3:** [Hash/Link] - ...
+* **Commit `e62c8de`:** Uploaded adapted model weights and PEFT configurations.
+* **Commit `ee06d4d`:** Integrated synthetic domain-adapted datasets into the project structure.
+* **Commit `d233c01`:** Initial framework setup for Lab 8 adaptation methods and notebook environments.
+* **Commit `cf279e3`:** Updated reports with logistics instruction logic and domain-adapted reasoning patterns.
 
 ### 4. AI Tools Used
 We utilized the **Google Antigravity AI Agent** operating on a local windows environment and **Claude Code** enhancing the quality of prompts and debugging process.
