@@ -14,7 +14,7 @@ For Component 2, Advanced Prompt Adaptation:
 **33.3%**
 
 ### 3. Repository Evidence
-*(Provide links or commit hashes mapping to your work)*
+
 * **Commit 1:** [[e355f6f](https://github.com/mosomo82/COMP_SCI_5542/commit/e355f6f1bfe22715568ec15870d166b4d6106737)] — Initial adaptation strategy investigation
 * **Commit 2:** `d233c01` — Core implementation of `prompt_adaptation.py` strategies
 * **Commit 3:** `1a45962` — Update individual report contributions
