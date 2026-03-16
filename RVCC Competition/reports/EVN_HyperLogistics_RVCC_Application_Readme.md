@@ -44,13 +44,17 @@ These operators own middle-mile execution outcomes. They are accountable for on-
 
 To validate product-market fit, we built 100 domain-adapted instruction scenarios drawn directly from real manager decision patterns — disruption queries, bridge constraint vetoes, and reroute approval flows. These are not synthetic edge cases. They reflect the actual language and decisions logistics managers face daily.
 
-**Market context:**
+**Market opportunity:**
 
-| Data Signal | Scale |
-|---|---|
-| US accident records (2016–2023) | 7.7 million records |
-| NOAA weather data (disruption triggers) | Multi-terabyte |
-| National Bridge Inventory (DOT) | 600,000+ bridges |
+| Layer | Market | 2025 Size | Growth |
+|---|---|---|---|
+| **TAM** | Middle-Mile Logistics | **$110B** | 7% CAGR → $218B by 2035 |
+| **SAM** | Route Optimization Software | **$7.9B** | 13.3% CAGR → $16.8B by 2031 |
+| **SOM** | Explainable AI in Logistics | **$1.7B** | 33.7% CAGR → $31.7B by 2035 |
+
+EVN targets the SAM/SOM intersection — the fastest-growing segment (33.7% CAGR) within an active purchasing market ($7.9B) where compliance-enforcing, explainable AI does not yet exist as a category product.
+
+*Sources: ResearchAndMarkets / 360iResearch (TAM), Mordor Intelligence (SAM), Future Market Insights (SOM)*
 
 ---
 
