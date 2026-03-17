@@ -1,0 +1,235 @@
+\documentclass[11pt,letterpaper]{article}
+
+% Packages
+\usepackage[margin=1in,headheight=14pt]{geometry}
+\usepackage{fontenc}
+\usepackage{inputenc}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{xcolor}
+\usepackage{titlesec}
+\usepackage{parskip}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage[expansion=false]{microtype}
+
+% Colors
+\definecolor{accentblue}{RGB}{0, 82, 155}
+\definecolor{lightgray}{RGB}{245, 245, 245}
+\definecolor{darkgray}{RGB}{80, 80, 80}
+
+% Hyperref setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=accentblue,
+    urlcolor=accentblue,
+    pdftitle={EVN HyperLogistics --- RVCC Venture Competition Application},
+    pdfauthor={Tony Nguyen, Daniel Evans, Joel Vinas}
+}
+
+% Section formatting
+\titleformat{\section}{\large\bfseries\color{accentblue}}{}{0em}{}[\titlerule]
+\titlespacing{\section}{0pt}{1.5em}{0.5em}
+
+% Header / footer
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\lhead{\textcolor{darkgray}{\small EVN HyperLogistics}}
+\rhead{\textcolor{darkgray}{\small RVCC 2026 Submission}}
+\cfoot{\textcolor{darkgray}{\small \thepage}}
+
+% Table styling helpers
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+
+\begin{document}
+
+% ─── Title Block ──────────────────────────────────────────────────────────────
+\begin{center}
+    {\LARGE\bfseries\color{accentblue} EVN HyperLogistics}\\[0.3em]
+    {\large RVCC Venture Competition Application}\\[1em]
+    \hrule height 1.5pt
+    \vspace{0.8em}
+    \begin{tabular}{@{}ll@{}}
+        \textbf{Venture:} & EVN HyperLogistics \\[0.2em]
+        \textbf{Product:} & HyperLogistics --- Safety-compliant, explainable AI rerouting for middle-mile logistics \\[0.2em]
+        \textbf{Date:}    & March 15, 2026 \\[0.2em]
+        \textbf{Team:}    & Tony Nguyen \textperiodcentered{} Daniel Evans \textperiodcentered{} Joel Vinas \\[0.2em]
+        \textbf{Demo Video:} & \href{https://youtu.be/iZP4qxMR6w4}{https://youtu.be/iZP4qxMR6w4} \\
+    \end{tabular}
+    \vspace{0.8em}
+    \hrule height 1.5pt
+\end{center}
+
+\vspace{1em}
+
+% ─── Section 1 ────────────────────────────────────────────────────────────────
+\section{Problem \& Value Proposition}
+\textit{What problem are you solving and why does your solution improve the situation?}
+
+\medskip
+Middle-mile logistics managers face a critical daily problem: when disruptions hit --- weather events, traffic accidents, road closures --- they must make immediate rerouting decisions that are both operationally sound and physically compliant with DOT regulations. Existing tools can flag risk, but they stop short of producing a safe, explainable reroute recommendation.
+
+We call this the \textbf{prediction-action gap}.
+
+The scale of this problem is real. Our system is grounded in 7.7 million US accident records, multi-terabyte NOAA weather data, and 600{,}000+ DOT bridge constraint records. These are not model assumptions --- they define the actual operating environment freight teams work in every day.
+
+\textbf{HyperLogistics closes this gap} by combining three components into a single decision flow:
+
+\vspace{0.5em}
+\begin{tabular}{@{}L{3.2cm}L{10.5cm}@{}}
+    \toprule
+    \textbf{Component} & \textbf{Role} \\
+    \midrule
+    \textbf{ReMindRAG} & Retrieves grounded evidence for reroute reasoning from historical disruption knowledge \\[0.4em]
+    \textbf{SRSNet} & Forecasts short-horizon (4--8 hour) disruption propagation aligned to transit windows \\[0.4em]
+    \textbf{Symbolic Safety Veto} & Hard-blocks any route that violates DOT bridge clearance or load limits \\
+    \bottomrule
+\end{tabular}
+\vspace{0.5em}
+
+The result: a dispatch recommendation that is not just intelligent, but \textbf{compliance-ready and explainable}. Every output cites its reasoning and has passed a deterministic safety check --- something no general-purpose AI tool currently provides for this workflow.
+
+% ─── Section 2 ────────────────────────────────────────────────────────────────
+\section{Customer \& Market Opportunity}
+\textit{Who is the target customer and why is this opportunity meaningful?}
+
+\medskip
+\textbf{Primary users:} Logistics Network Managers and Area Managers at trucking carriers and third-party logistics providers (3PLs).
+
+These operators own middle-mile execution outcomes. They are accountable for on-time performance, cost efficiency, and safety compliance under constant disruption pressure. Their core job during a disruption is to triage, reroute, and confirm DOT compliance --- often in minutes.
+
+\textbf{Why this opportunity is meaningful:}
+
+\begin{itemize}[leftmargin=1.5em, itemsep=0.2em]
+    \item Disruptions are high-frequency and consequential. A single bad reroute can violate bridge load limits, incur DOT liability, or delay a full shipment lane.
+    \item Most routing AI tools today optimize for efficiency but \textbf{lack deterministic safety enforcement}. They are not built for compliance-critical decisions.
+    \item HyperLogistics sits at the exact intersection where this is unaddressed: \textbf{operations + explainability + hard compliance enforcement}.
+\end{itemize}
+
+To validate product-market fit, we built 100 domain-adapted instruction scenarios drawn directly from real manager decision patterns --- disruption queries, bridge constraint vetoes, and reroute approval flows. These are not synthetic edge cases. They reflect the actual language and decisions logistics managers face daily.
+
+\textbf{Market opportunity:}
+
+\vspace{0.5em}
+\begin{tabular}{@{}L{1.8cm}L{4.5cm}C{2.2cm}L{4.5cm}@{}}
+    \toprule
+    \textbf{Layer} & \textbf{Market} & \textbf{2025 Size} & \textbf{Growth} \\
+    \midrule
+    \textbf{TAM} & Middle-Mile Logistics & \$110B & 7\% CAGR $\to$ \$218B by 2035 \\[0.3em]
+    \textbf{SAM} & Route Optimization Software & \$7.9B & 13.3\% CAGR $\to$ \$16.8B by 2031 \\[0.3em]
+    \textbf{SOM} & Explainable AI in Logistics & \$1.7B & 33.7\% CAGR $\to$ \$31.7B by 2035 \\
+    \bottomrule
+\end{tabular}
+\vspace{0.5em}
+
+EVN targets the SAM/SOM intersection --- the fastest-growing segment (33.7\% CAGR) within an active purchasing market (\$7.9B) where compliance-enforcing, explainable AI does not yet exist as a category product.
+
+\vspace{0.3em}
+\textit{\small Sources: ResearchAndMarkets / 360iResearch (TAM), Mordor Intelligence (SAM), Future Market Insights (SOM)}
+
+% ─── Section 3 ────────────────────────────────────────────────────────────────
+\section{Progress \& Learning}
+\textit{What steps have you taken so far and what have you learned?}
+
+\subsection*{What We Built}
+
+\vspace{0.3em}
+\begin{tabular}{@{}L{4.5cm}L{9cm}@{}}
+    \toprule
+    \textbf{Milestone} & \textbf{Evidence} \\
+    \midrule
+    \textbf{Live deployment} & HyperLogistics Streamlit app is publicly accessible at \href{https://cs5542hyperlogistics.streamlit.app/}{cs5542hyperlogistics.streamlit.app} \\[0.4em]
+    \textbf{Snowflake-native pipeline} & Medallion architecture (Bronze/Silver/Gold) with Snowpipe, External Tables, and Spatial SQL \\[0.4em]
+    \textbf{Domain adaptation (Week 8)} & Accuracy improved from \textbf{40\% to 95\%} using QLoRA fine-tuning (Phi-2, LoRA rank=16) and few-shot prompting \\[0.4em]
+    \textbf{Agent execution (Week 6)} & Gemini 2.5 Flash agent with 9 analytics tools --- \textbf{4/5 scenarios passed (80\%), 6/7 tool selections correct (86\%)} \\[0.4em]
+    \textbf{Reproducibility (Week 7)} & ReMindRAG audit: \textbf{17/17 automated tests passed}, 14/14 identified issues resolved \\
+    \bottomrule
+\end{tabular}
+\vspace{0.5em}
+
+\subsection*{What We Learned}
+
+\textbf{The biggest barrier to enterprise trust is not model accuracy --- it is explainability and compliance enforcement.}
+
+Early iterations produced accurate recommendations that managers still could not use, because the system could not cite why a route was chosen or confirm it was physically valid. Once we added the symbolic bridge-constraint veto and the ReMindRAG reasoning trace, confidence in the outputs changed significantly.
+
+The +55 percentage-point accuracy improvement from baseline to adapted model confirmed that domain-specific instruction tuning on logistics jargon and DOT constraint reasoning is not optional --- it is the core product differentiator.
+
+% ─── Section 4 ────────────────────────────────────────────────────────────────
+\section{Team \& Commitment}
+\textit{Who is on the founding team and why are you working on this venture?}
+
+\vspace{0.3em}
+\begin{tabular}{@{}L{3.5cm}L{4.5cm}L{6cm}@{}}
+    \toprule
+    \textbf{Member} & \textbf{Role} & \textbf{Stack Ownership} \\
+    \midrule
+    \textbf{Tony Nguyen} & ML / Full-Stack Engineer & Pipeline automation, model adaptation (QLoRA), S3/Snowflake orchestration, reproducibility \\[0.4em]
+    \textbf{Daniel Evans} & Data / Backend Engineer & External data engineering (NOAA weather), Streamlit app delivery, evaluation support \\[0.4em]
+    \textbf{Joel Vinas} & Data / ML Engineer & Internal data engineering, ingestion scripts, silver-layer preprocessing \\
+    \bottomrule
+\end{tabular}
+\vspace{0.5em}
+
+All three are MS Data Science \& Analytics students with equal equity and full-stack ownership. We are not advisors with slide decks --- we are the engineers who built every component in this system. Responsibilities map directly to code and architecture ownership across the full stack.
+
+\textbf{Why we are working on this:}
+
+We identified the prediction-action gap firsthand while building logistics AI systems for coursework. The constraint-compliance problem is not academic --- it is a live operational risk for every freight company running middle-mile operations. We kept building because the technical path was clear and the operating need was real.
+
+We are committed to this venture because the hardest parts are already built: the data pipeline, the retrieval architecture, the safety veto, the adapted model, and the live application. What remains is go-to-market execution.
+
+% ─── Section 5 ────────────────────────────────────────────────────────────────
+\section{RVCC Fit}
+\textit{How will RVCC help you move the venture forward?}
+
+\medskip
+RVCC fills the precise gaps that technical founders face after building a working product but before achieving first commercial traction.
+
+\subsection*{What We Are Asking For}
+
+\textbf{Mentorship --- go-to-market for logistics operations buyers}\\
+We understand the technology. We need guidance on how to sell into operations leadership at carriers and 3PLs: who champions this internally, what procurement looks like at mid-size carriers, and how to structure a paid pilot agreement.
+
+\textbf{Network --- freight operator and ecosystem introductions}\\
+A warm introduction to one logistics operator, regional carrier, or Snowflake ecosystem partner would compress our sales cycle significantly. The product is live and demonstrable today.
+
+\textbf{Funding --- runway for hardening and first pilot}\\
+Specific near-term needs:
+\begin{itemize}[leftmargin=1.5em, itemsep=0.2em]
+    \item Complete evaluation hardening and lock benchmark reporting
+    \item Scale adaptation dataset beyond 100 examples for broader coverage
+    \item Add enterprise access controls (OAuth / RBAC) required for production deployment
+    \item Support a first paid pilot engagement
+\end{itemize}
+
+\subsection*{Why RVCC Resources Convert Directly to Traction}
+
+\vspace{0.3em}
+\begin{tabular}{@{}L{5.5cm}L{8cm}@{}}
+    \toprule
+    \textbf{Current Asset} & \textbf{RVCC Unlock} \\
+    \midrule
+    Live deployed application & Pilot-ready with one enterprise introduction \\[0.3em]
+    95\% adapted accuracy & Publishable benchmark with mentorship on framing \\[0.3em]
+    17/17 reproducibility tests & Engineering credibility for enterprise procurement evaluation \\[0.3em]
+    9-tool analytics foundation & Expansion path for enterprise analytics add-on revenue \\
+    \bottomrule
+\end{tabular}
+\vspace{0.5em}
+
+RVCC at this stage would convert proven technical capability into a go-to-market motion --- which is exactly the gap the competition is designed to close.
+
+\vspace{2em}
+\begin{center}
+    \hrule height 0.8pt
+    \vspace{0.5em}
+    \textit{EVN HyperLogistics --- RVCC 2026 Submission}
+\end{center}
+
+\end{document}
