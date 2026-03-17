@@ -4,7 +4,7 @@
 **Product:** HyperLogistics — Safety-compliant, explainable AI rerouting for middle-mile logistics  
 **Date:** March 15, 2026  
 **Team:** Tony Nguyen · Daniel Evans · Joel Vinas  
-**Demo Video:** [https://youtu.be/-6J1uZ75uXY](https://youtu.be/-6J1uZ75uXY)
+**Demo Video:** [https://youtu.be/iZP4qxMR6w4](https://youtu.be/iZP4qxMR6w4)
 
 ---
 
