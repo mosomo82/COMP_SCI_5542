@@ -1,0 +1,182 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.plan{padding:16px 0;max-width:680px}
+.phase{margin-bottom:20px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden}
+.phase-header{padding:10px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.phase-header h3{font-size:13px;font-weight:500;color:var(--color-text-primary);flex:1}
+.phase-badge{font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px}
+.badge-6{background:var(--color-background-info);color:var(--color-text-info)}
+.badge-7{background:var(--color-background-success);color:var(--color-text-success)}
+.badge-8{background:var(--color-background-warning);color:var(--color-text-warning)}
+.badge-9{background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.phase-body{padding:0 14px 12px;display:none}
+.phase-body.open{display:block}
+.repo-label{font-size:11px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.05em;margin:12px 0 6px;padding-bottom:4px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.task{display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.task:last-child{border-bottom:none}
+.task input[type=checkbox]{margin-top:2px;cursor:pointer;accent-color:var(--color-text-info);width:15px;height:15px;flex-shrink:0}
+.task label{font-size:13px;color:var(--color-text-primary);line-height:1.5;cursor:pointer;flex:1}
+.task label.done{text-decoration:line-through;color:var(--color-text-tertiary)}
+.task .tag{font-size:10px;font-weight:500;padding:1px 6px;border-radius:10px;white-space:nowrap;flex-shrink:0;margin-top:2px}
+.tag-fix{background:var(--color-background-danger);color:var(--color-text-danger)}
+.tag-doc{background:var(--color-background-info);color:var(--color-text-info)}
+.tag-test{background:var(--color-background-success);color:var(--color-text-success)}
+.tag-code{background:var(--color-background-warning);color:var(--color-text-warning)}
+.progress-bar{height:4px;background:var(--color-border-tertiary);border-radius:2px;margin:8px 0 0}
+.progress-fill{height:4px;background:var(--color-text-info);border-radius:2px;transition:width .3s}
+.progress-text{font-size:11px;color:var(--color-text-tertiary);text-align:right;margin-top:2px}
+.toggle-icon{font-size:12px;color:var(--color-text-tertiary);transition:transform .2s}
+.toggle-icon.open{transform:rotate(90deg)}
+.overall{padding:12px 0 4px;display:flex;align-items:center;gap:12px}
+.overall-label{font-size:12px;color:var(--color-text-secondary);white-space:nowrap}
+.note{font-size:12px;color:var(--color-text-secondary);padding:8px 0 0;line-height:1.6}
+</style>
+<div class="plan">
+<div class="overall">
+  <span class="overall-label">Overall progress</span>
+  <div class="progress-bar" style="flex:1"><div class="progress-fill" id="overall-fill" style="width:0%"></div></div>
+  <span class="progress-text" id="overall-text">0 / 0 tasks</span>
+</div>
+
+<div class="phase" id="phase-6">
+  <div class="phase-header" onclick="toggle('phase-6')">
+    <span class="toggle-icon" id="icon-phase-6">&#9658;</span>
+    <h3>Phase 1 — Week 6 repo fixes &nbsp;<code style="font-size:11px;opacity:.6">COMP_SCI_5542 / Week_6</code></h3>
+    <span class="phase-badge badge-6">Lab 6</span>
+    <span class="progress-text" id="prog-phase-6"></span>
+  </div>
+  <div class="phase-body" id="body-phase-6">
+    <div class="repo-label">streamlit_app.py</div>
+    <div class="task"><input type="checkbox" id="t1" onchange="update()"><label for="t1">Add persistent sidebar: project description, data-freshness timestamp, quick-link navigation to all 9 tabs</label><span class="tag tag-code">code</span></div>
+    <div class="task"><input type="checkbox" id="t2" onchange="update()"><label for="t2">Redesign Agent Chat tab: typed message history, loading spinner, collapsible tool-call trace expander (tool name, args, latency)</label><span class="tag tag-code">code</span></div>
+    <div class="task"><input type="checkbox" id="t3" onchange="update()"><label for="t3">Add input validation + friendly error messages to SQL Explorer in Executive tab</label><span class="tag tag-code">code</span></div>
+    <div class="task"><input type="checkbox" id="t4" onchange="update()"><label for="t4">Add Reset Session button (clears st.session_state and Gemini history)</label><span class="tag tag-code">code</span></div>
+    <div class="repo-label">sf_connect.py</div>
+    <div class="task"><input type="checkbox" id="t5" onchange="update()"><label for="t5">Add Snowflake keep-alive ping on startup — reduces cold-start from ~8s to &lt;2s</label><span class="tag tag-fix">fix</span></div>
+    <div class="task"><input type="checkbox" id="t6" onchange="update()"><label for="t6">Add startup assertions validating all env variables before dashboard renders</label><span class="tag tag-fix">fix</span></div>
+    <div class="repo-label">agent.py + tools.py</div>
+    <div class="task"><input type="checkbox" id="t7" onchange="update()"><label for="t7">Replace print() statements with Python logging module (INFO default, DEBUG via LOG_LEVEL env var)</label><span class="tag tag-code">code</span></div>
+    <div class="task"><input type="checkbox" id="t8" onchange="update()"><label for="t8">Add exponential-backoff retry decorator to all Gemini API calls (5s → 10s → 20s, max 3 retries)</label><span class="tag tag-fix">fix</span></div>
+    <div class="repo-label">eval_scenarios.py</div>
+    <div class="task"><input type="checkbox" id="t9" onchange="update()"><label for="t9">Expand from 5 to 10 scenarios: add cross-tool (S6), monitoring (S7), driver multi-hop (S8), adversarial vague (S9), implicit multi-tool (S10)</label><span class="tag tag-test">test</span></div>
+    <div class="task"><input type="checkbox" id="t10" onchange="update()"><label for="t10">Revise S2 phrasing to fix the partial tool-selection failure; add as S2-A to regression suite</label><span class="tag tag-fix">fix</span></div>
+    <div class="repo-label">health_server.py (new file)</div>
+    <div class="task"><input type="checkbox" id="t11" onchange="update()"><label for="t11">Create FastAPI /health endpoint reporting Snowflake connectivity + Gemini key validity</label><span class="tag tag-code">code</span></div>
+    <div class="repo-label">.github/workflows/ci.yml</div>
+    <div class="task"><input type="checkbox" id="t12" onchange="update()"><label for="t12">Add GitHub Actions CI: runs eval_scenarios.py on every push, fails if pass rate &lt;70%</label><span class="tag tag-test">test</span></div>
+    <div class="repo-label">Week_9/ docs</div>
+    <div class="task"><input type="checkbox" id="t13" onchange="update()"><label for="t13">Commit ARCHITECTURE.md to Week_9/ (full 4-layer system reference)</label><span class="tag tag-doc">doc</span></div>
+    <div class="task"><input type="checkbox" id="t14" onchange="update()"><label for="t14">Commit EVALUATION.md to Week_9/ (10-scenario methodology, S2 root-cause, traceability table)</label><span class="tag tag-doc">doc</span></div>
+  </div>
+</div>
+
+<div class="phase" id="phase-7">
+  <div class="phase-header" onclick="toggle('phase-7')">
+    <span class="toggle-icon" id="icon-phase-7">&#9658;</span>
+    <h3>Phase 2 — Week 7 repo fixes &nbsp;<code style="font-size:11px;opacity:.6">ReMindRAG_Week7</code></h3>
+    <span class="phase-badge badge-7">Lab 7</span>
+    <span class="progress-text" id="prog-phase-7"></span>
+  </div>
+  <div class="phase-body" id="body-phase-7">
+    <div class="repo-label">tests/ (new files)</div>
+    <div class="task"><input type="checkbox" id="t15" onchange="update()"><label for="t15">Create test_benchmark_smoke.py: 5 tests — pipeline completes, chunk retrieval, keyword overlap, answer quality, eval artifact schema (uses mock LLM, zero API cost)</label><span class="tag tag-test">test</span></div>
+    <div class="task"><input type="checkbox" id="t16" onchange="update()"><label for="t16">Create test_repro_variance.py: 4 tests — same chunks, same count, same nodes, deterministic answer (uses all-MiniLM-L6-v2, no HF token needed)</label><span class="tag tag-test">test</span></div>
+    <div class="repo-label">eval/ (constrained benchmark run)</div>
+    <div class="task"><input type="checkbox" id="t17" onchange="update()"><label for="t17">Run eval_LooGLE.py on 5-title subset with --seed 42 --judge_model_name gpt-4o-mini (~$0.50). Record results in eval_results.json</label><span class="tag tag-test">test</span></div>
+    <div class="task"><input type="checkbox" id="t18" onchange="update()"><label for="t18">Run eval_Hotpot.py on 50-question subset with --seed 42 --judge_model_name gpt-4o-mini (~$0.20). Record results</label><span class="tag tag-test">test</span></div>
+    <div class="repo-label">.github/workflows/ci.yml (update)</div>
+    <div class="task"><input type="checkbox" id="t19" onchange="update()"><label for="t19">Add test_benchmark_smoke.py and test_repro_variance.py to CI workflow — suite now 26 tests total</label><span class="tag tag-test">test</span></div>
+    <div class="repo-label">Root docs</div>
+    <div class="task"><input type="checkbox" id="t20" onchange="update()"><label for="t20">Commit BENCHMARKING.md (paper-vs-repro comparison, constrained run results, variance table, JSON schema)</label><span class="tag tag-doc">doc</span></div>
+    <div class="task"><input type="checkbox" id="t21" onchange="update()"><label for="t21">Commit REPRO_VERIFICATION.md (26-test suite, gap analysis, manual verification table, CI YAML)</label><span class="tag tag-doc">doc</span></div>
+  </div>
+</div>
+
+<div class="phase" id="phase-8">
+  <div class="phase-header" onclick="toggle('phase-8')">
+    <span class="toggle-icon" id="icon-phase-8">&#9658;</span>
+    <h3>Phase 3 — Week 8 repo fixes &nbsp;<code style="font-size:11px;opacity:.6">COMP_SCI_5542 / Week_8</code></h3>
+    <span class="phase-badge badge-8">Lab 8</span>
+    <span class="progress-text" id="prog-phase-8"></span>
+  </div>
+  <div class="phase-body" id="body-phase-8">
+    <div class="repo-label">sf_connect.py / CPP hard gate (most critical)</div>
+    <div class="task"><input type="checkbox" id="t22" onchange="update()"><label for="t22">Add Spatial SQL bridge constraint check before any LLM call — if vehicle exceeds MIN(weight_limit) or MIN(height_limit), return HARD VETO immediately. Fixes Q13→Q14 monotonicity failure.</label><span class="tag tag-fix">fix</span></div>
+    <div class="repo-label">adaption_method/prompt_adaptation.py</div>
+    <div class="task"><input type="checkbox" id="t23" onchange="update()"><label for="t23">Add [RETRIEVED CONSTRAINTS] block to all prompt templates — inject bridge limits from Spatial SQL, instruct model not to recall limits from memory. Fixes hallucination.</label><span class="tag tag-fix">fix</span></div>
+    <div class="repo-label">data/generate_dataset.py</div>
+    <div class="task"><input type="checkbox" id="t24" onchange="update()"><label for="t24">Update output format to include full 4-step CoT chain (Disruption → Route → Constraint → Decision). Expand to 300+ pairs across 5 disruption categories (weather, accident, weight, height, compound).</label><span class="tag tag-code">code</span></div>
+    <div class="task"><input type="checkbox" id="t25" onchange="update()"><label for="t25">Re-run QLoRA fine-tuning on Colab T4 with expanded CoT dataset. Save new adapter to adapted_model/</label><span class="tag tag-code">code</span></div>
+    <div class="repo-label">app/evaluation.py</div>
+    <div class="task"><input type="checkbox" id="t26" onchange="update()"><label for="t26">Replace binary APPROVE/VETO scorer with 5-dimension rubric (Decision Correctness, Disruption Grounding, Constraint Citation, CoT Completeness, Jargon Accuracy — scored 0–10, pass ≥7)</label><span class="tag tag-fix">fix</span></div>
+    <div class="task"><input type="checkbox" id="t27" onchange="update()"><label for="t27">Expand evaluation set from 15 to 50 queries across 5 disruption categories. Expand metamorphic tests from 3 to 13 pairs including 2 new monotonicity tests.</label><span class="tag tag-test">test</span></div>
+    <div class="repo-label">.github/workflows/lab8_eval.yml (new)</div>
+    <div class="task"><input type="checkbox" id="t28" onchange="update()"><label for="t28">Add GitHub Actions CI: runs evaluation.py in mock mode on every push, fails if rubric pass rate &lt;70%</label><span class="tag tag-test">test</span></div>
+    <div class="repo-label">Week_8/ docs</div>
+    <div class="task"><input type="checkbox" id="t29" onchange="update()"><label for="t29">Commit ARCHITECTURE.md to Week_8/ (4-layer CPP diagram, failure mode analysis, fix methodology)</label><span class="tag tag-doc">doc</span></div>
+    <div class="task"><input type="checkbox" id="t30" onchange="update()"><label for="t30">Commit EVALUATION.md to Week_8/ (corrected accuracy numbers, rubric methodology, 50-query design, CI YAML, traceability table)</label><span class="tag tag-doc">doc</span></div>
+  </div>
+</div>
+
+<div class="phase" id="phase-9">
+  <div class="phase-header" onclick="toggle('phase-9')">
+    <span class="toggle-icon" id="icon-phase-9">&#9658;</span>
+    <h3>Phase 4 — Week 9 report &nbsp;<code style="font-size:11px;opacity:.6">write last, after all code is done</code></h3>
+    <span class="phase-badge badge-9">Lab 9</span>
+    <span class="progress-text" id="prog-phase-9"></span>
+  </div>
+  <div class="phase-body" id="body-phase-9">
+    <div class="repo-label">Before writing</div>
+    <div class="task"><input type="checkbox" id="t31" onchange="update()"><label for="t31">Verify all CI workflows pass (green badges on all 3 repos)</label><span class="tag tag-test">test</span></div>
+    <div class="task"><input type="checkbox" id="t32" onchange="update()"><label for="t32">Confirm live apps are running: cs5542logisticsai.streamlit.app + cs5542lab8.streamlit.app</label><span class="tag tag-test">test</span></div>
+    <div class="task"><input type="checkbox" id="t33" onchange="update()"><label for="t33">Take screenshots of: new sidebar, Agent Chat tool trace, Lab 8 dashboard with evidence injection, Monitoring tab latency cards</label><span class="tag tag-doc">doc</span></div>
+    <div class="repo-label">Group Development Report (1–2 pages PDF)</div>
+    <div class="task"><input type="checkbox" id="t34" onchange="update()"><label for="t34">Section 1: Project overview — one paragraph covering all three labs and what Lab 9 addresses</label><span class="tag tag-doc">doc</span></div>
+    <div class="task"><input type="checkbox" id="t35" onchange="update()"><label for="t35">Section 2: Prior feedback addressed — quote Lab 6 + Lab 7 instructor comments with responses</label><span class="tag tag-doc">doc</span></div>
+    <div class="task"><input type="checkbox" id="t36" onchange="update()"><label for="t36">Section 3: Enhancements — Lab 6 (UI, logging, eval, stability), Lab 7 (benchmarking, 26 tests), Lab 8 (CPP gate, evidence injection, rubric scorer, CoT dataset)</label><span class="tag tag-doc">doc</span></div>
+    <div class="task"><input type="checkbox" id="t37" onchange="update()"><label for="t37">Section 4: Before/after comparison table across all three labs</label><span class="tag tag-doc">doc</span></div>
+    <div class="task"><input type="checkbox" id="t38" onchange="update()"><label for="t38">Section 5: GitHub links + deployment links + screenshots</label><span class="tag tag-doc">doc</span></div>
+    <div class="repo-label">Individual Contribution Report</div>
+    <div class="task"><input type="checkbox" id="t39" onchange="update()"><label for="t39">List your specific contributions with file names (use commit evidence table from the PDF I generated)</label><span class="tag tag-doc">doc</span></div>
+    <div class="task"><input type="checkbox" id="t40" onchange="update()"><label for="t40">Link to actual GitHub commits once code is pushed</label><span class="tag tag-doc">doc</span></div>
+  </div>
+</div>
+
+<p class="note">Tip: phases 1–3 can be worked in parallel with teammates — one person per repo. Phase 4 (the report) should only start after all code changes are committed and CI is green.</p>
+</div>
+
+<script>
+const phases = ['phase-6','phase-7','phase-8','phase-9'];
+const phaseTasks = {
+  'phase-6': ['t1','t2','t3','t4','t5','t6','t7','t8','t9','t10','t11','t12','t13','t14'],
+  'phase-7': ['t15','t16','t17','t18','t19','t20','t21'],
+  'phase-8': ['t22','t23','t24','t25','t26','t27','t28','t29','t30'],
+  'phase-9': ['t31','t32','t33','t34','t35','t36','t37','t38','t39','t40']
+};
+function toggle(id) {
+  const body = document.getElementById('body-'+id);
+  const icon = document.getElementById('icon-'+id);
+  const open = body.classList.toggle('open');
+  icon.classList.toggle('open', open);
+}
+function update() {
+  let total=0, done=0;
+  phases.forEach(ph => {
+    const tasks = phaseTasks[ph];
+    const phDone = tasks.filter(id => document.getElementById(id).checked).length;
+    tasks.forEach(id => {
+      const lbl = document.querySelector('label[for='+id+']');
+      if(document.getElementById(id).checked) lbl.classList.add('done');
+      else lbl.classList.remove('done');
+    });
+    document.getElementById('prog-'+ph).textContent = phDone+'/'+tasks.length;
+    total += tasks.length; done += phDone;
+  });
+  const pct = total ? Math.round(done/total*100) : 0;
+  document.getElementById('overall-fill').style.width = pct+'%';
+  document.getElementById('overall-text').textContent = done+' / '+total+' tasks';
+}
+update();
+</script>

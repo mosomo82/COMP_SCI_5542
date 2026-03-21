@@ -1,8 +1,11 @@
 import os
 import sys
 import json
+import time
 import pathlib
+import logging
 import google.generativeai as genai
+from functools import wraps
 from dotenv import load_dotenv, find_dotenv
 
 # Setup paths and environment
@@ -13,12 +16,34 @@ import tools
 _env_path = find_dotenv(filename=".env", raise_error_if_not_found=False) or str(ROOT / ".env")
 load_dotenv(_env_path)
 
+# ── LOGGING SETUP ─────────────────────────────────────────────────────────────
+log_level = os.getenv("LOG_LEVEL", "INFO").upper()
+logging.basicConfig(level=log_level, format="%(asctime)s [%(levelname)s] %(message)s")
+logger = logging.getLogger("agent")
+
 api_key = os.getenv("GEMINI_API_KEY")
 if not api_key:
-    print("FATAL: GEMINI_API_KEY environment variable not found. Please add it to your .env file.")
+    logger.critical("FATAL: GEMINI_API_KEY environment variable not found. Please add it to your .env file.")
     sys.exit(1)
 
 genai.configure(api_key=api_key)
+
+# ── EXPONENTIAL BACKOFF RETRY ──────────────────────────────────────────────────
+def retry_gemini(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        max_retries = 3
+        for attempt in range(max_retries + 1):
+            try:
+                return func(*args, **kwargs)
+            except Exception as e:
+                if "429" in str(e) and attempt < max_retries:
+                    wait_time = (2 ** attempt) * 5  # 5, 10, 20
+                    logger.warning(f"Rate limit hit. Retrying in {wait_time}s (Attempt {attempt+1}/{max_retries})...")
+                    time.sleep(wait_time)
+                else:
+                    raise
+    return wrapper
 
 # ── 1. Define the System Prompt ───────────────────────────────────────────────
 SYSTEM_PROMPT = """You are a highly capable AI Data Analytics Agent for a trucking logistics company.
@@ -34,8 +59,6 @@ When the user asks a question:
 """
 
 # ── 2. Toolkit Declaration ────────────────────────────────────────────────────
-# Gemini Python SDK allows passing actual Python functions as tools,
-# and it automatically handles the schema generation based on type hints and docstrings!
 agent_tools = [
     tools.query_snowflake,
     tools.get_monthly_revenue,
@@ -50,45 +73,37 @@ agent_tools = [
 
 # ── 3. Agent Execution Loop ───────────────────────────────────────────────────
 def run_agent():
-    print("🚛 Logistics Agent Initializing... (Type 'quit' or 'exit' to stop)")
+    logger.info("🚛 Logistics Agent Initializing... (Type 'quit' or 'exit' to stop)")
     
-    # Initialize the model with the tools and system prompt
     model = genai.GenerativeModel(
         model_name='gemini-2.5-flash',
         tools=agent_tools,
         system_instruction=SYSTEM_PROMPT
     )
     
-    # Start a chat session (this manages the conversation history automatically)
     chat = model.start_chat(enable_automatic_function_calling=True)
     
+    @retry_gemini
+    def safe_send_message(msg):
+        return chat.send_message(msg)
+
     while True:
         try:
             user_input = input("\n👤 You: ")
             if user_input.strip().lower() in ['quit', 'exit']:
-                print("Agent shutting down. Goodbye!")
+                logger.info("Agent shutting down. Goodbye!")
                 break
                 
             if not user_input.strip():
                 continue
                 
-            print("🤖 Agent is thinking...")
+            logger.info("🤖 Agent is thinking...")
             
-            # Send message. 
-            # `enable_automatic_function_calling=True` means the SDK handles the loop!
-            # It will:
-            # 1. Send the prompt to Gemini.
-            # 2. If Gemini requests a tool, the SDK calls our Python function locally.
-            # 3. The SDK sends the function result back to Gemini.
-            # 4. Steps 2-3 repeat until Gemini returns a final text response.
-            response = chat.send_message(user_input)
+            response = safe_send_message(user_input)
             
-            # Safely extract text — response.text crashes if the model
-            # returned only function-call parts with no text part.
             try:
                 answer = response.text
             except ValueError:
-                # Fallback: try to extract text from parts manually
                 text_parts = [
                     p.text for p in response.candidates[0].content.parts
                     if hasattr(p, "text") and p.text
@@ -101,8 +116,8 @@ def run_agent():
             print(f"\n🚛 Agent: {answer}")
             
         except Exception as e:
-            print(f"\n❌ Agent error: {str(e)}")
-            print("The agent encountered an error but is still running. Try another question.")
+            logger.error(f"❌ Agent error: {str(e)}")
+            logger.error("The agent encountered an error but is still running. Try another question.")
 
 if __name__ == "__main__":
     run_agent()

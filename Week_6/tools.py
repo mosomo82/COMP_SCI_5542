@@ -97,6 +97,7 @@ def get_monthly_revenue(start_month="2023-01-01", end_month="2025-12-31") -> Lis
 
 def get_fleet_performance(min_trips: int = 5, top_n: int = 30, fuel_types: Optional[List[str]] = None) -> List[Dict[str, Any]]:
     """Retrieves truck performance metrics based on specified filters.
+    Can be combined with get_safety_metrics for comprehensive safety-cross-referenced fleet analysis.
     
     Args:
         min_trips (int): Minimum number of trips completed by a truck to be included. Defaults to 5.

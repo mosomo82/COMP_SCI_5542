@@ -1,10 +1,15 @@
+# new sf_connect.py
 import os
 import pathlib
 import snowflake.connector
 from dotenv import load_dotenv, find_dotenv
+import logging
 
-# Explicitly load .env relative to this file's directory (project root neighbour),
-# so the module works regardless of the caller's CWD.
+# Ensure logging is set up
+log_level = os.getenv("LOG_LEVEL", "INFO").upper()
+logging.basicConfig(level=log_level, format="%(asctime)s [%(levelname)s] %(message)s")
+logger = logging.getLogger(__name__)
+
 _env_path = find_dotenv(
     filename=".env",
     raise_error_if_not_found=False,
@@ -13,12 +18,7 @@ _env_path = find_dotenv(
 load_dotenv(_env_path, override=False)
 
 
-# ── Secret resolution ─────────────────────────────────────────────────────────
-# Priority: environment variable → Streamlit secrets → None
-# This makes the module work both locally (.env) and on Streamlit Cloud (secrets).
-
 def _get(key: str) -> str | None:
-    """Return the value for *key* from env vars or st.secrets (in that order)."""
     val = os.getenv(key)
     if val:
         return val
@@ -28,13 +28,11 @@ def _get(key: str) -> str | None:
     except Exception:
         return None
 
-
 def get_conn():
     required = [
         "SNOWFLAKE_ACCOUNT", "SNOWFLAKE_USER",
         "SNOWFLAKE_WAREHOUSE", "SNOWFLAKE_DATABASE", "SNOWFLAKE_SCHEMA"
     ]
-    # Password only required when NOT using externalbrowser / SSO
     if not _get("SNOWFLAKE_AUTHENTICATOR"):
         required.append("SNOWFLAKE_PASSWORD")
 
@@ -55,10 +53,42 @@ def get_conn():
         schema=_get("SNOWFLAKE_SCHEMA"),
     )
 
-    # Optional SSO / external browser auth
     authenticator = _get("SNOWFLAKE_AUTHENTICATOR")
     if authenticator:
         conn_kwargs["authenticator"] = authenticator
         conn_kwargs.pop("password", None)
 
     return snowflake.connector.connect(**{k: v for k, v in conn_kwargs.items() if v})
+
+# ── Startup Assertions & Keep-Alive Ping ──────────────────────────────────────
+# Execute immediately upon module import
+def _verify_and_ping():
+    if globals().get("_snowflake_pinged"):
+        return
+        
+    logger.info("Initializing Snowflake connection & verifying environment...")
+    required = [
+        "SNOWFLAKE_ACCOUNT", "SNOWFLAKE_USER",
+        "SNOWFLAKE_WAREHOUSE", "SNOWFLAKE_DATABASE", "SNOWFLAKE_SCHEMA"
+    ]
+    if not _get("SNOWFLAKE_AUTHENTICATOR"):
+        required.append("SNOWFLAKE_PASSWORD")
+
+    missing = [k for k in required if not _get(k)]
+    assert not missing, f"Startup Assertion Failed: Missing Snowflake credentials: {missing}. Set them in .env or Streamlit Secrets."
+
+    # Gemini key check
+    assert _get("GEMINI_API_KEY"), "Startup Assertion Failed: Missing GEMINI_API_KEY in environment."
+
+    # Keep-alive ping
+    try:
+        with get_conn() as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT 1;")
+        logger.info("Snowflake keep-alive ping successful.")
+    except Exception as e:
+        raise RuntimeError(f"Startup Ping Failed: Could not connect to Snowflake. {e}")
+        
+    globals()["_snowflake_pinged"] = True
+
+_verify_and_ping()
