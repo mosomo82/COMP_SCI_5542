@@ -165,9 +165,9 @@ SNOWFLAKE_DATABASE=CS5542_WEEK5
 SNOWFLAKE_SCHEMA=PUBLIC
 ```
 
-For GitHub Actions CI, add the same keys as repository secrets. If you use SSO, you can set
-`SNOWFLAKE_AUTHENTICATOR` as a secret and omit `SNOWFLAKE_PASSWORD`. Week_6 tests are skipped in
-CI when these secrets are unavailable (for example, in forked pull requests).
+For GitHub Actions CI, add the same keys as repository secrets to enable the Week_6 checks. If you
+use SSO, you can set `SNOWFLAKE_AUTHENTICATOR` as a secret and omit `SNOWFLAKE_PASSWORD`. Week_6
+tests are skipped in CI when these secrets are unavailable (for example, in forked pull requests).
 
 ### 2. Install Dependencies
 
