@@ -37,7 +37,8 @@ jobs:
       run: |
         missing=()
         for var in GEMINI_API_KEY SNOWFLAKE_ACCOUNT SNOWFLAKE_USER SNOWFLAKE_WAREHOUSE SNOWFLAKE_DATABASE SNOWFLAKE_SCHEMA; do
-          if [ -z "${!var}" ]; then
+          value=$(printenv "$var")
+          if [ -z "$value" ]; then
             missing+=("$var")
           fi
         done
