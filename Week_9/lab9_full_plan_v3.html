@@ -1,0 +1,191 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.plan{padding:12px 0;max-width:680px;font-family:var(--font-sans)}
+.phase{margin-bottom:14px;border:0.5px solid var(--color-border-tertiary);border-radius:12px;overflow:hidden}
+.ph{padding:10px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;background:var(--color-background-secondary)}
+.ph h3{font-size:12px;font-weight:500;color:var(--color-text-primary);flex:1;margin:0}
+.pb{font-size:10px;font-weight:500;padding:2px 8px;border-radius:20px;flex-shrink:0}
+.c6{background:#E6F1FB;color:#0C447C}.c7{background:#EAF3DE;color:#27500A}.c8{background:#FAEEDA;color:#633806}.c9{background:#F1EFE8;color:#444441}.cp{background:#EEEDFE;color:#3C3489}
+.body{padding:0 14px 10px}
+.rl{font-size:10px;font-weight:500;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin:10px 0 5px;padding-bottom:3px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.t{display:flex;align-items:flex-start;gap:9px;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary)}
+.t:last-child{border-bottom:none}
+.t input{margin-top:2px;cursor:pointer;accent-color:var(--color-text-info);width:14px;height:14px;flex-shrink:0}
+.t label{font-size:12px;color:var(--color-text-primary);line-height:1.5;cursor:pointer;flex:1}
+.t label.done{text-decoration:line-through;color:var(--color-text-tertiary)}
+.tg{font-size:10px;font-weight:500;padding:1px 6px;border-radius:10px;white-space:nowrap;flex-shrink:0;margin-top:1px}
+.fx{background:var(--color-background-danger);color:var(--color-text-danger)}
+.dc{background:var(--color-background-info);color:var(--color-text-info)}
+.ts{background:var(--color-background-success);color:var(--color-text-success)}
+.cd{background:var(--color-background-warning);color:var(--color-text-warning)}
+.dt{background:#EEEDFE;color:#3C3489}
+.pn{font-size:11px;color:var(--color-text-tertiary);white-space:nowrap}
+.arr{font-size:11px;color:var(--color-text-tertiary);transition:transform .2s;flex-shrink:0}
+.arr.open{transform:rotate(90deg)}
+.ov{padding:10px 0 8px;display:flex;align-items:center;gap:10px}
+.ol{font-size:12px;color:var(--color-text-secondary);white-space:nowrap}
+.bw{flex:1;height:5px;background:var(--color-border-tertiary);border-radius:3px}
+.bf{height:5px;background:var(--color-text-info);border-radius:3px;transition:width .3s}
+.note{font-size:11px;color:var(--color-text-secondary);padding:8px 0 0;line-height:1.65;border-top:0.5px solid var(--color-border-tertiary);margin-top:6px}
+</style>
+<div class="plan">
+<div class="ov">
+  <span class="ol">Overall</span>
+  <div class="bw"><div class="bf" id="bf" style="width:0%"></div></div>
+  <span class="pn" id="ot">0 / 62</span>
+</div>
+
+<!-- ── PHASE 1 ── -->
+<div class="phase">
+<div class="ph" onclick="tog(this)">
+  <span class="arr open">&#9660;</span>
+  <h3>Phase 1 — Week 6 fixes &nbsp;<code style="font-size:10px;opacity:.55">COMP_SCI_5542/Week_6</code></h3>
+  <span class="pb c6">Lab 6</span><span class="pn" id="s1">0/18</span>
+</div>
+<div class="body" id="d1">
+  <div class="rl">streamlit_app.py</div>
+  <div class="t"><input type="checkbox" id="c1" onchange="upd()"><label for="c1">Add persistent sidebar: project description, data-freshness, quick-link nav to all 9 tabs</label><span class="tg cd">code</span></div>
+  <div class="t"><input type="checkbox" id="c2" onchange="upd()"><label for="c2">Redesign Agent Chat: message history, loading spinner, collapsible tool-call trace expander (name, args, latency)</label><span class="tg cd">code</span></div>
+  <div class="t"><input type="checkbox" id="c3" onchange="upd()"><label for="c3">Add input validation + friendly error messages to SQL Explorer in Executive tab</label><span class="tg cd">code</span></div>
+  <div class="t"><input type="checkbox" id="c4" onchange="upd()"><label for="c4">Add Reset Session button (clears st.session_state and Gemini history)</label><span class="tg cd">code</span></div>
+  <div class="rl">sf_connect.py</div>
+  <div class="t"><input type="checkbox" id="c5" onchange="upd()"><label for="c5">Add Snowflake keep-alive ping on startup — cold-start ~8s → &lt;2s</label><span class="tg fx">fix</span></div>
+  <div class="t"><input type="checkbox" id="c6" onchange="upd()"><label for="c6">Add startup assertions validating all env variables before dashboard renders</label><span class="tg fx">fix</span></div>
+  <div class="rl">agent.py ✅ fixed file generated</div>
+  <div class="t"><input type="checkbox" id="c7" onchange="upd()"><label for="c7">Replace print() with Python logging module (INFO default, DEBUG via LOG_LEVEL)</label><span class="tg cd">code</span></div>
+  <div class="t"><input type="checkbox" id="c8" onchange="upd()"><label for="c8">Update SYSTEM_PROMPT with 6 TOOL SELECTION RULES — fixes S2, S6, S8 failures</label><span class="tg fx">fix</span></div>
+  <div class="rl">tools.py ✅ fixed file generated</div>
+  <div class="t"><input type="checkbox" id="c9" onchange="upd()"><label for="c9">get_fleet_performance: add COMBINE WITH get_safety_metrics for incidents/violations queries</label><span class="tg fx">fix</span></div>
+  <div class="t"><input type="checkbox" id="c10" onchange="upd()"><label for="c10">get_fuel_spend_analysis: add keyword triggers + COMBINE WITH get_maintenance_health</label><span class="tg fx">fix</span></div>
+  <div class="t"><input type="checkbox" id="c11" onchange="upd()"><label for="c11">get_maintenance_health: add keyword triggers + COMBINE WITH get_fuel_spend_analysis</label><span class="tg fx">fix</span></div>
+  <div class="rl">eval_scenarios.py</div>
+  <div class="t"><input type="checkbox" id="c12" onchange="upd()"><label for="c12">Increase COOLDOWN_SECONDS 15 → 30 to prevent cascading 429s</label><span class="tg fx">fix</span></div>
+  <div class="t"><input type="checkbox" id="c13" onchange="upd()"><label for="c13">Expand 5 → 10 scenarios: S6 (fuel vs maintenance), S7 (monitoring), S8 (driver multi-hop), S9 (adversarial), S10 (implicit multi-tool)</label><span class="tg ts">test</span></div>
+  <div class="t"><input type="checkbox" id="c14" onchange="upd()"><label for="c14">Revise S2 phrasing → S2-A (unified question, not two sentences); add to regression suite</label><span class="tg fx">fix</span></div>
+  <div class="rl">health_server.py (new)</div>
+  <div class="t"><input type="checkbox" id="c15" onchange="upd()"><label for="c15">Create FastAPI /health endpoint reporting Snowflake + Gemini key validity; wire to UptimeRobot</label><span class="tg cd">code</span></div>
+  <div class="rl">.github/workflows/ci.yml</div>
+  <div class="t"><input type="checkbox" id="c16" onchange="upd()"><label for="c16">Add GitHub Actions CI: runs eval_scenarios.py on every push, fails if pass rate &lt;70%</label><span class="tg ts">test</span></div>
+  <div class="rl">Week_9/ docs ✅ files generated</div>
+  <div class="t"><input type="checkbox" id="c17" onchange="upd()"><label for="c17">Commit ARCHITECTURE.md to Week_9/</label><span class="tg dc">doc</span></div>
+  <div class="t"><input type="checkbox" id="c18" onchange="upd()"><label for="c18">Commit EVALUATION.md to Week_9/</label><span class="tg dc">doc</span></div>
+</div></div>
+
+<!-- ── PHASE 2 ── -->
+<div class="phase">
+<div class="ph" onclick="tog(this)">
+  <span class="arr open">&#9660;</span>
+  <h3>Phase 2 — Week 7 fixes &nbsp;<code style="font-size:10px;opacity:.55">ReMindRAG_Week7</code></h3>
+  <span class="pb c7">Lab 7</span><span class="pn" id="s2">0/7</span>
+</div>
+<div class="body" id="d2">
+  <div class="rl">tests/ (new files)</div>
+  <div class="t"><input type="checkbox" id="c19" onchange="upd()"><label for="c19">Create test_benchmark_smoke.py: 5 tests — pipeline, chunk retrieval, keyword overlap, answer quality, eval schema (mock LLM, zero API cost)</label><span class="tg ts">test</span></div>
+  <div class="t"><input type="checkbox" id="c20" onchange="upd()"><label for="c20">Create test_repro_variance.py: 4 tests — same chunks, count, nodes, deterministic answer (all-MiniLM-L6-v2, no HF token)</label><span class="tg ts">test</span></div>
+  <div class="rl">eval/ (constrained benchmark run ~$0.70 total)</div>
+  <div class="t"><input type="checkbox" id="c21" onchange="upd()"><label for="c21">Run eval_LooGLE.py — 5-title subset, --seed 42, --judge_model_name gpt-4o-mini. Record F1 in eval_results.json</label><span class="tg ts">test</span></div>
+  <div class="t"><input type="checkbox" id="c22" onchange="upd()"><label for="c22">Run eval_Hotpot.py — 50 questions, --seed 42, --judge_model_name gpt-4o-mini. Record F1</label><span class="tg ts">test</span></div>
+  <div class="rl">.github/workflows/ci.yml (update)</div>
+  <div class="t"><input type="checkbox" id="c23" onchange="upd()"><label for="c23">Add new test files to CI — suite expands 17 → 26 tests</label><span class="tg ts">test</span></div>
+  <div class="rl">Root docs ✅ files generated</div>
+  <div class="t"><input type="checkbox" id="c24" onchange="upd()"><label for="c24">Commit BENCHMARKING.md (paper-vs-repro comparison, constrained run results, variance table)</label><span class="tg dc">doc</span></div>
+  <div class="t"><input type="checkbox" id="c25" onchange="upd()"><label for="c25">Commit REPRO_VERIFICATION.md (26-test suite, gap analysis, CI YAML)</label><span class="tg dc">doc</span></div>
+</div></div>
+
+<!-- ── PHASE 3 ── -->
+<div class="phase">
+<div class="ph" onclick="tog(this)">
+  <span class="arr open">&#9660;</span>
+  <h3>Phase 3 — Week 8 fixes &nbsp;<code style="font-size:10px;opacity:.55">COMP_SCI_5542/Week_8</code></h3>
+  <span class="pb c8">Lab 8</span><span class="pn" id="s3">0/9</span>
+</div>
+<div class="body" id="d3">
+  <div class="rl">sf_connect.py / CPP hard gate (most critical)</div>
+  <div class="t"><input type="checkbox" id="c26" onchange="upd()"><label for="c26">Spatial SQL hard gate before any LLM call: MIN(weight_limit_tons / vertical_clearance_mt) via ST_INTERSECTS → HARD VETO if exceeded. Fixes Q13→Q14 monotonicity failure.</label><span class="tg fx">fix</span></div>
+  <div class="rl">adaption_method/prompt_adaptation.py</div>
+  <div class="t"><input type="checkbox" id="c27" onchange="upd()"><label for="c27">Add [RETRIEVED CONSTRAINTS] block to all prompt templates — bridge limits injected from SQL, model not to recall from memory. Fixes hallucination (~40% → 8%).</label><span class="tg fx">fix</span></div>
+  <div class="rl">data/generate_dataset.py</div>
+  <div class="t"><input type="checkbox" id="c28" onchange="upd()"><label for="c28">Update output format: full 4-step CoT (Disruption→Route→Constraint→Decision). Expand 100 → 300+ pairs, 5 disruption types.</label><span class="tg cd">code</span></div>
+  <div class="t"><input type="checkbox" id="c29" onchange="upd()"><label for="c29">Re-run QLoRA fine-tuning on Colab T4 with expanded CoT dataset. Save new adapter.</label><span class="tg cd">code</span></div>
+  <div class="rl">app/evaluation.py</div>
+  <div class="t"><input type="checkbox" id="c30" onchange="upd()"><label for="c30">Replace binary scorer with 5-dim rubric (Decision, Grounding, Constraint, CoT, Jargon — 0–10, pass ≥7)</label><span class="tg fx">fix</span></div>
+  <div class="t"><input type="checkbox" id="c31" onchange="upd()"><label for="c31">Expand eval set 15 → 50 queries, 5 disruption categories. Metamorphic tests 3 → 13 pairs.</label><span class="tg ts">test</span></div>
+  <div class="rl">.github/workflows/lab8_eval.yml (new)</div>
+  <div class="t"><input type="checkbox" id="c32" onchange="upd()"><label for="c32">GitHub Actions CI: evaluation.py mock mode on every push, fails if pass rate &lt;70%</label><span class="tg ts">test</span></div>
+  <div class="rl">Week_8/ docs ✅ files generated</div>
+  <div class="t"><input type="checkbox" id="c33" onchange="upd()"><label for="c33">Commit ARCHITECTURE.md to Week_8/ (4-layer CPP, failure mode analysis)</label><span class="tg dc">doc</span></div>
+  <div class="t"><input type="checkbox" id="c34" onchange="upd()"><label for="c34">Commit EVALUATION.md to Week_8/ (corrected accuracy, rubric, 50-query design)</label><span class="tg dc">doc</span></div>
+</div></div>
+
+<!-- ── PHASE 4 ── -->
+<div class="phase">
+<div class="ph" onclick="tog(this)">
+  <span class="arr open">&#9660;</span>
+  <h3>Phase 4 — Phase 2 project integration &nbsp;<code style="font-size:10px;opacity:.55">CS5542_SmartSC_Optimization_System</code></h3>
+  <span class="pb cp">Phase 2</span><span class="pn" id="s4">0/19</span>
+</div>
+<div class="body" id="d4">
+  <div class="rl">src/utils/snowflake_conn.py (Tony)</div>
+  <div class="t"><input type="checkbox" id="c35" onchange="upd()"><label for="c35">Port keep-alive ping + retry decorator from Lab 6 fixes</label><span class="tg fx">fix</span></div>
+  <div class="t"><input type="checkbox" id="c36" onchange="upd()"><label for="c36">Add startup assertions validating all env variables at import time</label><span class="tg fx">fix</span></div>
+  <div class="rl">src/agents/compliance_agent.py (Tony — new)</div>
+  <div class="t"><input type="checkbox" id="c37" onchange="upd()"><label for="c37">Implement CPP Step 3A Spatial SQL hard gate: MIN(weight_limit_tons / vertical_clearance_mt) via ST_INTERSECTS → HARD VETO before any LLM call</label><span class="tg fx">fix</span></div>
+  <div class="t"><input type="checkbox" id="c38" onchange="upd()"><label for="c38">Wire compliance_agent.py into cpp_agent.py as first gate in pipeline</label><span class="tg cd">code</span></div>
+  <div class="rl">src/agents/context_agent.py (Tony)</div>
+  <div class="t"><input type="checkbox" id="c39" onchange="upd()"><label for="c39">Wire ReMindRAG retrieval — pull from SILVER.LOGISTICS_VECTORIZED with seed=42</label><span class="tg cd">code</span></div>
+  <div class="t"><input type="checkbox" id="c40" onchange="upd()"><label for="c40">Add [RETRIEVED CONSTRAINTS] evidence injection block to prompt template</label><span class="tg fx">fix</span></div>
+  <div class="rl">src/run_pipeline.py + verify_pipeline.py (Tony)</div>
+  <div class="t"><input type="checkbox" id="c41" onchange="upd()"><label for="c41">Replace print() with Python logging module throughout both files</label><span class="tg cd">code</span></div>
+  <div class="t"><input type="checkbox" id="c42" onchange="upd()"><label for="c42">Add row-count + schema assertions to verify_pipeline.py for all 4 SILVER tables</label><span class="tg ts">test</span></div>
+  <div class="rl">src/app/dashboard.py (Daniel)</div>
+  <div class="t"><input type="checkbox" id="c43" onchange="upd()"><label for="c43">Add persistent sidebar + collapsible Reasoning Path expander (ReMindRAG steps + CPP decisions)</label><span class="tg cd">code</span></div>
+  <div class="t"><input type="checkbox" id="c44" onchange="upd()"><label for="c44">Merge Lab 6 analytics tabs (fleet, routes, fuel, safety) into unified dashboard</label><span class="tg cd">code</span></div>
+  <div class="t"><input type="checkbox" id="c45" onchange="upd()"><label for="c45">Apply retry decorator to all Cortex/external API calls. Add Reset Session button.</label><span class="tg fx">fix</span></div>
+  <div class="rl">tests/ (Joel)</div>
+  <div class="t"><input type="checkbox" id="c46" onchange="upd()"><label for="c46">test_cpp_gate.py: unit tests (overweight→VETO, compliant→PASS, height violation→VETO)</label><span class="tg ts">test</span></div>
+  <div class="t"><input type="checkbox" id="c47" onchange="upd()"><label for="c47">test_pipeline.py: end-to-end smoke (Snowflake connectivity, SILVER row counts, HTTP 200)</label><span class="tg ts">test</span></div>
+  <div class="t"><input type="checkbox" id="c48" onchange="upd()"><label for="c48">Expand evaluate_system.py: 50 queries, 5-dim rubric, mock mode for CI</label><span class="tg ts">test</span></div>
+  <div class="rl">.github/workflows/ci.yml (Joel — new)</div>
+  <div class="t"><input type="checkbox" id="c49" onchange="upd()"><label for="c49">Unified CI: pipeline smoke + CPP unit + system eval mock + ReMindRAG 26-tests + ≥70% gate</label><span class="tg ts">test</span></div>
+  <div class="rl">Root docs ✅ files generated</div>
+  <div class="t"><input type="checkbox" id="c50" onchange="upd()"><label for="c50">Commit ARCHITECTURE.md to repo root (4-layer system, CPP detail, data medallion)</label><span class="tg dc">doc</span></div>
+  <div class="t"><input type="checkbox" id="c51" onchange="upd()"><label for="c51">Commit EVALUATION.md to repo root (50-query rubric, RAG benchmarks, pipeline smoke)</label><span class="tg dc">doc</span></div>
+  <div class="t"><input type="checkbox" id="c52" onchange="upd()"><label for="c52">Update CONTRIBUTIONS.md: add Lab 9 contributions for all three teammates</label><span class="tg dc">doc</span></div>
+  <div class="t"><input type="checkbox" id="c53" onchange="upd()"><label for="c53">Update README.md: add CI badge, Lab 9 changelog, links to ARCHITECTURE.md + EVALUATION.md</label><span class="tg dc">doc</span></div>
+</div></div>
+
+<!-- ── PHASE 5 ── -->
+<div class="phase">
+<div class="ph" onclick="tog(this)">
+  <span class="arr open">&#9660;</span>
+  <h3>Phase 5 — Lab 9 report &nbsp;<code style="font-size:10px;opacity:.55">write last — after all CI green</code></h3>
+  <span class="pb c9">Report</span><span class="pn" id="s5">0/9</span>
+</div>
+<div class="body" id="d5">
+  <div class="rl">Pre-flight</div>
+  <div class="t"><input type="checkbox" id="c54" onchange="upd()"><label for="c54">Verify CI badges green on all 3 repos: COMP_SCI_5542, ReMindRAG_Week7, CS5542_SmartSC</label><span class="tg ts">test</span></div>
+  <div class="t"><input type="checkbox" id="c55" onchange="upd()"><label for="c55">Confirm all 3 live apps up: cs5542logisticsai · cs5542lab8 · cs5542hyperlogistics .streamlit.app</label><span class="tg ts">test</span></div>
+  <div class="t"><input type="checkbox" id="c56" onchange="upd()"><label for="c56">Take screenshots: Lab 6 sidebar + tool trace, Lab 8 CPP evidence panel, Phase 2 reasoning path expander</label><span class="tg dc">doc</span></div>
+  <div class="rl">Group Development Report ✅ PDF generated</div>
+  <div class="t"><input type="checkbox" id="c57" onchange="upd()"><label for="c57">Sections 1–3: overview, feedback addressed (Labs 6+7), all enhancements incl. Phase 2 integration</label><span class="tg dc">doc</span></div>
+  <div class="t"><input type="checkbox" id="c58" onchange="upd()"><label for="c58">Section 4: before/after table across Labs 6, 7, 8, and Phase 2</label><span class="tg dc">doc</span></div>
+  <div class="t"><input type="checkbox" id="c59" onchange="upd()"><label for="c59">Section 5: all GitHub + deployment links (update with real commit links once pushed)</label><span class="tg dc">doc</span></div>
+  <div class="rl">Individual Contribution Report ✅ PDF generated</div>
+  <div class="t"><input type="checkbox" id="c60" onchange="upd()"><label for="c60">Fill in real GitHub commit hashes from all 3 repos once code is pushed</label><span class="tg dc">doc</span></div>
+  <div class="t"><input type="checkbox" id="c61" onchange="upd()"><label for="c61">Verify Phase 2 contributions listed: compliance_agent.py, context_agent.py, snowflake_conn.py, ARCHITECTURE.md, EVALUATION.md</label><span class="tg dc">doc</span></div>
+  <div class="t"><input type="checkbox" id="c62" onchange="upd()"><label for="c62">Submit both PDFs to Canvas</label><span class="tg dc">doc</span></div>
+</div></div>
+
+<p class="note"><b>Parallel owners:</b> Tony → Phases 1+3 eval fixes + Phase 4 pipeline/CPP agents &nbsp;·&nbsp; Daniel → Phase 4 dashboard &nbsp;·&nbsp; Joel → Phase 4 tests + CI &nbsp;·&nbsp; All three → Phase 2 benchmark runs (cheap, ~$0.70 total). Phase 5 starts only after all CI is green.<br><br><b>✅ Already done:</b> agent.py + tools.py (Phase 1) · all 8 doc files · both PDF reports (draft — needs real commit links).</p>
+</div>
+
+<script>
+const counts=[18,7,9,19,9];
+function getIds(ph){const s=counts.slice(0,ph-1).reduce((a,b)=>a+b,0);return Array.from({length:counts[ph-1]},(_,i)=>'c'+(s+i+1));}
+function tog(el){const body=el.nextElementSibling;const arr=el.querySelector('.arr');const open=body.style.display!=='none';body.style.display=open?'none':'block';arr.classList.toggle('open',!open);}
+function upd(){let tot=0,done=0;for(let ph=1;ph<=5;ph++){const ids=getIds(ph);const pd=ids.filter(id=>document.getElementById(id)?.checked).length;ids.forEach(id=>{const el=document.getElementById(id);if(!el)return;const l=document.querySelector('label[for='+id+']');el.checked?l.classList.add('done'):l.classList.remove('done');});document.getElementById('s'+ph).textContent=pd+'/'+counts[ph-1];tot+=counts[ph-1];done+=pd;}const pct=tot?Math.round(done/tot*100):0;document.getElementById('bf').style.width=pct+'%';document.getElementById('ot').textContent=done+' / '+tot;}
+// init: all open
+document.querySelectorAll('.body').forEach(b=>b.style.display='block');
+upd();
+</script>
