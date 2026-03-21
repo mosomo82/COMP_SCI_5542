@@ -36,8 +36,15 @@ jobs:
       id: week6-secrets
       run: |
         missing=()
-        required_vars="GEMINI_API_KEY SNOWFLAKE_ACCOUNT SNOWFLAKE_USER SNOWFLAKE_WAREHOUSE SNOWFLAKE_DATABASE SNOWFLAKE_SCHEMA"
-        for var in $required_vars; do
+        required_vars=(
+          GEMINI_API_KEY
+          SNOWFLAKE_ACCOUNT
+          SNOWFLAKE_USER
+          SNOWFLAKE_WAREHOUSE
+          SNOWFLAKE_DATABASE
+          SNOWFLAKE_SCHEMA
+        )
+        for var in "${required_vars[@]}"; do
           value=$(printenv "$var")
           if [ -z "$value" ]; then
             missing+=("$var")
