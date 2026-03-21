@@ -96,14 +96,18 @@ def get_monthly_revenue(start_month="2023-01-01", end_month="2025-12-31") -> Lis
 
 
 def get_fleet_performance(min_trips: int = 5, top_n: int = 30, fuel_types: Optional[List[str]] = None) -> List[Dict[str, Any]]:
-    """Retrieves truck performance metrics based on specified filters.
-    Can be combined with get_safety_metrics for comprehensive safety-cross-referenced fleet analysis.
-    
+    """Retrieves truck fleet performance metrics: revenue, trips, miles, MPG, and driver info.
+    Use for questions about top performing trucks by revenue, mileage, or fuel efficiency.
+    Also use for driver-level revenue or performance questions.
+    Filter by fuel type (e.g. ['Diesel']) to narrow to specific truck types.
+    COMBINE WITH get_safety_metrics when the query also asks about safety incidents,
+    collisions, moving violations, at-fault records, or injury history for those trucks or drivers.
+
     Args:
         min_trips (int): Minimum number of trips completed by a truck to be included. Defaults to 5.
         top_n (int): Maximum number of top-performing trucks to return. Defaults to 30.
         fuel_types (Optional[List[str]]): List of fuel types to include (e.g. ['Diesel', 'CNG', 'Electric']). Defaults to all if None.
-        
+
     Returns:
         List[Dict[str, Any]]: A list of dictionaries containing truck performance metrics.
     """
@@ -276,6 +280,11 @@ def get_maintenance_health(
     end_date="2025-12-31", top_n: int = 20
 ) -> List[Dict[str, Any]]:
     """Retrieves truck maintenance health metrics including costs, downtime, and event counts.
+    Use for questions about maintenance costs, repair costs, labor costs, parts costs, truck
+    downtime, maintenance event frequency, or cost-per-mile maintenance analysis.
+    COMBINE WITH get_fuel_spend_analysis when comparing maintenance costs against fuel spend,
+    or when looking for trucks or regions with high costs across both dimensions.
+
     Args:
         maintenance_type: 'Scheduled', 'Unscheduled', or 'Inspection'. None = all.
         start_date/end_date: Date range in 'YYYY-MM-DD' format.
@@ -308,6 +317,11 @@ def get_fuel_spend_analysis(
     states: Optional[List[str]] = None, top_n: int = 15
 ) -> List[Dict[str, Any]]:
     """Retrieves fuel spend analysis aggregated by state and city.
+    Use for questions about fuel costs, fuel spend by region, top states or cities by fuel
+    spend, fuel price per gallon, total gallons purchased, or fuel efficiency by geography.
+    COMBINE WITH get_maintenance_health when comparing fuel spend against maintenance costs
+    or when looking for overlap between high-fuel-cost and high-maintenance-cost regions or trucks.
+
     Args:
         states: State abbreviations to filter (e.g. ['TX','CA']). None = all.
         top_n: Max locations to return. Defaults to 15.

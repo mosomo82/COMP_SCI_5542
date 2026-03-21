@@ -327,7 +327,7 @@ def main():
     print("=" * 66)
     print()
 
-    COOLDOWN_SECONDS = 15  # pause between scenarios to stay within RPM limits
+    COOLDOWN_SECONDS = 30 # pause between scenarios to stay within RPM limits
 
     all_results = []
     for i, scenario in enumerate(SCENARIOS):
