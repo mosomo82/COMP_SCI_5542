@@ -88,26 +88,38 @@ def safe(text: str) -> str:
 
 # ── sidebar ──────────────────────────────────────────────────────────────────
 with st.sidebar:
-    st.header("⚙️  Session")
+    st.title("🚛 CS 5542 Dashboard")
+    st.markdown("**Multi-Agent Analytics Platform** for Trucking Logistics.")
+    from datetime import datetime
+    st.caption(f"Data freshness: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC")
+    
+    st.header("⚙️ Session")
     team = st.text_input("Team name", value="TeamEVN")
     user = st.text_input("Your name", value="Student")
+    
+    if st.button("🔄 Reset Session", use_container_width=True, help="Clears st.session_state and Gemini history"):
+        st.session_state.clear()
+        import streamlit as st
+        st.rerun()
+
     st.divider()
-    st.caption("Queries hit views (`04_views.sql`) and derived tables (`05_derived_analytics.sql`).")
+    st.markdown("### 🗂️ Quick-Link Navigation")
+    selected_tab = st.radio(
+        "Navigation",
+        ["📊 Overview", "🚛 Fleet & Drivers", "🗺️ Routes", "⛽ Fuel Spend",
+         "📈 Monitoring", "🔬 Analytics", "🎯 Executive", "⚠️ Safety", "🤖 AI Agent Chat"],
+        label_visibility="collapsed"
+    )
 
 # ── title ────────────────────────────────────────────────────────────────────
-st.title("🚛 CS 5542 — Trucking Logistics Dashboard")
+st.title(selected_tab)
 st.caption("Live connection to **Snowflake** · parameterized inputs · Altair charts")
-
-# ── tabs ─────────────────────────────────────────────────────────────────────
-tab_overview, tab_fleet, tab_routes, tab_fuel, tab_monitor, tab_analytics, tab_exec, tab_safety, tab_ai = st.tabs(
-    ["📊 Overview", "🚛 Fleet & Drivers", "🗺️ Routes", "⛽ Fuel Spend",
-     "📈 Monitoring", "🔬 Analytics", "🎯 Executive", "⚠️ Safety", "🤖 AI Assistant"]
-)
 
 # ═════════════════════════════════════════════════════════════════════════════
 # TAB 1 — Overview  (monthly revenue trend + KPIs)
 # ═════════════════════════════════════════════════════════════════════════════
-with tab_overview:
+# ═════════════════════════════════════════════════════════════════════════════
+if selected_tab == "📊 Overview":
     st.subheader("Monthly Revenue Trend")
 
     # -- parameterized inputs --------------------------------------------------
@@ -160,7 +172,8 @@ with tab_overview:
 # ═════════════════════════════════════════════════════════════════════════════
 # TAB 2 — Fleet & Drivers  (trip performance view)
 # ═════════════════════════════════════════════════════════════════════════════
-with tab_fleet:
+# ═════════════════════════════════════════════════════════════════════════════
+if selected_tab == "🚛 Fleet & Drivers":
     st.subheader("Fleet & Driver Performance")
 
     # -- parameterized inputs --------------------------------------------------
@@ -224,7 +237,8 @@ with tab_fleet:
 # ═════════════════════════════════════════════════════════════════════════════
 # TAB 3 — Routes  (route scorecard view)
 # ═════════════════════════════════════════════════════════════════════════════
-with tab_routes:
+# ═════════════════════════════════════════════════════════════════════════════
+if selected_tab == "🗺️ Routes":
     st.subheader("Route Scorecard")
 
     # -- parameterized inputs --------------------------------------------------
@@ -283,7 +297,8 @@ with tab_routes:
 # ═════════════════════════════════════════════════════════════════════════════
 # TAB 4 — Fuel Spend  (fuel spend by state/city)
 # ═════════════════════════════════════════════════════════════════════════════
-with tab_fuel:
+# ═════════════════════════════════════════════════════════════════════════════
+if selected_tab == "⛽ Fuel Spend":
     st.subheader("Fuel Spend by Location")
 
     # -- parameterized inputs --------------------------------------------------
@@ -340,7 +355,8 @@ with tab_fuel:
 # ═════════════════════════════════════════════════════════════════════════════
 # TAB 5 — Monitoring  (pipeline logs + performance analysis)
 # ═════════════════════════════════════════════════════════════════════════════
-with tab_monitor:
+# ═════════════════════════════════════════════════════════════════════════════
+if selected_tab == "📈 Monitoring":
     st.subheader("Pipeline Monitoring")
 
     if os.path.exists(LOG_PATH) and os.path.getsize(LOG_PATH) > 0:
@@ -412,7 +428,8 @@ with tab_monitor:
 # ═════════════════════════════════════════════════════════════════════════════
 # TAB 6 — Analytics  (derived tables from 05_derived_analytics.sql)
 # ═════════════════════════════════════════════════════════════════════════════
-with tab_analytics:
+# ═════════════════════════════════════════════════════════════════════════════
+if selected_tab == "🔬 Analytics":
     st.subheader("Advanced Derived Analytics")
     st.caption("Queries run against the 4 materialized tables built by `sql/05_derived_analytics.sql`. "
                "Run that script in Snowflake once after loading data.")
@@ -661,7 +678,8 @@ with tab_analytics:
 # ═════════════════════════════════════════════════════════════════════════════
 # TAB 7 — Executive  (auto-loading KPIs, heatmap, sparklines, SQL explorer)
 # ═════════════════════════════════════════════════════════════════════════════
-with tab_exec:
+# ═════════════════════════════════════════════════════════════════════════════
+if selected_tab == "🎯 Executive":
     st.subheader("🎯 Executive Analytics Dashboard")
     st.caption("Auto-loads key metrics on render · No button clicks required · Live SQL explorer")
 
@@ -882,8 +900,10 @@ GROUP  BY 1 ORDER BY 1;""",
             safe_sql = user_sql.strip()
             # Enforce read-only: block DML/DDL keywords
             first_word = safe_sql.split()[0].upper()
-            if first_word not in ("SELECT", "WITH", "SHOW", "DESCRIBE", "LIST"):
-                st.error("Only SELECT / WITH / SHOW / DESCRIBE / LIST are allowed.")
+            if first_word not in ("SELECT", "WITH", "SHOW", "DESCRIBE", "LIST", "EXPLAIN"):
+                st.error("🛑 **Validation Error**: Only `SELECT`, `WITH`, `SHOW`, or `DESCRIBE` queries are permitted. Modifying the database is blocked.")
+            elif any(blocked in safe_sql.upper() for blocked in ["DROP ", "ALTER ", "DELETE ", "UPDATE ", "INSERT "]):
+                st.error("🛑 **Security Block**: Destructive queries (DDL/DML) are prohibited in the live dashboard environment.")
             else:
                 # Wrap in a LIMIT 500 subquery if no LIMIT already
                 if "limit" not in safe_sql.lower():
@@ -926,7 +946,8 @@ GROUP  BY 1 ORDER BY 1;""",
 # ═════════════════════════════════════════════════════════════════════════════
 # TAB 8 — Safety Incidents  (querying SAFETY_INCIDENTS)
 # ═════════════════════════════════════════════════════════════════════════════
-with tab_safety:
+# ═════════════════════════════════════════════════════════════════════════════
+if selected_tab == "⚠️ Safety":
     st.subheader("⚠️ Safety Incidents")
     st.caption(
         "Queries the `SAFETY_INCIDENTS` table. Filter by incident type, date range, "
@@ -1097,7 +1118,8 @@ with tab_safety:
 # ═════════════════════════════════════════════════════════════════════════════
 # TAB 9 — 🤖 AI Agent Chat  (Gemini + all 9 tools — Tony's Phase 3)
 # ═════════════════════════════════════════════════════════════════════════════
-with tab_ai:
+# ═════════════════════════════════════════════════════════════════════════════
+if selected_tab == "🤖 AI Agent Chat":
     st.subheader("🤖 AI Data Analytics Agent")
     st.caption(
         "Chat with a Gemini-powered agent that can query Snowflake in real time. "
@@ -1228,9 +1250,9 @@ with tab_ai:
                         if log.get("turn") == turn_idx
                     ]
                     if matching_logs:
-                        with st.expander("🔧 Tool Usage"):
+                        with st.expander(f"🔧 Tool-Call Trace ({len(matching_logs)} calls)"):
                             for tl in matching_logs:
-                                st.markdown(f"- **{tl['tool']}** — {tl['status']}")
+                                st.code(f"Tool: {tl['tool']}\nArgs: {tl.get('args', '{}')}\nLatency: {tl.get('latency', 'N/A')} ms")
 
     # ── 8. Handle new user prompt ────────────────────────────────────────────
     if prompt := st.chat_input("Ask the logistics agent…"):
@@ -1250,36 +1272,36 @@ with tab_ai:
         with st.chat_message("assistant"):
             with st.spinner("🤖 Agent is thinking and querying data…"):
                 t0 = time.time()
+                history_len_before = len(chat.history) if hasattr(chat, "history") else 0
                 try:
                     chat = st.session_state.gemini_chat
                     response = chat.send_message(prompt)
                     latency_ms = int((time.time() - t0) * 1000)
 
                     # ── Extract which tools Gemini called ────────────────────
-                    called_tools: list[str] = []
+                    called_tools = []
                     try:
-                        for part in response.candidates[0].content.parts:
-                            if hasattr(part, "function_call") and part.function_call:
-                                called_tools.append(part.function_call.name)
-                    except Exception:
-                        pass  # graceful — not all responses have parts
-
-                    # Also inspect the full chat history for function calls in this turn
-                    try:
-                        for history_item in chat.history:
+                        history_slice = chat.history[history_len_before:] if history_len_before else chat.history
+                        for history_item in history_slice:
                             for part in history_item.parts:
                                 if hasattr(part, "function_call") and part.function_call:
-                                    fn_name = part.function_call.name
-                                    if fn_name not in called_tools:
-                                        called_tools.append(fn_name)
+                                    fn = part.function_call
+                                    args_dict = dict(fn.args) if hasattr(fn, "args") else {}
+                                    called_tools.append({
+                                        "name": fn.name,
+                                        "args": args_dict,
+                                        "latency": latency_ms
+                                    })
                     except Exception:
-                        pass
+                        pass  # graceful fallback
 
                     # Record tool logs
-                    for tool_name in called_tools:
+                    for tool_info in called_tools:
                         st.session_state.ai_tool_logs.append({
                             "turn": current_turn,
-                            "tool": tool_name,
+                            "tool": tool_info["name"],
+                            "args": str(tool_info["args"]),
+                            "latency": tool_info["latency"],
                             "status": "✅ success",
                         })
 
@@ -1288,9 +1310,9 @@ with tab_ai:
 
                     # Show inline tool-usage expander
                     if called_tools:
-                        with st.expander("🔧 Tool Usage"):
-                            for tn in called_tools:
-                                st.markdown(f"- **{tn}** — ✅ success")
+                        with st.expander(f"🔧 Tool-Call Trace ({len(called_tools)} calls)"):
+                            for ti in called_tools:
+                                st.code(f"Tool: {ti['name']}\nArgs: {ti['args']}\nLatency: {ti['latency']} ms")
 
                     # Save assistant message
                     st.session_state.ai_messages.append({

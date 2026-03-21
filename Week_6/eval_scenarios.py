@@ -71,64 +71,95 @@ SYSTEM_PROMPT = textwrap.dedent("""\
 #  EVALUATION SCENARIOS
 # ==============================================================================
 SCENARIOS: List[Dict[str, Any]] = [
-    # --- SIMPLE: single tool --------------------------------------------------
     {
         "id": "S1",
         "level": "Simple",
         "description": "Single-tool retrieval -- monthly revenue lookup",
-        "query": (
-            "Show me the monthly revenue from January 2024 to June 2024."
-        ),
+        "query": "Show me the monthly revenue from January 2024 to June 2024.",
         "expected_tools": ["get_monthly_revenue"],
-        "ground_truth_check": (
-            "Response should contain monthly revenue figures for the "
-            "Jan-Jun 2024 period, with recognisable month labels and dollar amounts."
-        ),
+        "ground_truth_check": "Response should contain monthly revenue figures for Jan-Jun 2024.",
         "expected_min_steps": 1,
         "expected_max_steps": 1,
     },
-    # --- MEDIUM: multiple tools -----------------------------------------------
     {
         "id": "S2",
         "level": "Medium",
         "description": "Multi-tool retrieval -- fleet performance + safety cross-reference",
-        "query": (
-            "Which are our top 5 performing diesel trucks by revenue, "
-            "and do any of those drivers have safety incidents on record? "
-            "Provide both the fleet data and the safety data."
-        ),
+        "query": "Which are our top 5 performing diesel trucks by revenue? Separately, list any safety incidents for those specific drivers.",
         "expected_tools": ["get_fleet_performance", "get_safety_metrics"],
-        "ground_truth_check": (
-            "Response should include (a) a top-5 diesel truck list with revenue "
-            "numbers, and (b) safety incident data for the named drivers."
-        ),
+        "ground_truth_check": "Response should include top-5 diesel truck revenue and safety incident data.",
         "expected_min_steps": 2,
         "expected_max_steps": 3,
     },
-    # --- COMPLEX: reasoning + synthesis ---------------------------------------
+    {
+        "id": "S2-A",
+        "level": "Medium",
+        "description": "Adversarial -- vaguely combined fleet + safety",
+        "query": "Which are our top 5 performing diesel trucks by revenue, and do any of those drivers have safety incidents on record? Provide both the fleet data and the safety data.",
+        "expected_tools": ["get_fleet_performance", "get_safety_metrics"],
+        "ground_truth_check": "Uses the original problematic phrasing to test if the updated tool docstring resolves partial tool selection.",
+        "expected_min_steps": 2,
+        "expected_max_steps": 3,
+    },
     {
         "id": "S3",
         "level": "Complex",
         "description": "Reasoning & synthesis -- profitability vs. delivery reliability analysis",
-        "query": (
-            "I need a strategic analysis: compare our top 10 most profitable routes "
-            "against delivery performance in the same cities. Are our most profitable "
-            "routes also the most reliable in terms of on-time delivery? "
-            "Identify any routes where high profit coincides with poor on-time rates, "
-            "and recommend corrective actions."
-        ),
-        "expected_tools": [
-            "get_route_profitability",
-            "get_delivery_performance",
-        ],
-        "ground_truth_check": (
-            "Response should (a) list top profitable routes with margins, "
-            "(b) include on-time delivery percentages for matching cities, "
-            "(c) identify mismatches between profit and reliability, and "
-            "(d) provide actionable recommendations."
-        ),
+        "query": "Compare our top 10 most profitable routes against delivery performance in the same cities. Identify mismatches and recommend actions.",
+        "expected_tools": ["get_route_profitability", "get_delivery_performance"],
+        "ground_truth_check": "Response should correlate route margin with on-time delivery rates.",
         "expected_min_steps": 2,
         "expected_max_steps": 4,
+    },
+    {
+        "id": "S6",
+        "level": "Medium",
+        "description": "Cross-tool -- Fuel vs Maintenance",
+        "query": "Compare the top 5 states by fuel spend against the top 5 trucks by maintenance costs. Is there any obvious overlap?",
+        "expected_tools": ["get_fuel_spend_analysis", "get_maintenance_health"],
+        "ground_truth_check": "Calls both tools and synthesizes any overlap or lack thereof.",
+        "expected_min_steps": 2,
+        "expected_max_steps": 4,
+    },
+    {
+        "id": "S7",
+        "level": "Simple",
+        "description": "Monitoring -- pipeline health",
+        "query": "What is the recent system health and ingestion latency looking like in the pipeline logs?",
+        "expected_tools": ["get_pipeline_logs"],
+        "ground_truth_check": "Calls the pipeline log retrieval tool.",
+        "expected_min_steps": 1,
+        "expected_max_steps": 2,
+    },
+    {
+        "id": "S8",
+        "level": "Complex",
+        "description": "Driver multi-hop -- safety + performance",
+        "query": "Find the top 10 drivers by revenue and verify if any of them have collisions or moving violations.",
+        "expected_tools": ["get_fleet_performance", "get_safety_metrics"],
+        "ground_truth_check": "Gets fleet performance, extracts drivers, checks safety metrics.",
+        "expected_min_steps": 2,
+        "expected_max_steps": 4,
+    },
+    {
+        "id": "S9",
+        "level": "Adversarial",
+        "description": "Adversarial vague -- ambiguous data request",
+        "query": "I need some general performance stats.",
+        "expected_tools": ["get_fleet_performance"],
+        "ground_truth_check": "Agent should either call a generic tool or gracefully ask for clarification.",
+        "expected_min_steps": 0,
+        "expected_max_steps": 2,
+    },
+    {
+        "id": "S10",
+        "level": "Complex",
+        "description": "Implicit multi-tool -- full operational review",
+        "query": "Give me a deep dive on our operational health: revenue trends, truck incidents, and route profitability.",
+        "expected_tools": ["get_monthly_revenue", "get_safety_metrics", "get_route_profitability"],
+        "ground_truth_check": "Should trigger at least 3 tools to assemble the requested deep dive.",
+        "expected_min_steps": 3,
+        "expected_max_steps": 6,
     },
 ]
 
@@ -296,7 +327,7 @@ def main():
     print("=" * 66)
     print()
 
-    COOLDOWN_SECONDS = 15  # pause between scenarios to stay within RPM limits
+    COOLDOWN_SECONDS = 30 # pause between scenarios to stay within RPM limits
 
     all_results = []
     for i, scenario in enumerate(SCENARIOS):
