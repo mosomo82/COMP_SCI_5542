@@ -1,0 +1,147 @@
+\documentclass[11pt, letterpaper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+\geometry{margin=1in}
+\usepackage{hyperref}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{xcolor}
+
+\definecolor{primary}{HTML}{003366}
+\titleformat{\section}{\Large\bfseries\color{primary}}{}{0em}{}[\titlerule]
+\titleformat{\subsection}{\large\bfseries\color{primary}}{}{0em}{}
+
+\title{\textbf{Lab 9 Development Report}\\ \Large Application and Deployment Enhancement}
+\author{
+    \textbf{Course:} CS 5542 — Big Data and Analytics \\
+    \textbf{Team Members:} Tony Nguyen $\cdot$ Daniel Evans $\cdot$ Joel Vinas \\
+    \textbf{Term:} Spring 2026
+}
+\date{\vspace{-5ex}}
+
+\begin{document}
+
+\maketitle
+
+\section{1. PROJECT OVERVIEW}
+Our team has built and iteratively improved an AI-powered logistics platform across Labs 5--8 and integrated all components into the Phase 2 project: HyperLogistics, a Snowflake-native neuro-symbolic supply chain resilience system. Lab 6 delivered a Multi-Agent Trucking Analytics Dashboard. Lab 7 reproduced and extended ReMindRAG. Lab 8 introduced the Consensus Planning Protocol (CPP) with a domain-adapted Phi-2 safety validation agent. Lab 9 directly addresses instructor feedback from Labs 6 and 7, fixes critical Lab 8 evaluation failures, and integrates all three components into the unified Phase 2 system for Research-A-Thon demonstration.
+
+\begin{itemize}[leftmargin=*]
+    \setlength\itemsep{0em}
+    \item \textbf{Phase 2 GitHub:} \url{https://github.com/mosomo82/CS5542_SmartSC_Optimization_System}
+    \item \textbf{Phase 2 Live App:} \url{https://cs5542hyperlogistics.streamlit.app/}
+    \item \textbf{Lab 6 Live App:} \url{https://cs5542logisticsai.streamlit.app/}
+    \item \textbf{Lab 8 Live App:} \url{https://cs5542lab8.streamlit.app/}
+    \item \textbf{Lab 6--9 Repo:} \url{https://github.com/mosomo82/COMP_SCI_5542}
+    \item \textbf{Lab 7 Repo:} \url{https://github.com/mosomo82/ReMindRAG_Week7}
+\end{itemize}
+
+\section{2. PRIOR LAB FEEDBACK ADDRESSED}
+
+\textbf{Lab 6 Feedback} \\
+-- ``Minor improvements could include expanding the documentation of system architecture and evaluation details.'' \\
+\textbf{Response:} \texttt{ARCHITECTURE.md} and \texttt{EVALUATION.md} authored for \texttt{Week\_9/}. Section 3.5 below.
+
+\textbf{Lab 7 Feedback} \\
+-- ``Minor improvements could include expanding the benchmarking results and adding additional automated verification for reproducibility experiments.'' \\
+\textbf{Response:} \texttt{BENCHMARKING.md} and \texttt{REPRO\_VERIFICATION.md} authored (suite expanded 17--26 tests with CI). Section 3.6 below.
+
+\textbf{Lab 8 Proactive Fixes} \\
+Three critical issues identified in the Lab 8 evaluation are resolved in Lab 9: the Q13--Q14 monotonicity failure (CPP Spatial SQL hard gate), hallucinated bridge constraints (evidence injection), and a contradictory accuracy number in the report (corrected). Section 3.7 below.
+
+\section{3. APPLICATION ENHANCEMENTS (LAB 9)}
+
+\subsection*{3.1 Lab 6 UI and Stability}
+\begin{itemize}[leftmargin=*]
+    \item Persistent sidebar, Agent Chat tool-call trace expander, Reset Session button, SQL Explorer error UX.
+    \item Snowflake keep-alive ping: cold-start latency $\sim$8s $\rightarrow$ $<$2s. Exponential-backoff retry on all Gemini API calls.
+    \item Python logging module replacing print statements. FastAPI \texttt{/health} endpoint + UptimeRobot uptime monitoring.
+    \item Agent eval suite expanded 5--10 scenarios with GitHub Actions CI (70\% pass-rate gate).
+\end{itemize}
+
+\subsection*{3.2 Lab 7 Benchmarking and Verification}
+\begin{itemize}[leftmargin=*]
+    \item \texttt{BENCHMARKING.md}: constrained LooGLE run (F1=0.496, consistent with paper's 0.49), HotpotQA subset (F1=0.58 vs paper's 0.61), efficiency verification (37--42\% API call reduction on repeated queries).
+    \item \texttt{REPRO\_VERIFICATION.md}: 9 new automated tests across \texttt{test\_benchmark\_smoke.py} and \texttt{test\_repro\_variance.py}. Suite expanded 17--26 tests at zero API cost, fully integrated into CI.
+\end{itemize}
+
+\subsection*{3.3 Lab 8 Critical Fixes}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{CPP Spatial SQL hard gate:} bridge constraint check before any LLM invocation. Monotonicity invariant (APPROVE/VETO on bridge violation) is now deterministic SQL — all 13 metamorphic tests pass.
+    \item \textbf{Evidence injection:} \texttt{[RETRIEVED CONSTRAINTS]} block injected verbatim into prompt. Model instructed not to recall limits from memory. Hallucination rate drops from $\sim$40\% to 8\%.
+    \item \textbf{Accuracy discrepancy corrected:} baseline was 40\% on both platforms (not 60\% as stated in Section 5 intro). \texttt{EVALUATION.md} documents correct values.
+    \item \textbf{CoT-formatted training data:} \texttt{generate\_dataset.py} updated for full 4-step chains. Dataset expanded 100--300+ pairs across 5 disruption types. PEFT CoT quality: 67\% $\rightarrow$ 83\%.
+    \item \textbf{Evaluation expanded} 15--50 queries with 5-dimension rubric (0--10). Metamorphic suite expanded 3--13 pairs. GitHub Actions CI added.
+\end{itemize}
+
+\subsection*{3.4 Lab 6 Documentation}
+\begin{itemize}[leftmargin=*]
+    \item \texttt{ARCHITECTURE.md} (Week\_9/): 4-layer system, agent lifecycle, 9 tools, observability stack.
+    \item \texttt{EVALUATION.md} (Week\_9/): 10-scenario methodology, S2 root-cause, CI integration, traceability table.
+\end{itemize}
+
+\subsection*{3.5 Lab 7 Documentation}
+\begin{itemize}[leftmargin=*]
+    \item \texttt{BENCHMARKING.md}: paper-vs-repro comparison, constrained runs, variance table, JSON output schema.
+    \item \texttt{REPRO\_VERIFICATION.md}: 26-test suite design, CI YAML, manual verification table.
+\end{itemize}
+
+\subsection*{3.6 Phase 2 Integration (CS5542\_SmartSC\_Optimization\_System)}
+All Lab 6--8 components are integrated into the Phase 2 unified system for Research-A-Thon demonstration:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{CPP agent pipeline (\texttt{src/agents/}):} \texttt{compliance\_agent.py} implements the Spatial SQL hard gate; \texttt{context\_agent.py} wires ReMindRAG into the retrieval layer; evidence injection is applied at the prompt level.
+    \item \textbf{Unified Streamlit dashboard (\texttt{src/app/dashboard.py}):} merges Lab 6 analytics tabs (fleet, routes, safety, fuel) with the Lab 8 CPP dispatcher interface. Persistent sidebar, reasoning path expander, and retry decorator applied throughout.
+    \item \textbf{Data pipeline (\texttt{src/run\_pipeline.py}):} logging module replaces print statements; \texttt{verify\_pipeline.py} adds row-count and schema assertions for all 4 SILVER tables.
+    \item \textbf{CI/CD (\texttt{.github/workflows/ci.yml}):} pipeline smoke test + CPP unit tests + system eval (mock mode) + ReMindRAG 26-test suite — all run automatically on every push with a 70\% pass-rate gate.
+    \item \textbf{\texttt{ARCHITECTURE.md} + \texttt{EVALUATION.md} at Phase 2 repo root:} full system-level reference documentation covering the 4-layer architecture, CPP detail, RAG benchmarks, and pipeline evaluation results.
+\end{itemize}
+
+\section{4. EXTENSION OF PHASE-2 PROTOTYPE}
+
+\begin{table}[h!]\centering
+\begin{tabularx}{\textwidth}{@{} l l X X @{}}
+\toprule
+\textbf{Lab} & \textbf{Capability} & \textbf{Baseline} & \textbf{Lab 9 Enhancement} \\
+\midrule
+6 & Architecture docs & README only & \texttt{ARCHITECTURE.md} + \texttt{EVAL.md} (Week\_9/) \\
+6 & UI \& monitoring & 9 raw tabs, manual eval & Sidebar, tool trace, 10 scen., CI \\
+6 & Logging \& stability & Print stmts, $\sim$8s cold-start & Logging, retry, $<$2s, \texttt{/health} \\
+7 & Benchmarking & Metrics unverified & LooGLE F1=0.496, HotpotQA F1=0.58 \\
+7 & Repro. verification & 17 structural tests & 26 tests + CI (zero API cost) \\
+8 & Monotonicity failure & FAIL both platforms & PASS — Spatial SQL hard gate \\
+8 & Hallucination (PEFT) & $\sim$40\% rate & 8\% — evidence injection \\
+8 & Evaluation coverage & 15 queries, binary scorer & 50 queries, 5-dim rubric (0--10) \\
+P2 & CPP integration & Architecture described only & \texttt{compliance\_agent.py} + wired CPP \\
+P2 & Unified dashboard & Separate lab apps & Single app: CPP + Lab 6 analytics \\
+P2 & System CI & None & GitHub Actions: pipeline+eval+RAG \\
+P2 & System docs & README only & \texttt{ARCHITECTURE.md} + \texttt{EVAL.md} (root) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{5. REPOSITORY AND DEPLOYMENT LINKS}
+
+\begin{table}[h!]\centering
+\begin{tabularx}{\textwidth}{@{} l X @{}}
+\toprule
+\textbf{Resource} & \textbf{URL} \\
+\midrule
+Phase 2 Live App & \url{https://cs5542hyperlogistics.streamlit.app/} \\
+Phase 2 GitHub & \url{https://github.com/mosomo82/CS5542_SmartSC_Optimization_System} \\
+Lab 6 Live App & \url{https://cs5542logisticsai.streamlit.app/} \\
+Lab 6--9 Main Repo & \url{https://github.com/mosomo82/COMP_SCI_5542} \\
+Lab 7 ReMindRAG & \url{https://github.com/mosomo82/ReMindRAG_Week7} \\
+P2 ARCHITECTURE.md & \url{github.com/.../CS5542_SmartSC.../blob/main/ARCHITECTURE.md} \\
+P2 EVALUATION.md & \url{github.com/.../CS5542_SmartSC.../blob/main/EVALUATION.md} \\
+L8 ARCHITECTURE.md & \url{github.com/.../COMP_SCI_5542/blob/main/Week_8/ARCHITECTURE.md} \\
+L7 BENCHMARKING.md & \url{github.com/mosomo82/ReMindRAG_Week7/blob/main/BENCHMARKING.md} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{6. SUMMARY}
+Lab 9 closes all identified gaps across Labs 6, 7, and 8 while completing the Phase 2 integration of HyperLogistics as a unified, demonstrable system. Lab 6 and 7 instructor feedback is addressed by six new documentation artifacts. Lab 8's three critical failures are resolved by deterministic SQL, evidence injection, and expanded evaluation. The Phase 2 repo gains a fully wired CPP pipeline, a unified Streamlit dashboard, end-to-end CI, and system-level architecture and evaluation documentation — positioning HyperLogistics for the Research-A-Thon competition.
+
+\end{document}
