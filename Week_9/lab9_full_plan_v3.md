@@ -10,45 +10,45 @@
 
 ### streamlit_app.py
 
-- [ ] Add persistent sidebar: project description, data-freshness, quick-link nav to all 9 tabs `code`
-- [ ] Redesign Agent Chat: message history, loading spinner, collapsible tool-call trace expander (name, args, latency) `code`
-- [ ] Add input validation + friendly error messages to SQL Explorer in Executive tab `code`
-- [ ] Add Reset Session button (clears st.session_state and Gemini history) `code`
+- [x] Add persistent sidebar: project description, data-freshness, quick-link nav to all 9 tabs `code`
+- [x] Redesign Agent Chat: message history, loading spinner, collapsible tool-call trace expander (name, args, latency) `code`
+- [x] Add input validation + friendly error messages to SQL Explorer in Executive tab `code`
+- [x] Add Reset Session button (clears st.session_state and Gemini history) `code`
 
 ### sf_connect.py
 
-- [ ] Add Snowflake keep-alive ping on startup — cold-start ~8s → <2s `fix`
-- [ ] Add startup assertions validating all env variables before dashboard renders `fix`
+- [x] Add Snowflake keep-alive ping on startup — cold-start ~8s → <2s `fix`
+- [x] Add startup assertions validating all env variables before dashboard renders `fix`
 
 ### agent.py ✅ fixed file generated
 
-- [ ] Replace print() with Python logging module (INFO default, DEBUG via LOG_LEVEL) `code`
-- [ ] Update SYSTEM_PROMPT with 6 TOOL SELECTION RULES — fixes S2, S6, S8 failures `fix`
+- [x] Replace print() with Python logging module (INFO default, DEBUG via LOG_LEVEL) `code`
+- [x] Update SYSTEM_PROMPT with 6 TOOL SELECTION RULES — fixes S2, S6, S8 failures `fix`
 
 ### tools.py ✅ fixed file generated
 
-- [ ] get_fleet_performance: add COMBINE WITH get_safety_metrics for incidents/violations queries `fix`
-- [ ] get_fuel_spend_analysis: add keyword triggers + COMBINE WITH get_maintenance_health `fix`
-- [ ] get_maintenance_health: add keyword triggers + COMBINE WITH get_fuel_spend_analysis `fix`
+- [x] get_fleet_performance: add COMBINE WITH get_safety_metrics for incidents/violations queries `fix`
+- [x] get_fuel_spend_analysis: add keyword triggers + COMBINE WITH get_maintenance_health `fix`
+- [x] get_maintenance_health: add keyword triggers + COMBINE WITH get_fuel_spend_analysis `fix`
 
 ### eval_scenarios.py
 
-- [ ] Increase COOLDOWN_SECONDS 15 → 30 to prevent cascading 429s `fix`
-- [ ] Expand 5 → 10 scenarios: S6 (fuel vs maintenance), S7 (monitoring), S8 (driver multi-hop), S9 (adversarial), S10 (implicit multi-tool) `test`
-- [ ] Revise S2 phrasing → S2-A (unified question, not two sentences); add to regression suite `fix`
+- [x] Increase COOLDOWN_SECONDS 15 → 30 to prevent cascading 429s `fix`
+- [x] Expand 5 → 10 scenarios: S6 (fuel vs maintenance), S7 (monitoring), S8 (driver multi-hop), S9 (adversarial), S10 (implicit multi-tool) `test`
+- [x] Revise S2 phrasing → S2-A (unified question, not two sentences); add to regression suite `fix`
 
 ### health_server.py (new)
 
-- [ ] Create FastAPI /health endpoint reporting Snowflake + Gemini key validity; wire to UptimeRobot `code`
+- [x] Create FastAPI /health endpoint reporting Snowflake + Gemini key validity; wire to UptimeRobot `code`
 
 ### .github/workflows/ci.yml
 
-- [ ] Add GitHub Actions CI: runs eval_scenarios.py on every push, fails if pass rate <70% `test`
+- [x] Add GitHub Actions CI: runs eval_scenarios.py on every push, fails if pass rate <70% `test`
 
 ### Week_9/ docs ✅ files generated
 
-- [ ] Commit ARCHITECTURE.md to Week_9/ `doc`
-- [ ] Commit EVALUATION.md to Week_9/ `doc`
+- [x] Commit ARCHITECTURE.md to Week_9/ `doc`
+- [x] Commit EVALUATION.md to Week_9/ `doc`
 
 ---
 
