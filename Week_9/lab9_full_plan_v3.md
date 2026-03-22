@@ -110,23 +110,23 @@
 
 ### src/utils/snowflake_conn.py (Tony)
 
-- [ ] Port keep-alive ping + retry decorator from Lab 6 fixes `fix`
-- [ ] Add startup assertions validating all env variables at import time `fix`
+- [x] Port keep-alive ping + retry decorator from Lab 6 fixes `fix`
+- [x] Add startup assertions validating all env variables at import time `fix`
 
 ### src/agents/compliance_agent.py (Tony — new)
 
-- [ ] Implement CPP Step 3A Spatial SQL hard gate: MIN(weight_limit_tons / vertical_clearance_mt) via ST_INTERSECTS → HARD VETO before any LLM call `fix`
-- [ ] Wire compliance_agent.py into cpp_agent.py as first gate in pipeline `code`
+- [x] Implement CPP Step 3A Spatial SQL hard gate: MIN(weight_limit_tons / vertical_clearance_mt) via ST_INTERSECTS → HARD VETO before any LLM call `fix`
+- [x] Wire compliance_agent.py into cpp_agent.py as first gate in pipeline `code`
 
 ### src/agents/context_agent.py (Tony)
 
-- [ ] Wire ReMindRAG retrieval — pull from SILVER.LOGISTICS_VECTORIZED with seed=42 `code`
-- [ ] Add [RETRIEVED CONSTRAINTS] evidence injection block to prompt template `fix`
+- [x] Wire ReMindRAG retrieval — pull from SILVER.LOGISTICS_VECTORIZED with seed=42 `code`
+- [x] Add [RETRIEVED CONSTRAINTS] evidence injection block to prompt template `fix`
 
 ### src/run_pipeline.py + verify_pipeline.py (Tony)
 
-- [ ] Replace print() with Python logging module throughout both files `code`
-- [ ] Add row-count + schema assertions to verify_pipeline.py for all 4 SILVER tables `test`
+- [x] Replace print() with Python logging module throughout both files `code`
+- [x] Add row-count + schema assertions to verify_pipeline.py for all 4 SILVER tables `test`
 
 ### src/app/dashboard.py (Daniel)
 
