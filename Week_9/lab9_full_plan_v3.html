@@ -45,31 +45,31 @@
 </div>
 <div class="body" id="d1">
   <div class="rl">streamlit_app.py</div>
-  <div class="t"><input type="checkbox" id="c1" onchange="upd()"><label for="c1">Add persistent sidebar: project description, data-freshness, quick-link nav to all 9 tabs</label><span class="tg cd">code</span></div>
-  <div class="t"><input type="checkbox" id="c2" onchange="upd()"><label for="c2">Redesign Agent Chat: message history, loading spinner, collapsible tool-call trace expander (name, args, latency)</label><span class="tg cd">code</span></div>
-  <div class="t"><input type="checkbox" id="c3" onchange="upd()"><label for="c3">Add input validation + friendly error messages to SQL Explorer in Executive tab</label><span class="tg cd">code</span></div>
-  <div class="t"><input type="checkbox" id="c4" onchange="upd()"><label for="c4">Add Reset Session button (clears st.session_state and Gemini history)</label><span class="tg cd">code</span></div>
+  <div class="t"><input type="checkbox" id="c1" checked onchange="upd()"><label for="c1">Add persistent sidebar: project description, data-freshness, quick-link nav to all 9 tabs</label><span class="tg cd">code</span></div>
+  <div class="t"><input type="checkbox" id="c2" checked onchange="upd()"><label for="c2">Redesign Agent Chat: message history, loading spinner, collapsible tool-call trace expander (name, args, latency)</label><span class="tg cd">code</span></div>
+  <div class="t"><input type="checkbox" id="c3" checked onchange="upd()"><label for="c3">Add input validation + friendly error messages to SQL Explorer in Executive tab</label><span class="tg cd">code</span></div>
+  <div class="t"><input type="checkbox" id="c4" checked onchange="upd()"><label for="c4">Add Reset Session button (clears st.session_state and Gemini history)</label><span class="tg cd">code</span></div>
   <div class="rl">sf_connect.py</div>
-  <div class="t"><input type="checkbox" id="c5" onchange="upd()"><label for="c5">Add Snowflake keep-alive ping on startup — cold-start ~8s → &lt;2s</label><span class="tg fx">fix</span></div>
-  <div class="t"><input type="checkbox" id="c6" onchange="upd()"><label for="c6">Add startup assertions validating all env variables before dashboard renders</label><span class="tg fx">fix</span></div>
+  <div class="t"><input type="checkbox" id="c5" checked onchange="upd()"><label for="c5">Add Snowflake keep-alive ping on startup — cold-start ~8s → &lt;2s</label><span class="tg fx">fix</span></div>
+  <div class="t"><input type="checkbox" id="c6" checked onchange="upd()"><label for="c6">Add startup assertions validating all env variables before dashboard renders</label><span class="tg fx">fix</span></div>
   <div class="rl">agent.py ✅ fixed file generated</div>
-  <div class="t"><input type="checkbox" id="c7" onchange="upd()"><label for="c7">Replace print() with Python logging module (INFO default, DEBUG via LOG_LEVEL)</label><span class="tg cd">code</span></div>
-  <div class="t"><input type="checkbox" id="c8" onchange="upd()"><label for="c8">Update SYSTEM_PROMPT with 6 TOOL SELECTION RULES — fixes S2, S6, S8 failures</label><span class="tg fx">fix</span></div>
+  <div class="t"><input type="checkbox" id="c7" checked onchange="upd()"><label for="c7">Replace print() with Python logging module (INFO default, DEBUG via LOG_LEVEL)</label><span class="tg cd">code</span></div>
+  <div class="t"><input type="checkbox" id="c8" checked onchange="upd()"><label for="c8">Update SYSTEM_PROMPT with 6 TOOL SELECTION RULES — fixes S2, S6, S8 failures</label><span class="tg fx">fix</span></div>
   <div class="rl">tools.py ✅ fixed file generated</div>
-  <div class="t"><input type="checkbox" id="c9" onchange="upd()"><label for="c9">get_fleet_performance: add COMBINE WITH get_safety_metrics for incidents/violations queries</label><span class="tg fx">fix</span></div>
-  <div class="t"><input type="checkbox" id="c10" onchange="upd()"><label for="c10">get_fuel_spend_analysis: add keyword triggers + COMBINE WITH get_maintenance_health</label><span class="tg fx">fix</span></div>
-  <div class="t"><input type="checkbox" id="c11" onchange="upd()"><label for="c11">get_maintenance_health: add keyword triggers + COMBINE WITH get_fuel_spend_analysis</label><span class="tg fx">fix</span></div>
+  <div class="t"><input type="checkbox" id="c9" checked onchange="upd()"><label for="c9">get_fleet_performance: add COMBINE WITH get_safety_metrics for incidents/violations queries</label><span class="tg fx">fix</span></div>
+  <div class="t"><input type="checkbox" id="c10" checked onchange="upd()"><label for="c10">get_fuel_spend_analysis: add keyword triggers + COMBINE WITH get_maintenance_health</label><span class="tg fx">fix</span></div>
+  <div class="t"><input type="checkbox" id="c11" checked onchange="upd()"><label for="c11">get_maintenance_health: add keyword triggers + COMBINE WITH get_fuel_spend_analysis</label><span class="tg fx">fix</span></div>
   <div class="rl">eval_scenarios.py</div>
-  <div class="t"><input type="checkbox" id="c12" onchange="upd()"><label for="c12">Increase COOLDOWN_SECONDS 15 → 30 to prevent cascading 429s</label><span class="tg fx">fix</span></div>
-  <div class="t"><input type="checkbox" id="c13" onchange="upd()"><label for="c13">Expand 5 → 10 scenarios: S6 (fuel vs maintenance), S7 (monitoring), S8 (driver multi-hop), S9 (adversarial), S10 (implicit multi-tool)</label><span class="tg ts">test</span></div>
-  <div class="t"><input type="checkbox" id="c14" onchange="upd()"><label for="c14">Revise S2 phrasing → S2-A (unified question, not two sentences); add to regression suite</label><span class="tg fx">fix</span></div>
+  <div class="t"><input type="checkbox" id="c12" checked onchange="upd()"><label for="c12">Increase COOLDOWN_SECONDS 15 → 30 to prevent cascading 429s</label><span class="tg fx">fix</span></div>
+  <div class="t"><input type="checkbox" id="c13" checked onchange="upd()"><label for="c13">Expand 5 → 10 scenarios: S6 (fuel vs maintenance), S7 (monitoring), S8 (driver multi-hop), S9 (adversarial), S10 (implicit multi-tool)</label><span class="tg ts">test</span></div>
+  <div class="t"><input type="checkbox" id="c14" checked onchange="upd()"><label for="c14">Revise S2 phrasing → S2-A (unified question, not two sentences); add to regression suite</label><span class="tg fx">fix</span></div>
   <div class="rl">health_server.py (new)</div>
-  <div class="t"><input type="checkbox" id="c15" onchange="upd()"><label for="c15">Create FastAPI /health endpoint reporting Snowflake + Gemini key validity; wire to UptimeRobot</label><span class="tg cd">code</span></div>
+  <div class="t"><input type="checkbox" id="c15" checked onchange="upd()"><label for="c15">Create FastAPI /health endpoint reporting Snowflake + Gemini key validity; wire to UptimeRobot</label><span class="tg cd">code</span></div>
   <div class="rl">.github/workflows/ci.yml</div>
-  <div class="t"><input type="checkbox" id="c16" onchange="upd()"><label for="c16">Add GitHub Actions CI: runs eval_scenarios.py on every push, fails if pass rate &lt;70%</label><span class="tg ts">test</span></div>
+  <div class="t"><input type="checkbox" id="c16" checked onchange="upd()"><label for="c16">Add GitHub Actions CI: runs eval_scenarios.py on every push, fails if pass rate &lt;70%</label><span class="tg ts">test</span></div>
   <div class="rl">Week_9/ docs ✅ files generated</div>
-  <div class="t"><input type="checkbox" id="c17" onchange="upd()"><label for="c17">Commit ARCHITECTURE.md to Week_9/</label><span class="tg dc">doc</span></div>
-  <div class="t"><input type="checkbox" id="c18" onchange="upd()"><label for="c18">Commit EVALUATION.md to Week_9/</label><span class="tg dc">doc</span></div>
+  <div class="t"><input type="checkbox" id="c17" checked onchange="upd()"><label for="c17">Commit ARCHITECTURE.md to Week_9/</label><span class="tg dc">doc</span></div>
+  <div class="t"><input type="checkbox" id="c18" checked onchange="upd()"><label for="c18">Commit EVALUATION.md to Week_9/</label><span class="tg dc">doc</span></div>
 </div></div>
 
 <!-- ── PHASE 2 ── -->
