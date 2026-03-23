@@ -169,6 +169,6 @@
 
 ### Individual Contribution Report ✅ PDF generated
 
-- [x] Fill in real GitHub commit hashes from all 3 repos once code is pushed `doc`
-- [x] Verify Phase 2 contributions listed: compliance_agent.py, context_agent.py, snowflake_conn.py, ARCHITECTURE.md, EVALUATION.md `doc`
+- [ ] Fill in real GitHub commit hashes from all 3 repos once code is pushed `doc`
+- [ ] Verify Phase 2 contributions listed: compliance_agent.py, context_agent.py, snowflake_conn.py, ARCHITECTURE.md, EVALUATION.md `doc`
 - [ ] Submit both PDFs to Canvas `doc`

@@ -3,6 +3,7 @@
 **GitHub:** `mosomo82` / `mtuan`  
 **Role:** Data Automation, CPP Agent & Architecture Lead  
 **Contribution:** 34%
+** Lab9 Repo:** https://github.com/mosomo82/COMP_SCI_5542/tree/main/Week_9
 
 ---
 
@@ -76,7 +77,7 @@ Tony owned **Phase 1** (Week 6 fixes), and **Phase 4** (Phase 2 CPP agents + pip
 
 ---
 
-## Phase 4 — Phase 2 Integration (`CS5542_SmartSC_Optimization_System`)
+## Phase 4 — Project Phase 2 Integration (`CS5542_SmartSC_Optimization_System`)
 
 **Primary commit:** `2caf35d` — _Lab9: update project with enhancement and fixes_  
 **Repo:** https://github.com/mosomo82/CS5542_SmartSC_Optimization_System
@@ -148,7 +149,7 @@ Fixes Q13→Q14 monotonicity failure from Lab 8 evaluation.
 
 --- 
 
-## Phase 1 Deliverables — COMP_SCI_5542/Week_6
+## Deliverables — COMP_SCI_5542/Week_6
 
 **Commit:** `da4c5d8` — _Merge pull request #14 from mosomo82/lab9-enhancements_  
 **Repo:** https://github.com/mosomo82/COMP_SCI_5542
