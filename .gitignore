@@ -65,3 +65,6 @@ output/
 temp_stages/
 
 /COMP_SCI_5542_fresh
+
+# --- Temp Folders ---
+**/temp/
