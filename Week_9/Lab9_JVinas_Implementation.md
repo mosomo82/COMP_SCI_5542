@@ -149,10 +149,10 @@ These tasks begin **only after all CI badges are green**.
 
 ## Completion Checklist
 
-- [ ] `tests/test_cpp_gate.py` — 3 test cases (overweight, compliant, height violation)
-- [ ] `tests/test_pipeline.py` — 3 smoke checks (connectivity, row counts, HTTP 200)
-- [ ] `tests/evaluate_system.py` — expanded to 50 queries, 5-dimension rubric, `--mock` mode
-- [ ] `.github/workflows/ci.yml` — unified CI (pipeline smoke + CPP unit + eval mock + ReMindRAG + ≥70% gate)
+- [x] `tests/test_cpp_gate.py` — 3 test cases (overweight, compliant, height violation)
+- [x] `tests/test_pipeline.py` — 3 smoke checks (connectivity, row counts, HTTP 200)
+- [x] `tests/evaluate_system.py` — expanded to 50 queries, 5-dimension rubric, `--mock` mode
+- [x] `.github/workflows/ci.yml` — unified CI (pipeline smoke + CPP unit + eval mock + ReMindRAG + ≥70% gate)
 - [ ] All CI badges green before Phase 5 begins
 - [ ] Individual Contribution Report updated with real commit hashes
 - [ ] Both PDFs submitted to Canvas
