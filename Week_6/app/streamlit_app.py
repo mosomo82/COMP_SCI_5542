@@ -90,8 +90,8 @@ def safe(text: str) -> str:
 with st.sidebar:
     st.title("🚛 CS 5542 Dashboard")
     st.markdown("**Multi-Agent Analytics Platform** for Trucking Logistics.")
-    from datetime import datetime
-    st.caption(f"Data freshness: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')} UTC")
+    from datetime import datetime, timezone
+    st.caption(f"Data freshness: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')} UTC")
     
     st.header("⚙️ Session")
     team = st.text_input("Team name", value="TeamEVN")
@@ -1272,9 +1272,9 @@ if selected_tab == "🤖 AI Agent Chat":
         with st.chat_message("assistant"):
             with st.spinner("🤖 Agent is thinking and querying data…"):
                 t0 = time.time()
+                chat = st.session_state.gemini_chat
                 history_len_before = len(chat.history) if hasattr(chat, "history") else 0
                 try:
-                    chat = st.session_state.gemini_chat
                     response = chat.send_message(prompt)
                     latency_ms = int((time.time() - t0) * 1000)
 
