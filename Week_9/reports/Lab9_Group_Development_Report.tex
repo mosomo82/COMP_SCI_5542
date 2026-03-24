@@ -8,6 +8,7 @@
 \usepackage{enumitem}
 \usepackage{titlesec}
 \usepackage{xcolor}
+\usepackage{graphicx}
 
 \definecolor{primary}{HTML}{003366}
 \titleformat{\section}{\Large\bfseries\color{primary}}{}{0em}{}[\titlerule]
@@ -124,24 +125,48 @@ P2 & System docs & README only & \texttt{ARCHITECTURE.md} + \texttt{EVAL.md} (ro
 \section{5. REPOSITORY AND DEPLOYMENT LINKS}
 
 \begin{table}[h!]\centering
-\begin{tabularx}{\textwidth}{@{} l X @{}}
+\begin{tabularx}{\textwidth}{@{} l X l @{}}
 \toprule
-\textbf{Resource} & \textbf{URL} \\
+\textbf{Resource} & \textbf{URL} & \textbf{Last Commit} \\
 \midrule
-Phase 2 Live App & \url{https://cs5542hyperlogistics.streamlit.app/} \\
-Phase 2 GitHub & \url{https://github.com/mosomo82/CS5542_SmartSC_Optimization_System} \\
-Lab 6 Live App & \url{https://cs5542logisticsai.streamlit.app/} \\
-Lab 6--9 Main Repo & \url{https://github.com/mosomo82/COMP_SCI_5542} \\
-Lab 7 ReMindRAG & \url{https://github.com/mosomo82/ReMindRAG_Week7} \\
-P2 ARCHITECTURE.md & \url{github.com/.../CS5542_SmartSC.../blob/main/ARCHITECTURE.md} \\
-P2 EVALUATION.md & \url{github.com/.../CS5542_SmartSC.../blob/main/EVALUATION.md} \\
-L8 ARCHITECTURE.md & \url{github.com/.../COMP_SCI_5542/blob/main/Week_8/ARCHITECTURE.md} \\
-L7 BENCHMARKING.md & \url{github.com/mosomo82/ReMindRAG_Week7/blob/main/BENCHMARKING.md} \\
+Phase 2 Live App & \url{https://cs5542hyperlogistics.streamlit.app/} & N/A \\
+Phase 2 GitHub & \url{https://github.com/mosomo82/CS5542_SmartSC_Optimization_System} & \texttt{35422ab} \\
+Lab 6 Live App & \url{https://cs5542logisticsai.streamlit.app/} & N/A \\
+Lab 6--9 Main Repo & \url{https://github.com/mosomo82/COMP_SCI_5542} & \texttt{f5b11dd} \\
+Lab 7 ReMindRAG Repo & \url{https://github.com/mosomo82/ReMindRAG_Week7} & \texttt{a0e7603} \\
+Phase 2 ARCHITECTURE.md & \url{https://github.com/mosomo82/CS5542_SmartSC_Optimization_System/blob/main/ARCHITECTURE.md} & \texttt{35422ab} \\
+Phase 2 EVALUATION.md & \url{https://github.com/mosomo82/CS5542_SmartSC_Optimization_System/blob/main/EVALUATION.md} & \texttt{35422ab} \\
+Lab 8 ARCHITECTURE.md & \url{https://github.com/mosomo82/COMP_SCI_5542/blob/main/Week_8/ARCHITECTURE.md} & \texttt{f5b11dd} \\
+Lab 8 EVALUATION.md & \url{https://github.com/mosomo82/COMP_SCI_5542/blob/main/Week_8/EVALUATION.md} & \texttt{f5b11dd} \\
+Lab 6 ARCHITECTURE.md & \url{https://github.com/mosomo82/COMP_SCI_5542/blob/main/Week_6/ARCHITECTURE.md} & \texttt{f5b11dd} \\
+Lab 6 EVALUATION.md & \url{https://github.com/mosomo82/COMP_SCI_5542/blob/main/Week_6/EVALUATION.md} & \texttt{f5b11dd} \\
+Lab 7 BENCHMARKING.md & \url{https://github.com/mosomo82/ReMindRAG_Week7/blob/main/BENCHMARKING.md} & \texttt{a0e7603} \\
+Lab 7 REPRO\_VERIFICATION.md & \url{https://github.com/mosomo82/ReMindRAG_Week7/blob/main/REPRO_VERIFICATION.md} & \texttt{a0e7603} \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
 \section{6. SUMMARY}
 Lab 9 closes all identified gaps across Labs 6, 7, and 8 while completing the Phase 2 integration of HyperLogistics as a unified, demonstrable system. Lab 6 and 7 instructor feedback is addressed by six new documentation artifacts. Lab 8's three critical failures are resolved by deterministic SQL, evidence injection, and expanded evaluation. The Phase 2 repo gains a fully wired CPP pipeline, a unified Streamlit dashboard, end-to-end CI, and system-level architecture and evaluation documentation — positioning HyperLogistics for the Research-A-Thon competition.
+
+\section{7. VISUAL ARTIFACTS}
+
+\subsection*{7.1 Lab 6 Sidebar \& Agent Chat Tool Trace}
+Dashboard with persistent sidebar, versioning, and the new collapsible tool-call trace expander.
+\begin{center}
+    \includegraphics[width=0.85\textwidth]{screenshots/Lab 06 Sidebar and Tool Trace.png}
+\end{center}
+
+\subsection*{7.2 Lab 8 Phi-2 Reasoning Trace}
+Consensus Planning Protocol (CPP) reasoning steps showing deterministic chain-of-thought.
+\begin{center}
+    \includegraphics[width=0.85\textwidth]{screenshots/Lab 08 Veto.png}
+\end{center}
+
+\subsection*{7.3 Phase 2 Integrated Reasoning Path}
+Unified dashboard showing ReMindRAG source grounding and evidence injection.
+\begin{center}
+    \includegraphics[width=0.85\textwidth]{screenshots/PA2 Reasoning.png}
+\end{center}
 
 \end{document}

@@ -31,7 +31,10 @@ I executed the pipeline evaluation runs for the `ReMindRAG_Week7` reproducibilit
 | `ReMindRAG_Week7`                    | `eval_results.json`, `tests/test_repro_variance.py`     |
 | `COMP_SCI_5542`                      | `Week_9/reports/CONTRIBUTION_DE.md`                     |
 
----
+### Visual Evidence (Phase 2 Integration)
+
+Unified dashboard showing the ReMindRAG reasoning path and evidence injection:
+![Phase 2 Integrated Dashboard](screenshots/PA2%20Reasoning.png)
 
 **Verified by:** Daniel Evans
 **Date:** 2026-03-24

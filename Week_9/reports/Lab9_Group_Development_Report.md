@@ -93,22 +93,37 @@ All Lab 6–8 components are integrated into the Phase 2 unified system for Rese
 
 ## 5. REPOSITORY AND DEPLOYMENT LINKS
 
-| Resource                    | URL                                                                                      | Last Commit |
-| :-------------------------- | :--------------------------------------------------------------------------------------- | :---------- |
-| Phase 2 Live App            | https://cs5542hyperlogistics.streamlit.app/                                              | N/A         |
-| Phase 2 GitHub              | https://github.com/mosomo82/CS5542_SmartSC_Optimization_System                           | `35422ab`   |
-| Lab 6 Live App              | https://cs5542logisticsai.streamlit.app/                                                 | N/A         |
-| Lab 6–9 Main Repo           | https://github.com/mosomo82/COMP_SCI_5542                                                | `f5b11dd`   |
-| Lab 7 ReMindRAG Repo        | https://github.com/mosomo82/ReMindRAG_Week7                                              | `a0e7603`   |
-| Phase 2 ARCHITECTURE.md     | https://github.com/mosomo82/CS5542_SmartSC_Optimization_System/blob/main/ARCHITECTURE.md | `35422ab`   |
-| Phase 2 EVALUATION.md       | https://github.com/mosomo82/CS5542_SmartSC_Optimization_System/blob/main/EVALUATION.md   | `35422ab`   |
-| Lab 8 ARCHITECTURE.md       | https://github.com/mosomo82/COMP_SCI_5542/blob/main/Week_8/ARCHITECTURE.md               | `f5b11dd`   |
-| Lab 8 EVALUATION.md         | https://github.com/mosomo82/COMP_SCI_5542/blob/main/Week_8/EVALUATION.md                 | `f5b11dd`   |
-| Lab 6 ARCHITECTURE.md       | https://github.com/mosomo82/COMP_SCI_5542/blob/main/Week_6/ARCHITECTURE.md               | `f5b11dd`   |
-| Lab 6 EVALUATION.md         | https://github.com/mosomo82/COMP_SCI_5542/blob/main/Week_6/EVALUATION.md                 | `f5b11dd`   |
-| Lab 7 BENCHMARKING.md       | https://github.com/mosomo82/ReMindRAG_Week7/blob/main/BENCHMARKING.md                    | `a0e7603`   |
-| Lab 7 REPRO_VERIFICATION.md | https://github.com/mosomo82/ReMindRAG_Week7/blob/main/REPRO_VERIFICATION.md              | `a0e7603`   |
+| Resource                | URL                                                                                      | Last Commit |
+| :---------------------- | :--------------------------------------------------------------------------------------- | :---------- |
+| Phase 2 Live App        | https://cs5542hyperlogistics.streamlit.app/                                              | N/A         |
+| Phase 2 GitHub          | https://github.com/mosomo82/CS5542_SmartSC_Optimization_System                           | `35422ab`   |
+| Lab 6 Live App          | https://cs5542logisticsai.streamlit.app/                                                 | N/A         |
+| Lab 6–9 Main Repo       | https://github.com/mosomo82/COMP_SCI_5542                                                | `f5b11dd`   |
+| Lab 7 ReMindRAG Repo    | https://github.com/mosomo82/ReMindRAG_Week7                                              | `a0e7603`   |
+| Phase 2 ARCHITECTURE.md | https://github.com/mosomo82/CS5542_SmartSC_Optimization_System/blob/main/ARCHITECTURE.md | `35422ab`   |
+| Phase 2 EVALUATION.md   | https://github.com/mosomo82/CS5542_SmartSC_Optimization_System/blob/main/EVALUATION.md   | `35422ab`   |
+| Lab 8 ARCHITECTURE.md   | https://github.com/mosomo82/COMP_SCI_5542/blob/main/Week_8/ARCHITECTURE.md               | `f5b11dd`   |
+| Lab 8 EVALUATION.md     | https://github.com/mosomo82/COMP_SCI_5542/blob/main/Week_8/EVALUATION.md                 | `f5b11dd`   |
+| Lab 6 ARCHITECTURE.md   | https://github.com/mosomo82/COMP_SCI_5542/blob/main/Week_6/ARCHITECTURE.md               | `f5b11dd`   |
+| Lab 6 EVALUATION.md     | https://github.com/mosomo82/COMP_SCI_5542/blob/main/Week_6/EVALUATION.md                 | `f5b11dd`   |
 
 ## 6. SUMMARY
 
 Lab 9 closes all identified gaps across Labs 6, 7, and 8 while completing the Phase 2 integration of HyperLogistics as a unified, demonstrable system. Lab 6 and 7 instructor feedback is addressed by six new documentation artifacts. Lab 8's three critical failures are resolved by deterministic SQL, evidence injection, and expanded evaluation. The Phase 2 repo gains a fully wired CPP pipeline, a unified Streamlit dashboard, end-to-end CI, and system-level architecture and evaluation documentation — positioning HyperLogistics for the Research-A-Thon competition.
+
+## 7. VISUAL ARTIFACTS
+
+### 7.1 Lab 6 Sidebar & Agent Chat Tool Trace
+
+Dashboard with persistent sidebar, versioning, and the new collapsible tool-call trace expander.
+![Lab 6 Screenshot](screenshots/Lab%2006%20Sidebar%20and%20Tool%20Trace.png)
+
+### 7.2 Lab 8 Phi-2 Reasoning Trace
+
+Consensus Planning Protocol (CPP) reasoning steps showing deterministic chain-of-thought.
+![Lab 8 Screenshot](screenshots/Lab%2008%20Veto.png)
+
+### 7.3 Phase 2 Integrated Reasoning Path
+
+Unified dashboard showing ReMindRAG source grounding and evidence injection.
+![Phase 2 Screenshot](screenshots/PA2%20Reasoning.png)
