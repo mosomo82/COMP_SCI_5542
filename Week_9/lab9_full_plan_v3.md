@@ -61,8 +61,8 @@
 
 ### eval/ (constrained benchmark run ~$0.70 total)
 
-- [ ] Run eval_LooGLE.py — 5-title subset, --seed 42, --judge_model_name gpt-4o-mini. Record F1 in eval_results.json `test`
-- [ ] Run eval_Hotpot.py — 50 questions, --seed 42, --judge_model_name gpt-4o-mini. Record F1 `test`
+- [x] Run eval_LooGLE.py — 5-title subset, --seed 42, --judge_model_name gpt-4o-mini. Record F1 in eval_results.json `test`
+- [x] Run eval_Hotpot.py — 50 questions, --seed 42, --judge_model_name gpt-4o-mini. Record F1 `test`
 
 ### .github/workflows/ci.yml (update)
 
@@ -130,9 +130,9 @@
 
 ### src/app/dashboard.py (Daniel)
 
-- [ ] Add persistent sidebar + collapsible Reasoning Path expander (ReMindRAG steps + CPP decisions) `code`
-- [ ] Merge Lab 6 analytics tabs (fleet, routes, fuel, safety) into unified dashboard `code`
-- [ ] Apply retry decorator to all Cortex/external API calls. Add Reset Session button. `fix`
+- [x] Add persistent sidebar + collapsible Reasoning Path expander (ReMindRAG steps + CPP decisions) `code`
+- [x] Merge Lab 6 analytics tabs (fleet, routes, fuel, safety) into unified dashboard `code`
+- [x] Apply retry decorator to all Cortex/external API calls. Add Reset Session button. `fix`
 
 ### tests/ (Joel)
 
