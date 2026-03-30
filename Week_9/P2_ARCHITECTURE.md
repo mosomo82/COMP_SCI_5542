@@ -13,7 +13,7 @@ HyperLogistics is a Snowflake-native neuro-symbolic supply chain resilience syst
 
 The system integrates three research components developed across Labs 6–8 into a single deployable platform:
 
-- **Lab 6:** Gemini 2.5 Flash multi-agent analytics layer (9-tool Snowflake query agent)
+- **Lab 6:** Snowflake Cortex 9-tool LangChain ReAct analytics layer
 - **Lab 7:** ReMindRAG LLM-guided knowledge graph traversal (low-cost explainable RAG)
 - **Lab 8:** Phi-2 + QLoRA domain-adapted safety validation agent (CPP Consensus Planning Protocol)
 
@@ -55,8 +55,9 @@ The system integrates three research components developed across Labs 6–8 into
 ║  Retrieves disruption history ║  ║  forecast across middle-mile patches   ║
 ║  + constraint precedents      ║  ║  Runs via Snowpark Python              ║
 ║  from SILVER.LOGISTICS_       ║  ║                                        ║
-║  VECTORIZED (768D embeddings) ║  ║  Snowflake Cortex (Gemini)             ║
-║                               ║  ║  Secure on-platform LLM inference      ║
+║  VECTORIZED (768D embeddings) ║  ║  Snowflake Cortex (Llama 3)            ║
+║                               ║  ║  Secure on-platform LLM inferenc       ║
+║                               ║  ║  Executing the 9-Tool LangChain Agent║   
 ╚═══════════════════════════════╝  ╚════════════════════════════════════════╝
                     │                                │
                     └───────────────┬────────────────┘
@@ -96,9 +97,9 @@ The system integrates three research components developed across Labs 6–8 into
 ║  ├── Risk Heatmap          Interactive map of accident blackspots            ║
 ║  ├── Weather Alerts        Live NOAA disruption feed                        ║
 ║  ├── Route Comparison      Side-by-side reroute evaluation with CPP score   ║
-║  ├── Ask the Agent         Natural language dispatcher queries (Gemini)      ║
+║  ├── Ask the Agent         Natural language dispatcher queries (Cortex)      ║
 ║  ├── Reasoning Path        ReMindRAG source citations per justification      ║
-║  └── Analytics (Lab 6)     9-tab trucking analytics agent (Gemini + tools)  ║
+║  └── Analytics (Lab 6)     9-tab trucking analytics agent (Cortex + tools)  ║
 ║                                                                              ║
 ║  Live: https://cs5542hyperlogistics.streamlit.app/                           ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -165,9 +166,9 @@ The traversal memorizes paths — similar future queries reuse the cached traver
 
 SRSNet applies selective representation spaces to adaptively patch time-series weather and accident data into 4–8 hour forecast windows aligned to middle-mile transit times. Outputs a risk score per route segment that gates which route candidates enter the CPP.
 
-### 4.3 Snowflake Cortex (Gemini)
+### 4.3 Snowflake Cortex (Llama 3 70B & Arctic)
 
-All LLM inference runs inside Snowflake via Cortex, keeping data within the Snowflake trust boundary. Embeddings use Google Gemini (768D). The Lab 6 Gemini agent (9 analytical tools) also runs through Cortex for the analytics dashboard tabs.
+All LLM inference runs entirely inside Snowflake via Cortex, keeping 100% of the data within the Snowflake enterprise trust boundary. The Lab 6 Agent (equipped with 9 analytical tools for querying Fleet, Safety, ETA, etc.) is powered natively by `llama3-70b` routed through a LangChain ReAct loop. No external API keys or Gemini dependencies are used, ensuring maximum data governance.
 
 ---
 
@@ -208,8 +209,8 @@ The model is explicitly instructed not to recall physical limits from parametric
 | Risk Heatmap | `SILVER.RISK_HEATMAP_VIEW` | Interactive geospatial map of accident blackspots along I-70, I-80, I-55, I-10 |
 | Weather Alerts | `SILVER.WEATHER_ALERTS` | Live disruption feed: severity, affected route segments, alert type |
 | Route Comparison | CPP output | Side-by-side original vs rerouted: distance delta, risk score, compliance status |
-| Ask the Agent | Gemini + ReMindRAG | Natural language dispatcher queries with reasoning path citations |
-| Analytics (Lab 6) | 9-tool Gemini agent | Fleet performance, revenue, safety, fuel, route profitability |
+| Ask the Agent | Cortex + ReMindRAG | Natural language dispatcher queries with reasoning path citations |
+| Analytics (Lab 6) | 9-tool Cortex agent | Fleet performance, revenue, safety, fuel, route profitability |
 
 ### 6.2 Lab 9 UI Enhancements
 
@@ -245,7 +246,6 @@ S3_BUCKET=
 AWS_ACCESS_KEY_ID=
 AWS_SECRET_ACCESS_KEY=
 AWS_REGION=
-GEMINI_API_KEY=
 LOG_LEVEL=INFO
 ```
 

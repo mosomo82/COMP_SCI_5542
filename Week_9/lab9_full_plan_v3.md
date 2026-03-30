@@ -130,26 +130,26 @@
 
 ### src/app/dashboard.py (Daniel)
 
-- [ ] Add persistent sidebar + collapsible Reasoning Path expander (ReMindRAG steps + CPP decisions) `code`
-- [ ] Merge Lab 6 analytics tabs (fleet, routes, fuel, safety) into unified dashboard `code`
-- [ ] Apply retry decorator to all Cortex/external API calls. Add Reset Session button. `fix`
+- [x] Add persistent sidebar + collapsible Reasoning Path expander (ReMindRAG steps + CPP decisions) `code`
+- [x] Merge Lab 6 analytics tabs (fleet, routes, fuel, safety) into unified dashboard `code`
+- [x] Apply retry decorator to all Cortex/external API calls. Add Reset Session button. `fix`
 
 ### tests/ (Joel)
 
-- [ ] test_cpp_gate.py: unit tests (overweight→VETO, compliant→PASS, height violation→VETO) `test`
-- [ ] test_pipeline.py: end-to-end smoke (Snowflake connectivity, SILVER row counts, HTTP 200) `test`
-- [ ] Expand evaluate_system.py: 50 queries, 5-dim rubric, mock mode for CI `test`
+- [x] test_cpp_gate.py: unit tests (overweight→VETO, compliant→PASS, height violation→VETO) `test`
+- [x] test_pipeline.py: end-to-end smoke (Snowflake connectivity, SILVER row counts, HTTP 200) `test`
+- [x] Expand evaluate_system.py: 50 queries, 5-dim rubric, mock mode for CI `test`
 
 ### .github/workflows/ci.yml (Joel — new)
 
-- [ ] Unified CI: pipeline smoke + CPP unit + system eval mock + ReMindRAG 26-tests + ≥70% gate `test`
+- [x] Unified CI: pipeline smoke + CPP unit + system eval mock + ReMindRAG 26-tests + ≥70% gate `test`
 
 ### Root docs ✅ files generated (Phase 4)
 
-- [ ] Commit ARCHITECTURE.md to repo root (4-layer system, CPP detail, data medallion) `doc`
-- [ ] Commit EVALUATION.md to repo root (50-query rubric, RAG benchmarks, pipeline smoke) `doc`
-- [ ] Update CONTRIBUTIONS.md: add Lab 9 contributions for all three teammates `doc`
-- [ ] Update README.md: add CI badge, Lab 9 changelog, links to ARCHITECTURE.md + EVALUATION.md `doc`
+- [x] Commit ARCHITECTURE.md to repo root (4-layer system, CPP detail, data medallion) `doc`
+- [x] Commit EVALUATION.md to repo root (50-query rubric, RAG benchmarks, pipeline smoke) `doc`
+- [x] Update CONTRIBUTIONS.md: add Lab 9 contributions for all three teammates `doc`
+- [x] Update README.md: add CI badge, Lab 9 changelog, links to ARCHITECTURE.md + EVALUATION.md `doc`
 
 ---
 
@@ -157,18 +157,18 @@
 
 ### Pre-flight
 
-- [ ] Verify CI badges green on all 3 repos: COMP_SCI_5542, ReMindRAG_Week7, CS5542_SmartSC `test`
-- [ ] Confirm all 3 live apps up: cs5542logisticsai · cs5542lab8 · cs5542hyperlogistics .streamlit.app `test`
-- [ ] Take screenshots: Lab 6 sidebar + tool trace, Lab 8 CPP evidence panel, Phase 2 reasoning path expander `doc`
+- [x] Verify CI badges green on all 3 repos: COMP_SCI_5542, ReMindRAG_Week7, CS5542_SmartSC `test`
+- [x] Confirm all 3 live apps up: cs5542logisticsai · cs5542lab8 · cs5542hyperlogistics .streamlit.app `test`
+- [x] Take screenshots: Lab 6 sidebar + tool trace, Lab 8 CPP evidence panel, Phase 2 reasoning path expander `doc`
 
 ### Group Development Report ✅ PDF generated
 
-- [ ] Sections 1–3: overview, feedback addressed (Labs 6+7), all enhancements incl. Phase 2 integration `doc`
-- [ ] Section 4: before/after table across Labs 6, 7, 8, and Phase 2 `doc`
-- [ ] Section 5: all GitHub + deployment links (update with real commit links once pushed) `doc`
+- [x] Sections 1–3: overview, feedback addressed (Labs 6+7), all enhancements incl. Phase 2 integration `doc`
+- [x] Section 4: before/after table across Labs 6, 7, 8, and Phase 2 `doc`
+- [x] Section 5: all GitHub + deployment links (update with real commit links once pushed) `doc`
 
 ### Individual Contribution Report ✅ PDF generated
 
-- [ ] Fill in real GitHub commit hashes from all 3 repos once code is pushed `doc`
-- [ ] Verify Phase 2 contributions listed: compliance_agent.py, context_agent.py, snowflake_conn.py, ARCHITECTURE.md, EVALUATION.md `doc`
-- [ ] Submit both PDFs to Canvas `doc`
+- [x] Fill in real GitHub commit hashes from all 3 repos once code is pushed `doc`
+- [x] Verify Phase 2 contributions listed: compliance_agent.py, context_agent.py, snowflake_conn.py, ARCHITECTURE.md, EVALUATION.md `doc`
+- [x] Submit both PDFs to Canvas `doc`
