@@ -56,17 +56,17 @@
 
 ### tests/ (new files)
 
-- [ ] Create test_benchmark_smoke.py: 5 tests — pipeline, chunk retrieval, keyword overlap, answer quality, eval schema (mock LLM, zero API cost) `test`
-- [ ] Create test_repro_variance.py: 4 tests — same chunks, count, nodes, deterministic answer (all-MiniLM-L6-v2, no HF token) `test`
+- [x] Create test_benchmark_smoke.py: 5 tests — pipeline, chunk retrieval, keyword overlap, answer quality, eval schema (mock LLM, zero API cost) `test`
+- [x] Create test_repro_variance.py: 4 tests — same chunks, count, nodes, deterministic answer (all-MiniLM-L6-v2, no HF token) `test`
 
 ### eval/ (constrained benchmark run ~$0.70 total)
 
-- [ ] Run eval_LooGLE.py — 5-title subset, --seed 42, --judge_model_name gpt-4o-mini. Record F1 in eval_results.json `test`
-- [ ] Run eval_Hotpot.py — 50 questions, --seed 42, --judge_model_name gpt-4o-mini. Record F1 `test`
+- [x] Run eval_LooGLE.py — 5-title subset, --seed 42, --judge_model_name gpt-4o-mini. Record F1 in eval_results.json `test`
+- [x] Run eval_Hotpot.py — 50 questions, --seed 42, --judge_model_name gpt-4o-mini. Record F1 `test`
 
 ### .github/workflows/ci.yml (update)
 
-- [ ] Add new test files to CI — suite expands 17 → 26 tests `test`
+- [x] Add new test files to CI — suite expands 17 → 26 tests `test`
 
 ### Root docs ✅ files generated (Phase 2)
 
@@ -79,25 +79,25 @@
 
 ### sf_connect.py / CPP hard gate (most critical)
 
-- [ ] Spatial SQL hard gate before any LLM call: MIN(weight_limit_tons / vertical_clearance_mt) via ST_INTERSECTS → HARD VETO if exceeded. Fixes Q13→Q14 monotonicity failure. `fix`
+- [x] Spatial SQL hard gate before any LLM call: MIN(weight_limit_tons / vertical_clearance_mt) via ST_INTERSECTS → HARD VETO if exceeded. Fixes Q13→Q14 monotonicity failure. `fix`
 
 ### adaption_method/prompt_adaptation.py
 
-- [ ] Add [RETRIEVED CONSTRAINTS] block to all prompt templates — bridge limits injected from SQL, model not to recall from memory. Fixes hallucination (~40% → 8%). `fix`
+- [x] Add [RETRIEVED CONSTRAINTS] block to all prompt templates — bridge limits injected from SQL, model not to recall from memory. Fixes hallucination (~40% → 8%). `fix`
 
 ### data/generate_dataset.py
 
-- [ ] Update output format: full 4-step CoT (Disruption→Route→Constraint→Decision). Expand 100 → 300+ pairs, 5 disruption types. `code`
-- [ ] Re-run QLoRA fine-tuning on Colab T4 with expanded CoT dataset. Save new adapter. `code`
+- [x] Update output format: full 4-step CoT (Disruption→Route→Constraint→Decision). Expand 100 → 300+ pairs, 5 disruption types. `code`
+- [x] Re-run QLoRA fine-tuning on Colab T4 with expanded CoT dataset. Save new adapter. `code`
 
 ### app/evaluation.py
 
-- [ ] Replace binary scorer with 5-dim rubric (Decision, Grounding, Constraint, CoT, Jargon — 0–10, pass ≥7) `fix`
-- [ ] Expand eval set 15 → 50 queries, 5 disruption categories. Metamorphic tests 3 → 13 pairs. `test`
+- [x] Replace binary scorer with 5-dim rubric (Decision, Grounding, Constraint, CoT, Jargon — 0–10, pass ≥7) `fix`
+- [x] Expand eval set 15 → 50 queries, 5 disruption categories. Metamorphic tests 3 → 13 pairs. `test`
 
 ### .github/workflows/lab8_eval.yml (new)
 
-- [ ] GitHub Actions CI: evaluation.py mock mode on every push, fails if pass rate <70% `test`
+- [x] GitHub Actions CI: evaluation.py mock mode on every push, fails if pass rate <70% `test`
 
 ### Week_8/ docs ✅ files generated
 

@@ -4,8 +4,14 @@ import random
 # Domain knowledge for generating synthetic examples
 CITIES = ["Chicago", "Kansas City", "Omaha", "Denver", "Salt Lake City", "Dallas", "Houston", "Atlanta", "Charlotte"]
 ROUTES = ["I-70", "I-80", "I-55", "I-10", "I-25", "I-35"]
+
+# 5 Disruption Types
 WEATHER_ALERTS = ["Heavy Snowfall (>10cm)", "Severe Icing", "Flash Flooding", "Low Visibility (<1mi)", "High Winds"]
 ACCIDENT_SEVERITY = ["Major accident (Severity 4)", "Pileup (Severity 3)"]
+TRAFFIC_ALERTS = ["Multi-mile construction backup", "Major event traffic lock", "Bridge closure detours"]
+LOGISTICS_ALERTS = ["Driver HOS limit reached", "Mechanical failure (Engine)", "Tire blowout"]
+FACILITY_ALERTS = ["Port/Dock strike", "Warehouse power outage", "Receiving facility equipment failure"]
+
 LOAD_TYPES = ["Heavy Haul (80,000 lbs)", "Standard LTL", "Hazmat"]
 VEHICLE_HEIGHTS = ["13ft 6in", "14ft", "Permitted Oversize (14ft 6in)"]
 BRIDGE_VIOLATIONS = ["Bridge #4432 (Limit: 13ft 0in)", "Bridge #9981 (Limit: 40 Tons)", "Bridge #2210 (Structural Deficit)"]
@@ -20,9 +26,18 @@ def generate_example():
     primary_route = random.choice(ROUTES)
     alt_route = random.choice([r for r in ROUTES if r != primary_route])
     
-    disruption_type = random.choice(["weather", "accident"])
-    disruption = random.choice(WEATHER_ALERTS) if disruption_type == "weather" else random.choice(ACCIDENT_SEVERITY)
-    
+    disruption_type = random.choice(["weather", "accident", "traffic", "logistics", "facility"])
+    if disruption_type == "weather":
+        disruption = random.choice(WEATHER_ALERTS)
+    elif disruption_type == "accident":
+        disruption = random.choice(ACCIDENT_SEVERITY)
+    elif disruption_type == "traffic":
+        disruption = random.choice(TRAFFIC_ALERTS)
+    elif disruption_type == "logistics":
+        disruption = random.choice(LOGISTICS_ALERTS)
+    else:
+        disruption = random.choice(FACILITY_ALERTS)
+        
     load = random.choice(LOAD_TYPES)
     
     # 30% chance of a structural veto on the alternate route
@@ -33,18 +48,18 @@ def generate_example():
     if is_veto:
         violation = random.choice(BRIDGE_VIOLATIONS)
         response = (
-            f"VETO: The proposed reroute for the {load} shipment from {origin} to {destination} violates DOT safety constraints. "
-            f"While {primary_route} is experiencing {disruption.lower()}, the alternate route via {alt_route} contains "
-            f"{violation}. You must hold the shipment at the origin facility until the {disruption_type} clears or find an alternative route "
-            f"that supports a {load} load profile."
+            f"Step 1 - Disruption: Verified {disruption.lower()} on primary route {primary_route}.\n"
+            f"Step 2 - Route Analysis: Analyzed alternate route via {alt_route}.\n"
+            f"Step 3 - Constraint Check: Failed. Alternate route contains {violation} which cannot support a {load} load profile.\n"
+            f"Step 4 - Decision: VETO (Hold shipment at origin facility)."
         )
     else:
         safe_bridge = random.choice(SAFE_BRIDGES)
         response = (
-            f"APPROVED: Rerouting the {load} shipment from {origin} to {destination} is approved. "
-            f"Historical and real-time data confirm {disruption} on {primary_route}. "
-            f"The alternate route via {alt_route} has been validated against the National Bridge Inventory "
-            f"and safely accommodates the {load} profile ({safe_bridge} verified). Proceed with dispatch."
+            f"Step 1 - Disruption: Verified {disruption.lower()} on primary route {primary_route}.\n"
+            f"Step 2 - Route Analysis: Analyzed alternate route via {alt_route}.\n"
+            f"Step 3 - Constraint Check: Passed. Validated against National Bridge Inventory; safely accommodates {load} profile ({safe_bridge}).\n"
+            f"Step 4 - Decision: APPROVED (Proceed with dispatch)."
         )
 
     return {
@@ -55,7 +70,7 @@ def generate_example():
 
 def main():
     dataset = []
-    num_examples = 100
+    num_examples = 350
     
     for _ in range(num_examples):
         dataset.append(generate_example())

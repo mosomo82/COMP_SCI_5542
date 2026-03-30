@@ -21,10 +21,18 @@ OUTPUT_FORMAT = (
     "checked (bridge ID, limit), and (3) the final routing instruction.\n"
 )
 
+RETRIEVED_CONSTRAINTS_BLOCK = (
+    "[RETRIEVED CONSTRAINTS]\n"
+    "CRITICAL: You must ONLY use the physical routing limits (weight, clearance) "
+    "injected into the evidence block below by the Spatial SQL engine. "
+    "Do NOT recall physical bridge limits from your training memory.\n"
+)
+
 
 def build_baseline_prompt(query: str, evidence: str) -> str:
     """Original simple prompt used as baseline."""
     prompt = f"Instruction: {query}\n"
+    prompt += RETRIEVED_CONSTRAINTS_BLOCK + "\n"
     if evidence:
         prompt += f"Context: {evidence}\n"
     prompt += "Output:\n"
@@ -45,6 +53,7 @@ def build_sc_cot_prompt(query: str, evidence: str, examples: list) -> str:
         "You must evaluate whether a proposed reroute is safe and compliant.\n\n"
     )
     prompt += DECISION_CRITERIA + "\n"
+    prompt += RETRIEVED_CONSTRAINTS_BLOCK + "\n"
 
     prompt += (
         "Instructions: Produce THREE independent reasoning chains below. "
@@ -95,6 +104,7 @@ def build_react_prompt(query: str, evidence: str) -> str:
         "loops. You MUST complete ALL loops before issuing a final decision.\n\n"
     )
     prompt += DECISION_CRITERIA + "\n"
+    prompt += RETRIEVED_CONSTRAINTS_BLOCK + "\n"
 
     prompt += (
         "Available Actions:\n"
@@ -144,6 +154,7 @@ def build_fewshot_prompt(query: str, evidence: str, examples: list) -> str:
         "APPROVED or VETO decision.\n\n"
     )
     prompt += DECISION_CRITERIA + "\n"
+    prompt += RETRIEVED_CONSTRAINTS_BLOCK + "\n"
     prompt += OUTPUT_FORMAT + "\n"
 
     if examples:

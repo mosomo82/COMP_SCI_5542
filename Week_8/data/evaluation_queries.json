@@ -1,112 +1,443 @@
 [
   {
     "id": "Q1",
-    "type": "standard",
-    "instruction": "Severe thunderstorm on Route A, reroute needed from Dallas to Austin.",
-    "input": "Route A (I-35): High winds and hail reported. Route B (US-281): Clear skies. Vehicle height: 13ft. Route B Bridge Limit: 14ft.",
-    "output": "APPROVE"
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Heavy Haul (80,000 lbs) shipment from Omaha to Atlanta via I-10? We just got a report of heavy snowfall (>10cm). Context: Route options include I-10 and I-80.",
+    "output": "APPROVE",
+    "meta_label": "base"
   },
   {
     "id": "Q2",
-    "type": "standard",
-    "instruction": "Traffic collision on I-10 Eastbound, requesting reroute.",
-    "input": "I-10 E blocked for 3 hours. Alternate route via Hwy 90 is clear, adds 45 mins. Load is non-perishable.",
-    "output": "APPROVE"
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Standard LTL shipment from Chicago to Omaha via I-80? We just got a report of major accident (severity 4). Context: Route options include I-80 and I-10.",
+    "output": "VETO",
+    "meta_label": "base"
   },
   {
     "id": "Q3",
-    "type": "standard",
-    "instruction": "Bridge maintenance on I-80, investigate alternate route via local roads.",
-    "input": "Alternate route includes Main St bridge with 10ft clearance. Vehicle height is 12ft.",
-    "output": "VETO"
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Hazmat shipment from Omaha to Dallas via I-35? We just got a report of heavy snowfall (>10cm). Context: Route options include I-35 and I-10.",
+    "output": "VETO",
+    "meta_label": "base"
   },
   {
     "id": "Q4",
-    "type": "standard",
-    "instruction": "Snowstorm advisory on mountain pass, requesting low-altitude reroute.",
-    "input": "Low-altitude route clear of snow but includes weight restricted bridge (20 tons). Truck weight is 25 tons.",
-    "output": "VETO"
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Heavy Haul (80,000 lbs) shipment from Omaha to Kansas City via I-10? We just got a report of driver hos limit reached. Context: Route options include I-10 and I-25.",
+    "output": "VETO",
+    "meta_label": "base"
   },
   {
     "id": "Q5",
-    "type": "standard",
-    "instruction": "Flash flood warning on primary state highway.",
-    "input": "Primary highway flooded. Secondary route available, high elevation, no flood risk. Vehicle specs within all limits.",
-    "output": "APPROVE"
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Hazmat shipment from Denver to Atlanta via I-35? We just got a report of driver hos limit reached. Context: Route options include I-35 and I-10.",
+    "output": "VETO",
+    "meta_label": "base"
   },
   {
     "id": "Q6",
-    "type": "standard",
-    "instruction": "Wildfire smoke reducing visibility to zero on I-5.",
-    "input": "Reroute via coastal highway proposed. Air quality reported as acceptable. No constraints violated.",
-    "output": "APPROVE"
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Heavy Haul (80,000 lbs) shipment from Chicago to Dallas via I-80? We just got a report of port/dock strike. Context: Route options include I-80 and I-10.",
+    "output": "APPROVE",
+    "meta_label": "base"
   },
   {
     "id": "Q7",
-    "type": "standard",
-    "instruction": "Roadworks causing 2 hour delay on Route 66.",
-    "input": "Alternate route available via county roads. Includes residential zone restriction for heavy commercial vehicles 10PM-6AM. Current ETA 11PM. Vehicle is heavy commercial.",
-    "output": "VETO"
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Standard LTL shipment from Omaha to Chicago via I-10? We just got a report of multi-mile construction backup. Context: Route options include I-10 and I-70.",
+    "output": "VETO",
+    "meta_label": "base"
   },
   {
     "id": "Q8",
-    "type": "standard",
-    "instruction": "Major event closing downtown streets.",
-    "input": "Bypass route proposed using toll highway. Toll account is active. No size/weight violations.",
-    "output": "APPROVE"
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Standard LTL shipment from Denver to Charlotte via I-25? We just got a report of port/dock strike. Context: Route options include I-25 and I-80.",
+    "output": "APPROVE",
+    "meta_label": "base"
   },
   {
     "id": "Q9",
-    "type": "standard",
-    "instruction": "Tornado warning intercepting scheduled route.",
-    "input": "Shelter-in-place order issued for current county. Proposed reroute enters the warning zone.",
-    "output": "VETO"
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Heavy Haul (80,000 lbs) shipment from Denver to Omaha via I-10? We just got a report of multi-mile construction backup. Context: Route options include I-10 and I-35.",
+    "output": "VETO",
+    "meta_label": "base"
   },
   {
     "id": "Q10",
-    "type": "standard",
-    "instruction": "Hailstorm damaging vehicles on I-40.",
-    "input": "Alternate route covered by protective structures (tunnels/overpasses) identified. Clear of hail.",
-    "output": "APPROVE"
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Heavy Haul (80,000 lbs) shipment from Houston to Kansas City via I-10? We just got a report of heavy snowfall (>10cm). Context: Route options include I-10 and I-35.",
+    "output": "APPROVE",
+    "meta_label": "base"
   },
   {
     "id": "Q11",
-    "type": "metamorphic_base_invariance",
-    "instruction": "Reroute Chicago to KC due to snow.",
-    "input": "I-55 South to I-70 West is clear. No bridge or weight constraints violated.",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Hazmat shipment from Dallas to Atlanta via I-80? We just got a report of port/dock strike. Context: Route options include I-80 and I-70.",
     "output": "APPROVE",
-    "pair_id": "Q12"
+    "meta_label": "base"
   },
   {
     "id": "Q12",
-    "type": "metamorphic_test_invariance",
-    "instruction": "Snow on I-70, reroute Chicago to Kansas City.",
-    "input": "I-55 South to I-70 West is clear. No bridge or weight constraints violated.",
-    "output": "APPROVE",
-    "pair_id": "Q11"
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Standard LTL shipment from Charlotte to Dallas via I-80? We just got a report of port/dock strike. Context: Route options include I-80 and I-35.",
+    "output": "VETO",
+    "meta_label": "base"
   },
   {
     "id": "Q13",
-    "type": "metamorphic_base_monotonicity",
-    "instruction": "Reroute requested due to accident on main highway.",
-    "input": "Bypass route available. Vehicle clearance 13ft. Lowest bridge on bypass is 14ft.",
-    "output": "APPROVE",
-    "pair_id": "Q14"
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Standard LTL shipment from Dallas to Atlanta via I-55? We just got a report of driver hos limit reached. Context: Route options include I-55 and I-80.",
+    "output": "VETO",
+    "meta_label": "base"
   },
   {
     "id": "Q14",
-    "type": "metamorphic_test_monotonicity",
-    "instruction": "Reroute requested due to accident on main highway.",
-    "input": "Bypass route available. Vehicle clearance 13ft. Lowest bridge on bypass is 14ft. NOTE: Construction dropped bridge clearance to 12.5ft.",
-    "output": "VETO",
-    "pair_id": "Q13"
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Heavy Haul (80,000 lbs) shipment from Salt Lake City to Chicago via I-25? We just got a report of multi-mile construction backup. Context: Route options include I-25 and I-35.",
+    "output": "APPROVE",
+    "meta_label": "base"
   },
   {
     "id": "Q15",
-    "type": "metamorphic_test_symmetry",
-    "instruction": "Reroute needed from Seattle to Portland due to landslide.",
-    "input": "East alternate route available via mountains. Weather clear. Truck is empty, no weight restrictions apply.",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Hazmat shipment from Salt Lake City to Denver via I-10? We just got a report of heavy snowfall (>10cm). Context: Route options include I-10 and I-55.",
+    "output": "VETO",
+    "meta_label": "base"
+  },
+  {
+    "id": "Q16",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Hazmat shipment from Omaha to Houston via I-70? We just got a report of heavy snowfall (>10cm). Context: Route options include I-70 and I-35.",
     "output": "APPROVE",
-    "pair_id": "Q15_simulated"
+    "meta_label": "base"
+  },
+  {
+    "id": "Q17",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Hazmat shipment from Dallas to Chicago via I-10? We just got a report of major accident (severity 4). Context: Route options include I-10 and I-25.",
+    "output": "VETO",
+    "meta_label": "base"
+  },
+  {
+    "id": "Q18",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Standard LTL shipment from Atlanta to Salt Lake City via I-70? We just got a report of major accident (severity 4). Context: Route options include I-70 and I-25.",
+    "output": "VETO",
+    "meta_label": "base"
+  },
+  {
+    "id": "Q19",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Heavy Haul (80,000 lbs) shipment from Chicago to Kansas City via I-70? We just got a report of driver hos limit reached. Context: Route options include I-70 and I-55.",
+    "output": "APPROVE",
+    "meta_label": "base"
+  },
+  {
+    "id": "Q20",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Standard LTL shipment from Charlotte to Omaha via I-80? We just got a report of heavy snowfall (>10cm). Context: Route options include I-80 and I-10.",
+    "output": "VETO",
+    "meta_label": "base"
+  },
+  {
+    "id": "Q21",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Standard LTL shipment from Salt Lake City to Dallas via I-55? We just got a report of heavy snowfall (>10cm). Context: Route options include I-55 and I-25.",
+    "output": "APPROVE",
+    "meta_label": "base"
+  },
+  {
+    "id": "Q22",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Standard LTL shipment from Salt Lake City to Kansas City via I-70? We just got a report of heavy snowfall (>10cm). Context: Route options include I-70 and I-25.",
+    "output": "VETO",
+    "meta_label": "base"
+  },
+  {
+    "id": "Q23",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Standard LTL shipment from Charlotte to Kansas City via I-80? We just got a report of multi-mile construction backup. Context: Route options include I-80 and I-70.",
+    "output": "VETO",
+    "meta_label": "base"
+  },
+  {
+    "id": "Q24",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Standard LTL shipment from Kansas City to Salt Lake City via I-10? We just got a report of heavy snowfall (>10cm). Context: Route options include I-10 and I-25.",
+    "output": "APPROVE",
+    "meta_label": "base"
+  },
+  {
+    "id": "Q25",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Heavy Haul (80,000 lbs) shipment from Houston to Charlotte via I-55? We just got a report of major accident (severity 4). Context: Route options include I-55 and I-35.",
+    "output": "VETO",
+    "meta_label": "base"
+  },
+  {
+    "id": "Q26",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Standard LTL shipment from Salt Lake City to Kansas City via I-10? We just got a report of multi-mile construction backup. Context: Route options include I-10 and I-80.",
+    "output": "APPROVE",
+    "meta_label": "base"
+  },
+  {
+    "id": "Q27",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Hazmat shipment from Chicago to Kansas City via I-10? We just got a report of multi-mile construction backup. Context: Route options include I-10 and I-70.",
+    "output": "VETO",
+    "meta_label": "base"
+  },
+  {
+    "id": "Q28",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Hazmat shipment from Dallas to Kansas City via I-80? We just got a report of port/dock strike. Context: Route options include I-80 and I-35.",
+    "output": "APPROVE",
+    "meta_label": "base"
+  },
+  {
+    "id": "Q29",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Hazmat shipment from Atlanta to Salt Lake City via I-25? We just got a report of heavy snowfall (>10cm). Context: Route options include I-25 and I-55.",
+    "output": "VETO",
+    "meta_label": "base"
+  },
+  {
+    "id": "Q30",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Hazmat shipment from Chicago to Atlanta via I-10? We just got a report of driver hos limit reached. Context: Route options include I-10 and I-55.",
+    "output": "APPROVE",
+    "meta_label": "base"
+  },
+  {
+    "id": "Q31",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Hazmat shipment from Omaha to Atlanta via I-70? We just got a report of driver hos limit reached. Context: Route options include I-70 and I-25.",
+    "output": "APPROVE",
+    "meta_label": "base"
+  },
+  {
+    "id": "Q32",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Hazmat shipment from Charlotte to Denver via I-10? We just got a report of heavy snowfall (>10cm). Context: Route options include I-10 and I-25.",
+    "output": "VETO",
+    "meta_label": "base"
+  },
+  {
+    "id": "Q33",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Standard LTL shipment from Dallas to Chicago via I-55? We just got a report of multi-mile construction backup. Context: Route options include I-55 and I-80.",
+    "output": "VETO",
+    "meta_label": "base"
+  },
+  {
+    "id": "Q34",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Standard LTL shipment from Chicago to Salt Lake City via I-80? We just got a report of heavy snowfall (>10cm). Context: Route options include I-80 and I-10.",
+    "output": "APPROVE",
+    "meta_label": "base"
+  },
+  {
+    "id": "Q35",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Standard LTL shipment from Atlanta to Salt Lake City via I-80? We just got a report of multi-mile construction backup. Context: Route options include I-80 and I-70.",
+    "output": "APPROVE",
+    "meta_label": "base"
+  },
+  {
+    "id": "Q36",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Standard LTL shipment from Houston to Kansas City via I-80? We just got a report of major accident (severity 4). Context: Route options include I-80 and I-35.",
+    "output": "VETO",
+    "meta_label": "base"
+  },
+  {
+    "id": "Q37",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Standard LTL shipment from Charlotte to Houston via I-80? We just got a report of port/dock strike. Context: Route options include I-80 and I-70.",
+    "output": "VETO",
+    "meta_label": "base"
+  },
+  {
+    "id": "Q38",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Hazmat shipment from Kansas City to Seattle via I-90? We just got a report of heavy snowfall (>10cm). Context: Route options include I-90 and I-80.",
+    "output": "APPROVE",
+    "meta_label": "invariance_base_1"
+  },
+  {
+    "id": "Q39",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "We need to go from Kansas City to Seattle. Heavy Snowfall (>10cm) on I-90. Alternate I-80.",
+    "output": "APPROVE",
+    "meta_label": "invariance_pair_1"
+  },
+  {
+    "id": "Q40",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Hazmat shipment from Charlotte to Seattle via I-90? We just got a report of multi-mile construction backup. Context: Route options include I-90 and I-80.",
+    "output": "APPROVE",
+    "meta_label": "invariance_base_2"
+  },
+  {
+    "id": "Q41",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "We need to go from Charlotte to Seattle. Multi-mile construction backup on I-90. Alternate I-80.",
+    "output": "APPROVE",
+    "meta_label": "invariance_pair_2"
+  },
+  {
+    "id": "Q42",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Heavy Haul (80,000 lbs) shipment from Charlotte to Seattle via I-90? We just got a report of major accident (severity 4). Context: Route options include I-90 and I-80.",
+    "output": "APPROVE",
+    "meta_label": "invariance_base_3"
+  },
+  {
+    "id": "Q43",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "We need to go from Charlotte to Seattle. Major accident (Severity 4) on I-90. Alternate I-80.",
+    "output": "APPROVE",
+    "meta_label": "invariance_pair_3"
+  },
+  {
+    "id": "Q44",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Heavy Haul (80,000 lbs) shipment from Salt Lake City to Seattle via I-90? We just got a report of heavy snowfall (>10cm). Context: Route options include I-90 and I-80.",
+    "output": "APPROVE",
+    "meta_label": "invariance_base_4"
+  },
+  {
+    "id": "Q45",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "We need to go from Salt Lake City to Seattle. Heavy Snowfall (>10cm) on I-90. Alternate I-80.",
+    "output": "APPROVE",
+    "meta_label": "invariance_pair_4"
+  },
+  {
+    "id": "Q46",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Standard LTL shipment from Charlotte to Miami via I-95? We just got a report of major accident (severity 4). Context: Route options include I-95 and I-75.",
+    "output": "APPROVE",
+    "meta_label": "monotonicity_base_1"
+  },
+  {
+    "id": "Q47",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Standard LTL shipment from Charlotte to Miami via I-95? We just got a report of major accident (severity 4). Context: Route options include I-95 and I-75. IMPORTANT: Bridge on alternate route collapsed completely.",
+    "output": "VETO",
+    "meta_label": "monotonicity_pair_1"
+  },
+  {
+    "id": "Q48",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Heavy Haul (80,000 lbs) shipment from Salt Lake City to Miami via I-95? We just got a report of multi-mile construction backup. Context: Route options include I-95 and I-75.",
+    "output": "APPROVE",
+    "meta_label": "monotonicity_base_2"
+  },
+  {
+    "id": "Q49",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Heavy Haul (80,000 lbs) shipment from Salt Lake City to Miami via I-95? We just got a report of multi-mile construction backup. Context: Route options include I-95 and I-75. IMPORTANT: Bridge on alternate route collapsed completely.",
+    "output": "VETO",
+    "meta_label": "monotonicity_pair_2"
+  },
+  {
+    "id": "Q50",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Heavy Haul (80,000 lbs) shipment from Denver to Miami via I-95? We just got a report of driver hos limit reached. Context: Route options include I-95 and I-75.",
+    "output": "APPROVE",
+    "meta_label": "monotonicity_base_3"
+  },
+  {
+    "id": "Q51",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Heavy Haul (80,000 lbs) shipment from Denver to Miami via I-95? We just got a report of driver hos limit reached. Context: Route options include I-95 and I-75. IMPORTANT: Bridge on alternate route collapsed completely.",
+    "output": "VETO",
+    "meta_label": "monotonicity_pair_3"
+  },
+  {
+    "id": "Q52",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Heavy Haul (80,000 lbs) shipment from Atlanta to Miami via I-95? We just got a report of multi-mile construction backup. Context: Route options include I-95 and I-75.",
+    "output": "APPROVE",
+    "meta_label": "monotonicity_base_4"
+  },
+  {
+    "id": "Q53",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Heavy Haul (80,000 lbs) shipment from Atlanta to Miami via I-95? We just got a report of multi-mile construction backup. Context: Route options include I-95 and I-75. IMPORTANT: Bridge on alternate route collapsed completely.",
+    "output": "VETO",
+    "meta_label": "monotonicity_pair_4"
+  },
+  {
+    "id": "Q54",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Heavy Haul (80,000 lbs) shipment from Chicago to Kansas City via I-10? We just got a report of port/dock strike. Context: Route options include I-10 and I-20.",
+    "output": "VETO",
+    "meta_label": "symmetry_base_1"
+  },
+  {
+    "id": "Q55",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Heavy Haul (80,000 lbs) shipment from Kansas City to Chicago via I-10? We just got a report of port/dock strike. Context: Route options include I-10 and I-20.",
+    "output": "VETO",
+    "meta_label": "symmetry_pair_1"
+  },
+  {
+    "id": "Q56",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Heavy Haul (80,000 lbs) shipment from Omaha to Dallas via I-10? We just got a report of driver hos limit reached. Context: Route options include I-10 and I-20.",
+    "output": "VETO",
+    "meta_label": "symmetry_base_2"
+  },
+  {
+    "id": "Q57",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Heavy Haul (80,000 lbs) shipment from Dallas to Omaha via I-10? We just got a report of driver hos limit reached. Context: Route options include I-10 and I-20.",
+    "output": "VETO",
+    "meta_label": "symmetry_pair_2"
+  },
+  {
+    "id": "Q58",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Heavy Haul (80,000 lbs) shipment from Denver to Chicago via I-10? We just got a report of major accident (severity 4). Context: Route options include I-10 and I-20.",
+    "output": "APPROVE",
+    "meta_label": "symmetry_base_3"
+  },
+  {
+    "id": "Q59",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Heavy Haul (80,000 lbs) shipment from Chicago to Denver via I-10? We just got a report of major accident (severity 4). Context: Route options include I-10 and I-20.",
+    "output": "APPROVE",
+    "meta_label": "symmetry_pair_3"
+  },
+  {
+    "id": "Q60",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Hazmat shipment from Atlanta to Denver via I-10? We just got a report of heavy snowfall (>10cm). Context: Route options include I-10 and I-20.",
+    "output": "VETO",
+    "meta_label": "symmetry_base_4"
+  },
+  {
+    "id": "Q61",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Hazmat shipment from Denver to Atlanta via I-10? We just got a report of heavy snowfall (>10cm). Context: Route options include I-10 and I-20.",
+    "output": "VETO",
+    "meta_label": "symmetry_pair_4"
+  },
+  {
+    "id": "Q62",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Heavy Haul (80,000 lbs) shipment from Salt Lake City to Houston via I-10? We just got a report of port/dock strike. Context: Route options include I-10 and I-20.",
+    "output": "APPROVE",
+    "meta_label": "symmetry_base_5"
+  },
+  {
+    "id": "Q63",
+    "instruction": "Generate a constraint-compliant rerouting justification based on real-time disruptions and DOT physical constraints.",
+    "input": "Can we reroute the Heavy Haul (80,000 lbs) shipment from Houston to Salt Lake City via I-10? We just got a report of port/dock strike. Context: Route options include I-10 and I-20.",
+    "output": "APPROVE",
+    "meta_label": "symmetry_pair_5"
   }
 ]
