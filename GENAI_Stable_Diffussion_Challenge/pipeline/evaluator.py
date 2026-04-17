@@ -73,7 +73,9 @@ def _image_embedding(image: Image.Image) -> np.ndarray:
     model, processor = _load_clip()
     inputs = processor(images=image, return_tensors="pt")
     with torch.no_grad():
-        emb = model.get_image_features(**inputs)
+        # Explicitly pass pixel_values only — newer transformers versions
+        # return BaseModelOutputWithPooling when extra keys are passed via **inputs
+        emb = model.get_image_features(pixel_values=inputs["pixel_values"])
     emb = emb / emb.norm(dim=-1, keepdim=True)   # L2 normalise
     return emb.squeeze().cpu().numpy()
 
