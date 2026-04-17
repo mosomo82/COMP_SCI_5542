@@ -41,7 +41,33 @@ subprocess.check_call([
 ])
 print("✅ Dependencies installed.")
 
-# ── 3. (Optional) Mount Google Drive to persist outputs ───────────────────────
+# ── 3. Create data/products.json if it doesn't exist ─────────────────────────
+import json
+from pathlib import Path
+
+PRODUCTS_PATH = Path("data/products.json")
+PRODUCTS_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+if not PRODUCTS_PATH.exists():
+    print("\n📄 Creating data/products.json...")
+    products = [
+        {"id":"P001","title":"Running Sneakers with Mesh Upper","category":"Athletic Footwear","color":"Navy Blue and White","material":"Breathable Mesh, Rubber Sole","style":"sporty, lightweight, modern"},
+        {"id":"P002","title":"Crossbody Leather Handbag","category":"Handbags","color":"Tan Brown","material":"Genuine Leather","style":"minimalist, elegant, structured"},
+        {"id":"P003","title":"Stainless Steel Smart Watch","category":"Watches","color":"Silver and Black","material":"Stainless Steel, Silicone Band","style":"modern, sleek, tech"},
+        {"id":"P004","title":"Oversized Puffer Winter Jacket","category":"Jackets","color":"Olive Green","material":"Nylon Shell, Down Fill","style":"cozy, outdoor, casual"},
+        {"id":"P005","title":"Classic Crew Neck Cotton T-Shirt","category":"T-Shirts","color":"White","material":"100% Cotton","style":"basic, clean, everyday"},
+        {"id":"P006","title":"Ergonomic Office Chair with Lumbar Support","category":"Furniture","color":"Black and Gray","material":"Mesh Back, Foam Seat","style":"professional, ergonomic, modern"},
+        {"id":"P007","title":"Wireless Noise-Cancelling Headphones","category":"Electronics","color":"Midnight Black","material":"Plastic, Faux Leather Ear Cups","style":"premium, over-ear, foldable"},
+        {"id":"P008","title":"Slim Fit Chino Pants","category":"Pants","color":"Khaki Beige","material":"Cotton Blend, Stretch Fabric","style":"slim, casual, versatile"},
+        {"id":"P009","title":"Ceramic Pour-Over Coffee Maker","category":"Kitchen","color":"Matte White","material":"Ceramic, Food-Grade Silicone","style":"minimalist, artisan, pour-over"},
+        {"id":"P010","title":"Leather Oxford Dress Shoes","category":"Casual Shoes","color":"Dark Brown","material":"Full Grain Leather, Leather Sole","style":"formal, classic, polished"},
+    ]
+    PRODUCTS_PATH.write_text(json.dumps(products, indent=2))
+    print(f"✅ Created {PRODUCTS_PATH} with {len(products)} products.")
+else:
+    print(f"✅ Found existing {PRODUCTS_PATH}")
+
+# ── 4. (Optional) Mount Google Drive to persist outputs ───────────────────────
 SAVE_TO_DRIVE = False   # ← Set to True to save outputs to Google Drive
 
 if SAVE_TO_DRIVE:
