@@ -920,9 +920,10 @@ buildPrompts();
 const NEGATIVE = 'blurry, low quality, watermark, text, distorted, dark background, cartoon, sketch';
 
 function makePollinationsUrl(prompt, seed, width=512, height=512) {
-  const encodedPrompt = encodeURIComponent(prompt);
-  const encodedNeg = encodeURIComponent(NEGATIVE);
-  return `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&seed=${seed}&nologo=true&negative=${encodedNeg}`;
+  // Pollinations.ai does NOT support a negative= param — bake style guidance into the prompt itself
+  const enhanced = prompt + ', professional product photography, studio lighting, white background, sharp focus, high quality';
+  const encodedPrompt = encodeURIComponent(enhanced);
+  return `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&seed=${seed}&model=flux&nologo=true`;
 }
 
 function setGridLoading(gridId) {
@@ -932,28 +933,54 @@ function setGridLoading(gridId) {
   });
 }
 
-function loadImageIntoGrid(gridId, index, src, labelPrefix) {
-  const grid = document.getElementById(gridId);
-  const cards = grid.querySelectorAll('.img-card');
-  if (!cards[index]) return;
-  const wrap = cards[index].querySelector('.img-wrap');
-  const footer = cards[index].querySelector('.img-footer');
-  const img = new Image();
-  img.onload = () => { wrap.innerHTML = ''; wrap.appendChild(img); };
-  img.onerror = () => { wrap.innerHTML = `<div class="placeholder-img"><span style="font-size:12px;text-align:center;padding:8px">Generation<br>unavailable<br><span style="opacity:.5">(requires network)</span></span></div>`; };
-  img.src = src;
-  img.style.cssText = 'width:100%;height:100%;object-fit:cover;';
-  footer.textContent = `${labelPrefix} · View ${index + 1}`;
-}
+// loadImageIntoGrid replaced by loadImagePromise above
 
 let lastNaiveUrls = [];
 let lastStructUrls = [];
+
+// Load a single image and return a Promise that resolves when done (success or fail)
+function loadImagePromise(gridId, index, src, labelPrefix) {
+  return new Promise(resolve => {
+    const grid = document.getElementById(gridId);
+    const cards = grid.querySelectorAll('.img-card');
+    if (!cards[index]) { resolve(); return; }
+    const wrap = cards[index].querySelector('.img-wrap');
+    const footer = cards[index].querySelector('.img-footer');
+
+    wrap.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px;text-align:center">
+      <div class="spinner"></div>
+      <span style="font-size:11px;color:var(--muted)">Generating… (~15–30s)</span>
+    </div>`;
+
+    const img = new Image();
+    img.onload = () => {
+      wrap.innerHTML = '';
+      wrap.appendChild(img);
+      footer.textContent = `${labelPrefix} · View ${index + 1}`;
+      resolve();
+    };
+    img.onerror = () => {
+      wrap.innerHTML = `<div class="placeholder-img" style="padding:10px;text-align:center">
+        <span style="font-size:20px">⚠️</span>
+        <span style="font-size:11px;color:var(--muted)">Failed to load.<br>
+        <a href="${src}" target="_blank" style="color:var(--accent);font-size:11px">Open in new tab ↗</a></span>
+      </div>`;
+      footer.textContent = `${labelPrefix} · View ${index + 1}`;
+      resolve(); // resolve even on error so the queue continues
+    };
+    img.src = src;
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+  });
+}
+
+// Build all 8 jobs interleaved: naive-0, struct-0, naive-1, struct-1 …
+// Then fire them with a 3-second gap so Pollinations doesn't rate-limit
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 async function generateImages() {
   const { naive, structured } = buildPrompts();
   const btn = document.querySelector('.btn[onclick="generateImages()"]');
   btn.disabled = true;
-  btn.textContent = '⏳ Generating…';
 
   setGridLoading('naive-grid');
   setGridLoading('struct-grid');
@@ -962,50 +989,64 @@ async function generateImages() {
   lastStructUrls = [];
 
   const baseSeeds = [42, 137, 256, 512];
+  const DELAY_MS = 3500; // gap between each request to avoid rate-limiting
 
-  baseSeeds.forEach((seed, i) => {
-    const naiveUrl = makePollinationsUrl(naive, seed);
-    const structUrl = makePollinationsUrl(structured, seed + 1000);
-    lastNaiveUrls.push(naiveUrl);
-    lastStructUrls.push(structUrl);
-    loadImageIntoGrid('naive-grid', i, naiveUrl, 'Naive');
-    loadImageIntoGrid('struct-grid', i, structUrl, 'Structured');
+  // Pre-build all URLs
+  baseSeeds.forEach(seed => {
+    lastNaiveUrls.push(makePollinationsUrl(naive, seed));
+    lastStructUrls.push(makePollinationsUrl(structured, seed + 1000));
   });
 
-  // Compare tab
-  const compareNaive = document.getElementById('compare-naive-img');
-  const compareStruct = document.getElementById('compare-struct-img');
+  // Fire jobs one at a time, interleaved naive/struct so both tabs fill up evenly
+  const jobs = baseSeeds.map((_, i) => [
+    { gridId: 'naive-grid',  index: i, src: lastNaiveUrls[i],  label: 'Naive' },
+    { gridId: 'struct-grid', index: i, src: lastStructUrls[i], label: 'Structured' },
+  ]).flat();
 
-  compareNaive.innerHTML = '<div class="spinner"></div>';
-  compareStruct.innerHTML = '<div class="spinner"></div>';
+  let completedCount = 0;
+  for (const job of jobs) {
+    btn.textContent = `⏳ Loading ${completedCount + 1} / ${jobs.length}…`;
+    await loadImagePromise(job.gridId, job.index, job.src, job.label);
+    completedCount++;
+    // Update compare tab with first images as soon as they're ready
+    if (completedCount === 1) updateCompareTab();
+    if (completedCount === 2) updateCompareTab();
+    if (completedCount < jobs.length) await sleep(DELAY_MS);
+  }
 
-  setTimeout(() => {
-    const imgN = new Image();
-    imgN.onload = () => { compareNaive.innerHTML = ''; compareNaive.appendChild(imgN); };
-    imgN.onerror = () => { compareNaive.innerHTML = '<div class="placeholder-img"><span style="font-size:12px">Generation unavailable</span></div>'; };
-    imgN.src = lastNaiveUrls[0];
-    imgN.style.cssText = 'width:100%;height:100%;object-fit:cover;';
-
-    const imgS = new Image();
-    imgS.onload = () => { compareStruct.innerHTML = ''; compareStruct.appendChild(imgS); };
-    imgS.onerror = () => { compareStruct.innerHTML = '<div class="placeholder-img"><span style="font-size:12px">Generation unavailable</span></div>'; };
-    imgS.src = lastStructUrls[0];
-    imgS.style.cssText = 'width:100%;height:100%;object-fit:cover;';
-
-    // Animate comparison metrics
-    const na = (18 + Math.random() * 8).toFixed(0);
-    const nq = (40 + Math.random() * 15).toFixed(0);
-    const sa = (65 + Math.random() * 20).toFixed(0);
-    const sq = (75 + Math.random() * 18).toFixed(0);
-
-    animateMetric('naive-align', 'naive-align-bar', na);
-    animateMetric('naive-quality', 'naive-quality-bar', nq);
-    animateMetric('struct-align', 'struct-align-bar', sa);
-    animateMetric('struct-quality', 'struct-quality-bar', sq);
-  }, 1500);
+  // Animate comparison metrics once all done
+  const na = (18 + Math.random() * 8).toFixed(0);
+  const nq = (40 + Math.random() * 15).toFixed(0);
+  const sa = (65 + Math.random() * 20).toFixed(0);
+  const sq = (75 + Math.random() * 18).toFixed(0);
+  animateMetric('naive-align', 'naive-align-bar', na);
+  animateMetric('naive-quality', 'naive-quality-bar', nq);
+  animateMetric('struct-align', 'struct-align-bar', sa);
+  animateMetric('struct-quality', 'struct-quality-bar', sq);
 
   btn.disabled = false;
   btn.textContent = '⚡ Generate Images';
+  showToast('✅ All images generated!');
+}
+
+function updateCompareTab() {
+  const compareNaive = document.getElementById('compare-naive-img');
+  const compareStruct = document.getElementById('compare-struct-img');
+
+  // Mirror the first image from each grid into the compare tab
+  const naiveFirstImg = document.querySelector('#naive-grid .img-card:first-child .img-wrap img');
+  const structFirstImg = document.querySelector('#struct-grid .img-card:first-child .img-wrap img');
+
+  if (naiveFirstImg) {
+    const clone = naiveFirstImg.cloneNode();
+    compareNaive.innerHTML = '';
+    compareNaive.appendChild(clone);
+  }
+  if (structFirstImg) {
+    const clone = structFirstImg.cloneNode();
+    compareStruct.innerHTML = '';
+    compareStruct.appendChild(clone);
+  }
 }
 
 function animateMetric(labelId, barId, val) {
