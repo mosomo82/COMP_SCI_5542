@@ -18,6 +18,7 @@ GPU memory guidance
 import torch
 from diffusers import (
     StableDiffusionPipeline,
+    StableDiffusionXLPipeline,
     StableDiffusionControlNetPipeline,
     ControlNetModel,
     DPMSolverMultistepScheduler,
@@ -80,10 +81,13 @@ def load_sd_pipeline(
     dtype  = torch.float16 if device == "cuda" else torch.float32
 
     console.print(f"[cyan]Loading SD pipeline:[/cyan] {model_id}")
-    pipe = StableDiffusionPipeline.from_pretrained(
+    
+    pipeline_class = StableDiffusionXLPipeline if use_sdxl else StableDiffusionPipeline
+    
+    pipe = pipeline_class.from_pretrained(
         model_id,
         torch_dtype=dtype,
-        safety_checker=None,       # disable NSFW filter for product images
+        safety_checker=None if not use_sdxl else None,
         requires_safety_checker=False,
     )
 
