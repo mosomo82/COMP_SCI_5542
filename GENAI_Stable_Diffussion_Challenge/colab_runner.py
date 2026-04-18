@@ -96,19 +96,19 @@ else:
 cmd = [
     sys.executable, "run_pipeline.py",
     "--mode",       "sd",
-    "--limit",      "3",          # ← change to 10 for the full run
+    "--limit",      "10",    
     "--n-images",   "4",
     "--steps",      "30",
     "--cfg",        "7.5",
-    "--height",     "512",
-    "--width",      "512",
+    "--height",     "1024",     # SDXL requires 1024x1024
+    "--width",      "1024",
     "--seed",       "42",
     "--output-dir", OUTPUT_DIR,
     "--results-dir", RESULTS_DIR,
 ]
 
-# Uncomment to use SDXL (better quality, needs A100 / L4):
-# cmd += ["--sdxl"]
+# Enable SDXL (better quality, needs A100 / L4):
+cmd += ["--sdxl"]
 
 print(f"\n🚀 Running: {' '.join(cmd)}\n")
 subprocess.check_call(cmd)
