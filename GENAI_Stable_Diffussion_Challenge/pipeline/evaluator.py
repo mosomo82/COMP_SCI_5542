@@ -59,7 +59,7 @@ def clip_score(image: Image.Image, prompt: str) -> float:
     Returns a float in [0, 1] — higher means better prompt alignment.
     """
     model, processor = _load_clip()
-    inputs  = processor(text=[prompt], images=image, return_tensors="pt", padding=True)
+    inputs  = processor(text=[prompt], images=image, return_tensors="pt", padding=True, truncation=True, max_length=77)
     with torch.no_grad():
         outputs = model(**inputs)
     # logits_per_image is the raw dot product; softmax gives probability

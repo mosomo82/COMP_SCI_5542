@@ -101,7 +101,7 @@ cmd = [
     "--mode",       "sd",
     "--limit",      "10",    
     "--n-images",   "4",
-    "--steps",      "30",
+    "--steps",      "50",
     "--cfg",        "7.5",
     "--height",     "1024" if USE_SDXL else "512",
     "--width",      "1024" if USE_SDXL else "512",
