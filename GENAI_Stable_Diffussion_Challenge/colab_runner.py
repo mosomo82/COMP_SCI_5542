@@ -67,21 +67,24 @@ if not PRODUCTS_PATH.exists():
 else:
     print(f"✅ Found existing {PRODUCTS_PATH}")
 
-# ── 4. (Optional) Mount Google Drive to persist outputs ───────────────────────
+# ── 4. Configuration Toggle ───────────────────────────────────────────────────
+USE_SDXL      = True    # ← Set to False to use standard SD 1.5
 SAVE_TO_DRIVE = False   # ← Set to True to save outputs to Google Drive
+
+variant = "sdxl" if USE_SDXL else "sd15"
 
 if SAVE_TO_DRIVE:
     from google.colab import drive
     drive.mount("/content/drive")
-    OUTPUT_DIR  = "/content/drive/MyDrive/SD_Outputs/outputs"
-    RESULTS_DIR = "/content/drive/MyDrive/SD_Outputs/results"
+    OUTPUT_DIR  = f"/content/drive/MyDrive/SD_Outputs/outputs_{variant}"
+    RESULTS_DIR = f"/content/drive/MyDrive/SD_Outputs/results_{variant}"
     print(f"💾 Saving to Google Drive: {OUTPUT_DIR}")
 else:
-    OUTPUT_DIR  = "outputs"   # saved locally in Colab session
-    RESULTS_DIR = "results"
-    print("📁 Saving to Colab session (outputs/ and results/)")
+    OUTPUT_DIR  = f"outputs_{variant}"   # saved locally in Colab session
+    RESULTS_DIR = f"results_{variant}"
+    print(f"📁 Saving to Colab session ({OUTPUT_DIR}/ and {RESULTS_DIR}/)")
 
-# ── 4. Run the pipeline ───────────────────────────────────────────────────────
+# ── 5. Run the pipeline ───────────────────────────────────────────────────────
 #
 #  Adjust these settings as needed:
 #    --limit    : number of products to process (use 3 for a quick test)
@@ -89,9 +92,9 @@ else:
 #    --steps    : denoising steps (20 = fast,  50 = high quality)
 #    --cfg      : guidance scale (7.5 is the sweet spot)
 #
-#  On Colab Pro A100 (~40 GB):  use --sdxl for best quality
-#  On Colab Pro T4 (~16 GB):    use default SD 1.5
-#  On Colab Pro L4 (~24 GB):    SD 1.5 or SDXL both work
+#  On Colab Pro A100 (~40 GB):  use USE_SDXL = True for best quality
+#  On Colab Pro T4 (~16 GB):    use USE_SDXL = False
+#  On Colab Pro L4 (~24 GB):    Both work
 
 cmd = [
     sys.executable, "run_pipeline.py",
@@ -100,15 +103,15 @@ cmd = [
     "--n-images",   "4",
     "--steps",      "30",
     "--cfg",        "7.5",
-    "--height",     "1024",     # SDXL requires 1024x1024
-    "--width",      "1024",
+    "--height",     "1024" if USE_SDXL else "512",
+    "--width",      "1024" if USE_SDXL else "512",
     "--seed",       "42",
     "--output-dir", OUTPUT_DIR,
     "--results-dir", RESULTS_DIR,
 ]
 
-# Enable SDXL (better quality, needs A100 / L4):
-cmd += ["--sdxl"]
+if USE_SDXL:
+    cmd += ["--sdxl"]
 
 print(f"\n🚀 Running: {' '.join(cmd)}\n")
 subprocess.check_call(cmd)
