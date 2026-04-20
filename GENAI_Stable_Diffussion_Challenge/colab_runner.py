@@ -30,7 +30,7 @@ else:
 
 # ── 2. Install dependencies ───────────────────────────────────────────────────
 print("\n📦 Installing dependencies...")
-subprocess.check_call([
+deps = [
     sys.executable, "-m", "pip", "install", "-q",
     "diffusers>=0.27.2",
     "transformers>=4.39.3",
@@ -38,7 +38,18 @@ subprocess.check_call([
     "controlnet-aux>=0.0.7",
     "xformers",           # memory-efficient attention (big speed boost on Colab)
     "rich>=13.7.1",
-])
+]
+
+# Optional audio support packages (enabled via USE_AUDIO below)
+USE_AUDIO     = False   # ← Set to True to generate ElevenLabs narrations
+ELEVENLABS_KEY = os.getenv("ELEVENLABS_API_KEY", "")
+if USE_AUDIO:
+    deps += [
+        "elevenlabs>=1.0.0",
+        "python-dotenv>=1.0.1",
+    ]
+
+subprocess.check_call(deps)
 print("✅ Dependencies installed.")
 
 # ── 3. Create data/products.json if it doesn't exist ─────────────────────────
@@ -113,6 +124,11 @@ cmd = [
 if USE_SDXL:
     cmd += ["--sdxl"]
 
+if USE_AUDIO:
+    if ELEVENLABS_KEY:
+        os.environ["ELEVENLABS_API_KEY"] = ELEVENLABS_KEY
+    cmd += ["--audio"]
+
 print(f"\n🚀 Running: {' '.join(cmd)}\n")
 subprocess.check_call(cmd)
 
@@ -155,13 +171,35 @@ for product_dir in sorted(output_path.iterdir()):
 
 # ── 6. Show results CSV ───────────────────────────────────────────────────────
 import pandas as pd
+from IPython.display import HTML, display
 
 report_path = Path(RESULTS_DIR) / "evaluation_report.csv"
 summary_path = Path(RESULTS_DIR) / "summary.csv"
+report_html_path = Path(RESULTS_DIR) / "evaluation_report.html"
+summary_html_path = Path(RESULTS_DIR) / "summary.html"
+quality_scores_path = Path(RESULTS_DIR) / "quality_scores.csv"
+quality_summary_path = Path(RESULTS_DIR) / "quality_summary.csv"
 
-if summary_path.exists():
+if summary_html_path.exists():
+    print("\n📊 Styled Summary:")
+    display(HTML(summary_html_path.read_text(encoding="utf-8")))
+elif summary_path.exists():
     print("\n📊 Evaluation Summary:")
-    df = pd.read_csv(summary_path)
-    print(df.to_string(index=False))
+    display(pd.read_csv(summary_path))
+
+if report_html_path.exists():
+    print("\n🧾 Styled Evaluation Report:")
+    display(HTML(report_html_path.read_text(encoding="utf-8")))
+elif report_path.exists():
+    print("\n🧾 Evaluation Report:")
+    display(pd.read_csv(report_path).head(20))
+
+if quality_summary_path.exists():
+    print("\n⭐ Quality Summary:")
+    display(pd.read_csv(quality_summary_path))
+
+if quality_scores_path.exists():
+    print("\n📝 Quality Scores:")
+    display(pd.read_csv(quality_scores_path).head(20))
 
 print("\n✅ Done! Check the outputs/ and results/ folders.")

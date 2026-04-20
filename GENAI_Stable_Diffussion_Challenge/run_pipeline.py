@@ -88,6 +88,7 @@ def parse_args() -> argparse.Namespace:
     # Flags
     parser.add_argument("--eval-only",  action="store_true", help="Skip generation, only run evaluation on existing outputs")
     parser.add_argument("--skip-eval",  action="store_true", help="Skip evaluation step after generation")
+    parser.add_argument("--audio",      action="store_true", help="Enable ElevenLabs audio narration generation")
 
     return parser.parse_args()
 
@@ -150,7 +151,7 @@ def main():
         f"Images/product/prompt: [yellow]{args.n_images}[/yellow]  |  "
         f"Steps: [yellow]{args.steps}[/yellow]  |  "
         f"CFG: [yellow]{args.cfg}[/yellow]",
-        title="🖼  GenAI Pipeline",
+        title="GenAI Pipeline",
     ))
 
     # -----------------------------------------------------------------------
@@ -202,6 +203,19 @@ def main():
             control_image=control_image,
         )
 
+        # -----------------------------------------------------------------------
+        # AUDIO GENERATION PHASE (ElevenLabs)
+        # -----------------------------------------------------------------------
+        if args.audio:
+            from pipeline.audio_generator import generate_product_audio
+            console.print("\n[bold yellow]Generating AI Voice Narrations (ElevenLabs)...[/bold yellow]")
+            for product in products:
+                res = generate_product_audio(product, output_dir / product["id"])
+                if res["success"]:
+                    console.print(f"  [green]OK[/green] Saved narration: [cyan]{res['audio_path']}[/cyan]")
+                else:
+                    console.print(f"  [red]FAIL[/red] Failed narration for: {product['id']}")
+
         # Free VRAM before running CLIP evaluation
         del pipe
         if device == "cuda":
@@ -222,9 +236,9 @@ def main():
         from pipeline.evaluator import evaluate_results
         evaluate_results(generation_results, results_dir)
 
-    console.print("\n[bold green]✅ Pipeline finished![/bold green]")
-    console.print(f"  Images  → [cyan]{output_dir}[/cyan]")
-    console.print(f"  Reports → [cyan]{results_dir}[/cyan]")
+    console.print("\n[bold green]Pipeline finished![/bold green]")
+    console.print(f"  Images  -> [cyan]{output_dir}[/cyan]")
+    console.print(f"  Reports -> [cyan]{results_dir}[/cyan]")
 
 
 if __name__ == "__main__":
