@@ -79,6 +79,16 @@ def main():
                         "style": style
                     }
                     
+                    # Try to get the image URL
+                    img_urls = item.get("imageURLHighRes", [])
+                    if not img_urls:
+                        img_urls = item.get("imageURL", [])
+                    
+                    if img_urls and len(img_urls) > 0:
+                        product["image_url"] = img_urls[0]
+                    else:
+                        continue # Skip products without images if we expect to use them for ControlNet
+                        
                     selected_products.append(product)
                     
                 if len(selected_products) >= 10:

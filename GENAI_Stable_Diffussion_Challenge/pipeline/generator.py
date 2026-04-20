@@ -87,6 +87,21 @@ def generate_for_product(
             f"[cyan]{product['title']}[/cyan]"
         )
         console.print(f"  [dim]{prompt_text[:120]}{'…' if len(prompt_text)>120 else ''}[/dim]")
+        
+        # Build per-product control image if needed
+        current_control = control_image
+        if gen_params.get("use_controlnet", False) and current_control is None:
+            if "image_url" in product:
+                try:
+                    current_control = build_canny_control_image(
+                        product["image_url"],
+                        target_size=(params["width"], params["height"])
+                    )
+                except Exception as e:
+                    console.print(f"[red]Failed to load image from {product['image_url']}: {e}[/red]")
+            if current_control is None:
+                console.print("[yellow]⚠ Skipping ControlNet generation because no control image could be loaded.[/yellow]")
+                continue
 
         for i in range(n_images):
             # Use different seeds per view for diversity
@@ -95,12 +110,12 @@ def generate_for_product(
 
             t0 = time.time()
 
-            if control_image is not None:
+            if current_control is not None:
                 # ControlNet mode
                 images = pipe(
                     prompt=prompt_text,
                     negative_prompt=NEGATIVE_PROMPT,
-                    image=control_image,
+                    image=current_control,
                     generator=generator,
                     **params,
                 ).images
@@ -154,11 +169,20 @@ def build_canny_control_image(
     target_size     : resize before edge detection (must match pipeline resolution)
     """
     from controlnet_aux import CannyDetector
+    import requests
+    from io import BytesIO
 
-    ref = Image.open(reference_path).convert("RGB").resize(target_size)
+    if reference_path.startswith("http://") or reference_path.startswith("https://"):
+        response = requests.get(reference_path)
+        ref = Image.open(BytesIO(response.content)).convert("RGB").resize(target_size)
+        console.print(f"[green]✓ Downloaded reference image from URL:[/green] {reference_path}")
+    else:
+        ref = Image.open(reference_path).convert("RGB").resize(target_size)
+    
     canny = CannyDetector()
     edge_map = canny(ref, low_threshold=low_threshold, high_threshold=high_threshold)
-    console.print(f"[green]✓ Canny edge map created from:[/green] {reference_path}")
+    if not reference_path.startswith("http"):
+        console.print(f"[green]✓ Canny edge map created from:[/green] {reference_path}")
     return edge_map
 
 

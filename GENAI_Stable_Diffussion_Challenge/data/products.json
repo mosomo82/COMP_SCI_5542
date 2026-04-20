@@ -5,7 +5,8 @@
     "category": "All Electronics",
     "color": "Red",
     "material": "Mixed Materials",
-    "style": "modern, functional, electronics"
+    "style": "modern, functional, electronics",
+    "image_url": "https://images-na.ssl-images-amazon.com/images/I/51QnwhmC19L.jpg"
   },
   {
     "id": "0132492776",
@@ -13,7 +14,8 @@
     "category": "Home Audio & Theater",
     "color": "Blue",
     "material": "Mixed Materials",
-    "style": "modern, functional, electronics"
+    "style": "modern, functional, electronics",
+    "image_url": "https://images-na.ssl-images-amazon.com/images/I/410sQ%2BqT9uL.jpg"
   },
   {
     "id": "0246003235",
@@ -21,7 +23,8 @@
     "category": "Computers",
     "color": "Black",
     "material": "Mixed Materials",
-    "style": "modern, functional, electronics"
+    "style": "modern, functional, electronics",
+    "image_url": "https://images-na.ssl-images-amazon.com/images/I/412YwzO-5CL.jpg"
   },
   {
     "id": "0285175270",
@@ -29,7 +32,8 @@
     "category": "All Electronics",
     "color": "Blue",
     "material": "Mixed Materials",
-    "style": "modern, functional, electronics"
+    "style": "modern, functional, electronics",
+    "image_url": "https://images-na.ssl-images-amazon.com/images/I/5127U2fTMDL.jpg"
   },
   {
     "id": "0303532572",
@@ -37,7 +41,8 @@
     "category": "Home Audio & Theater",
     "color": "Black",
     "material": "Mixed Materials",
-    "style": "premium, sleek, minimal"
+    "style": "premium, sleek, minimal",
+    "image_url": "https://images-na.ssl-images-amazon.com/images/I/41n5rOI-c4L.jpg"
   },
   {
     "id": "0302643370",
@@ -45,7 +50,8 @@
     "category": "Home Audio & Theater",
     "color": "Black",
     "material": "Mixed Materials",
-    "style": "modern, functional, electronics"
+    "style": "modern, functional, electronics",
+    "image_url": "https://images-na.ssl-images-amazon.com/images/I/311uH05B1iL.jpg"
   },
   {
     "id": "0511189877",
@@ -53,7 +59,8 @@
     "category": "All Electronics",
     "color": "Red",
     "material": "Mixed Materials",
-    "style": "modern, functional, electronics"
+    "style": "modern, functional, electronics",
+    "image_url": "https://images-na.ssl-images-amazon.com/images/I/41cC8477ShL.jpg"
   },
   {
     "id": "0528013475",
@@ -61,7 +68,8 @@
     "category": "All Electronics",
     "color": "Red",
     "material": "Mixed Materials",
-    "style": "modern, functional, electronics"
+    "style": "modern, functional, electronics",
+    "image_url": "https://images-na.ssl-images-amazon.com/images/I/41hmgJ1GGZL.jpg"
   },
   {
     "id": "0528012398",
@@ -69,7 +77,8 @@
     "category": "All Electronics",
     "color": "Black",
     "material": "Mixed Materials",
-    "style": "modern, functional, electronics"
+    "style": "modern, functional, electronics",
+    "image_url": "https://images-na.ssl-images-amazon.com/images/I/41FWetMBbML.jpg"
   },
   {
     "id": "0528881469",
@@ -77,6 +86,7 @@
     "category": "All Electronics",
     "color": "Red",
     "material": "Mixed Materials",
-    "style": "modern, functional, electronics"
+    "style": "modern, functional, electronics",
+    "image_url": "https://images-na.ssl-images-amazon.com/images/I/41zy99-KivL.jpg"
   }
 ]

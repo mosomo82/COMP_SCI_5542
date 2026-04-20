@@ -172,23 +172,22 @@ def main():
             "guidance_scale":      args.cfg,
             "height":              args.height,
             "width":               args.width,
+            "use_controlnet":      args.mode == "controlnet",
         }
 
         control_image = None
 
         if args.mode == "controlnet":
-            if args.reference is None:
-                console.print(
-                    "[red]Error:[/red] --reference <image_path> is required for controlnet mode."
-                )
-                sys.exit(1)
             pipe, device = load_controlnet_pipeline()
-            control_image = build_canny_control_image(
-                args.reference,
-                low_threshold=args.canny_low,
-                high_threshold=args.canny_high,
-                target_size=(args.width, args.height),
-            )
+            if args.reference is not None:
+                control_image = build_canny_control_image(
+                    args.reference,
+                    low_threshold=args.canny_low,
+                    high_threshold=args.canny_high,
+                    target_size=(args.width, args.height),
+                )
+            else:
+                console.print("[cyan]No --reference provided. Using per-product 'image_url' for Canny edge map.[/cyan]")
         else:
             pipe, device = load_sd_pipeline(use_sdxl=args.sdxl)
 
