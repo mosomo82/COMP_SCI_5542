@@ -265,8 +265,7 @@ GitHub repository:
 - https://github.com/mosomo82/COMP_SCI_5542.git
 
 Video URL:
-- Add your demo link here before submission
-- Example placeholder: https://youtu.be/REPLACE_WITH_YOUR_VIDEO_ID
+- https://youtu.be/s9AUJty11L0
 
 AI tool disclosure (required):
 - Claude Code: coding workflow and integration support
