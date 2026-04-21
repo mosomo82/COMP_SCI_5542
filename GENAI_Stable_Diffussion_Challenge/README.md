@@ -1,8 +1,14 @@
 # CS 5542 — GenAI: Stable Diffusion E-Commerce Image Generation Pipeline
 
-> **Quiz Challenge · 5% credit · Due April 20, 2026**
+> **Quiz Challenge ·  Due April 20, 2026**
 
 A local Python pipeline that converts product metadata into high-quality e-commerce product images using Stable Diffusion. Compares **naive prompts** (raw title only) vs **structured prompts** (rich metadata templates) and evaluates with CLIP scores.
+
+GitHub repository:
+- https://github.com/mosomo82/COMP_SCI_5542.git
+
+Video URL:
+- https://youtu.be/s9AUJty11L0
 
 ---
 
@@ -10,26 +16,39 @@ A local Python pipeline that converts product metadata into high-quality e-comme
 
 ```
 GENAI_Stable_Diffusion_Challenge/
-├── run_pipeline.py          # ← main entry point (CLI)
-├── colab_runner.py          # batch run in Colab (generate + evaluate)
-├── colab_api_server.ipynb   # Colab Flask API server for interactive generation
+├── run_pipeline.py              # ← main entry point (local CLI)
+├── colab_runner.py              # batch generation + evaluation in Colab
+├── colab_api_server.ipynb       # Colab Flask API server for interactive generation
+├── colab_quality_review.ipynb   # quality review / score inspection notebook
+├── evaluate_quality.py          # standalone CLIP + consistency evaluation script
+├── convert_amazon_data.py       # converts raw Amazon metadata → products.json
+├── site.html                    # browser frontend (generation, comparison, quality rating)
 ├── requirements.txt
 ├── data/
-│   └── products.json        # sample product metadata (10 products)
+│   └── products.json            # sample product metadata (10 products)
 ├── pipeline/
 │   ├── __init__.py
-│   ├── prompt_builder.py    # naive vs structured prompt strategies
-│   ├── sd_pipeline.py       # loads SD / ControlNet pipelines
-│   ├── generator.py         # generates images, saves PNGs
-│   └── evaluator.py         # CLIP score + consistency metrics + CSV reports
-├── outputs/                 # generated images (auto-created)
-│   └── P001/
-│       ├── P001_naive_view01_seed42.png
-│       ├── P001_structured_view01_seed42.png
-│       └── ...
-└── results/                 # evaluation reports (auto-created)
-    ├── evaluation_report.csv
-    └── summary.csv
+│   ├── prompt_builder.py        # naive vs structured prompt strategies
+│   ├── sd_pipeline.py           # loads SD 1.5 / SDXL / ControlNet pipelines
+│   ├── generator.py             # generates images, saves PNGs
+│   ├── evaluator.py             # CLIP score + consistency + diversity metrics
+│   └── audio_generator.py       # optional ElevenLabs TTS narration per product
+├── outputs/                     # generated images (auto-created, one folder per product)
+│   └── 0101635370/
+│       ├── 0101635370_naive_view01_seed42.png
+│       ├── 0101635370_structured_view01_seed42.png
+│       ├── ...                  # view02–04 for naive and structured
+│       └── controlnet/
+│           ├── comparison_0101635370.png
+│           └── evaluation_0101635370.png
+├── results/                     # evaluation reports (auto-created)
+│   ├── local_evaluation_report.csv
+│   ├── local_evaluation_report.html
+│   ├── local_summary.csv
+│   └── local_summary.html
+└── slides/
+    ├── UMKC_COMP_SCI_5542_Presentation.md             # slide content script
+    └── UMKC_COMP_SCI_5542_Presentation_Stable_Diffusion.pptx   # final deck
 ```
 
 ---
