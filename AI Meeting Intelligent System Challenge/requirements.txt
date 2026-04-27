@@ -1,0 +1,30 @@
+# Core ML / Audio
+torch>=2.1.0
+torchaudio>=2.1.0
+transformers>=4.37.0
+openai-whisper>=20231117
+pyannote.audio>=3.1.0
+datasets>=2.16.0
+
+# NLP
+keybert>=0.8.3
+spacy>=3.7.0
+sentence-transformers>=2.3.0
+
+# LLM
+anthropic>=0.23.0
+google-generativeai>=0.7.2
+
+# Audio processing
+librosa>=0.10.1
+soundfile>=0.12.1
+pydub>=0.25.1
+
+# UI
+gradio>=4.19.0
+
+# Utilities
+python-dotenv>=1.0.0
+numpy>=1.26.0
+pandas>=2.1.0
+tqdm>=4.66.0

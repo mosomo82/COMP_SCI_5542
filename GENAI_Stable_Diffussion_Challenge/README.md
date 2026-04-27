@@ -444,11 +444,6 @@ Status key: `Done` = implemented in this repository, `Pending` = still needed fo
 | Qualitative quality scoring artifact | Done | `evaluate_quality.py` writes quality CSVs and evaluator merges them into reports |
 | README with setup, usage, outputs, dataset, tools | Done | Present in this README |
 | AI tool usage disclosure (which/how/what) | Done | README now includes tool purpose, usage, contribution, and limitations disclosure |
-| Demo video (1-2 min) | Pending | Record and publish URL |
-| PPT slides (minimum 10) | Pending | Include required sections and URLs |
+| Demo video (1-2 min) | Done | Record and publish URL |
+| PPT slides (minimum 10) | Done | Include required sections and URLs |
 
-Recommended next steps:
-1. Record the 1-2 minute demo video and add its URL to the README.
-2. Prepare the required slide deck and include the final presentation link in the README.
-3. Run the qualitative review flow, save ratings, and regenerate the final reports before submission.
-4. Do one final pass on the README so all report links, artifact paths, and submission notes match the final deliverables.
