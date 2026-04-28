@@ -206,4 +206,4 @@ def save_analysis(sentiment: dict, keywords: list, output_path: str = "outputs/s
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, "w") as f:
         json.dump({"sentiment": sentiment, "keywords": keywords}, f, indent=2)
-    print(f"[Analyze] Analysis saved → {output_path}")
+    print(f"[Analyze] Analysis saved -> {output_path}")

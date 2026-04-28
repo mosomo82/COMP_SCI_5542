@@ -56,7 +56,7 @@ def run_pipeline(
 
     # Stage 1: Transcription
     t0 = time.time()
-    print("► Stage 1/5: Transcription")
+    print("[1/5] Transcription")
     transcription = transcribe(audio_path, model_size=whisper_model)
     save_transcript(transcription, output_path=f"outputs/transcript_{whisper_model}.txt")
     result["transcript"] = transcription["text"]
@@ -64,7 +64,7 @@ def run_pipeline(
 
     # Stage 2: Diarization
     t0 = time.time()
-    print("\n► Stage 2/5: Speaker diarization")
+    print("[2/5] Speaker diarization")
     diarized = diarize(audio_path, transcription["segments"])
     save_diarized(diarized, output_path=f"outputs/diarized_{whisper_model}.json")
     result["diarized"] = diarized
@@ -73,7 +73,7 @@ def run_pipeline(
 
     # Stage 3: NLP Analysis
     t0 = time.time()
-    print("\n► Stage 3/5: NLP analysis")
+    print("[3/5] NLP analysis")
     sentiment = analyze_sentiment(diarized)
     keywords  = extract_keywords(transcription["text"])
     save_analysis(sentiment, keywords, output_path=f"outputs/sentiment_{whisper_model}.json")
@@ -83,7 +83,7 @@ def run_pipeline(
 
     # Stage 4: LLM Summary
     t0 = time.time()
-    print("\n► Stage 4/5: LLM summarization")
+    print("[4/5] LLM summarization")
     summary = summarize(
         diarized_transcript=result["diarized_text"],
         keywords=keywords,
@@ -98,7 +98,7 @@ def run_pipeline(
     # Stage 5: TTS (optional — skip for fast iteration)
     if generate_audio:
         t0 = time.time()
-        print("\n► Stage 5/5: Text-to-speech narration")
+        print("[5/5] Text-to-speech narration")
         audio_path_out = synthesize_speech(
             result["summary_text"],
             output_path=f"outputs/summary_audio_{whisper_model}_{prompt_variant}.wav"
@@ -107,7 +107,7 @@ def run_pipeline(
         times["tts"] = round(time.time() - t0, 2)
     else:
         result["audio_path"] = None
-        print("\n► Stage 5/5: TTS skipped")
+        print("[5/5] TTS skipped")
 
     result["stage_times"] = times
     total = round(sum(times.values()), 2)

@@ -2,7 +2,7 @@
 speak.py — Text-to-speech using Microsoft SpeechT5
 
 Converts the meeting summary text into a voiced .wav file.
-This is the multimodal bonus: speech in → speech out.
+This is the multimodal bonus: speech in -> speech out.
 """
 
 import os
@@ -61,7 +61,7 @@ def synthesize_speech(text: str, output_path: str = "outputs/summary_audio.wav")
     sf.write(output_path, final_audio, samplerate=16000)
 
     duration = len(final_audio) / 16000
-    print(f"[TTS] Audio saved → {output_path} ({duration:.1f}s)")
+    print(f"[TTS] Audio saved -> {output_path} ({duration:.1f}s)")
     return output_path
 
 

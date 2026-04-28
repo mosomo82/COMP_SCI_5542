@@ -536,4 +536,4 @@ def save_summary(summary: dict, output_path: str = "outputs/summary.json") -> No
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, "w") as f:
         json.dump(summary, f, indent=2)
-    print(f"[Summarize] Summary saved → {output_path}")
+    print(f"[Summarize] Summary saved -> {output_path}")

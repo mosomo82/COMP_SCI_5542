@@ -231,4 +231,4 @@ def save_diarized(diarized: list, output_path: str = "outputs/diarized.json") ->
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, "w") as f:
         json.dump(diarized, f, indent=2)
-    print(f"[Diarize] Diarized transcript saved → {output_path}")
+    print(f"[Diarize] Diarized transcript saved -> {output_path}")

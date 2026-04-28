@@ -191,7 +191,7 @@ def save_markdown_report(results: dict, path: Path) -> None:
             f"| {q.get('fields_populated','—')} "
             f"| {q.get('action_items_count','—')} "
             f"| {q.get('key_decisions_count','—')} "
-            f"| {'✅' if q.get('action_items_well_formed') else '❌'} |"
+            f"| {'OK' if q.get('action_items_well_formed') else 'X'} |"
         )
 
     if any("action_item_precision" in r for r in results["runs"]):
@@ -215,7 +215,7 @@ def save_markdown_report(results: dict, path: Path) -> None:
             lines.append(f"| {entry['snr_db']} | {entry['wer']} |")
 
     path.write_text("\n".join(lines), encoding="utf-8")
-    print(f"[Eval] Markdown report saved → {path}")
+    print(f"[Eval] Markdown report saved -> {path}")
 
 
 # ─── Core runner ──────────────────────────────────────────────────────────────
@@ -285,7 +285,7 @@ def run_evaluation(
             run_file = out_path / f"summary_{label}.json"
             with open(run_file, "w") as f:
                 json.dump(pipeline_result["summary"], f, indent=2)
-            print(f"  Summary saved → {run_file}")
+            print(f"  Summary saved -> {run_file}")
 
     # ── Noise robustness sweep ────────────────────────────────────────────────
     if noise_levels and reference_transcript:
@@ -331,7 +331,7 @@ def run_evaluation(
     json_report = out_path / "evaluation_report.json"
     with open(json_report, "w") as f:
         json.dump(results, f, indent=2)
-    print(f"\n[Eval] JSON report saved → {json_report}")
+    print(f"\n[Eval] JSON report saved -> {json_report}")
 
     # ── Save Markdown report ──────────────────────────────────────────────────
     save_markdown_report(results, out_path / "evaluation_report.md")

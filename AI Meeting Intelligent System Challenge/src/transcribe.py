@@ -65,8 +65,8 @@ def save_transcript(result: dict, output_path: str = "outputs/transcript.txt") -
         for seg in result["segments"]:
             start = f"{seg['start']:.1f}s"
             end   = f"{seg['end']:.1f}s"
-            f.write(f"[{start} → {end}] {seg['text'].strip()}\n")
-    print(f"[Whisper] Transcript saved → {output_path}")
+            f.write(f"[{start} -> {end}] {seg['text'].strip()}\n")
+    print(f"[Whisper] Transcript saved -> {output_path}")
 
 
 if __name__ == "__main__":
