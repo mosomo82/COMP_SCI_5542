@@ -58,7 +58,7 @@ def run_pipeline(
     t0 = time.time()
     print("► Stage 1/5: Transcription")
     transcription = transcribe(audio_path, model_size=whisper_model)
-    save_transcript(transcription)
+    save_transcript(transcription, output_path=f"outputs/transcript_{whisper_model}.txt")
     result["transcript"] = transcription["text"]
     times["transcription"] = round(time.time() - t0, 2)
 
@@ -66,7 +66,7 @@ def run_pipeline(
     t0 = time.time()
     print("\n► Stage 2/5: Speaker diarization")
     diarized = diarize(audio_path, transcription["segments"])
-    save_diarized(diarized)
+    save_diarized(diarized, output_path=f"outputs/diarized_{whisper_model}.json")
     result["diarized"] = diarized
     result["diarized_text"] = format_diarized_transcript(diarized)
     times["diarization"] = round(time.time() - t0, 2)
@@ -76,7 +76,7 @@ def run_pipeline(
     print("\n► Stage 3/5: NLP analysis")
     sentiment = analyze_sentiment(diarized)
     keywords  = extract_keywords(transcription["text"])
-    save_analysis(sentiment, keywords)
+    save_analysis(sentiment, keywords, output_path=f"outputs/sentiment_{whisper_model}.json")
     result["sentiment"] = sentiment
     result["keywords"]  = keywords
     times["analysis"] = round(time.time() - t0, 2)
@@ -90,7 +90,7 @@ def run_pipeline(
         sentiment=sentiment,
         prompt_variant=prompt_variant,
     )
-    save_summary(summary)
+    save_summary(summary, output_path=f"outputs/summary_{whisper_model}_{prompt_variant}.json")
     result["summary"]      = summary
     result["summary_text"] = format_summary_for_speech(summary)
     times["summarization"] = round(time.time() - t0, 2)
@@ -99,7 +99,10 @@ def run_pipeline(
     if generate_audio:
         t0 = time.time()
         print("\n► Stage 5/5: Text-to-speech narration")
-        audio_path_out = synthesize_speech(result["summary_text"])
+        audio_path_out = synthesize_speech(
+            result["summary_text"],
+            output_path=f"outputs/summary_audio_{whisper_model}_{prompt_variant}.wav"
+        )
         result["audio_path"] = audio_path_out
         times["tts"] = round(time.time() - t0, 2)
     else:
@@ -132,7 +135,7 @@ def _save_manifest(audio_path: str, whisper_model: str, prompt_variant: str, sta
         "stage_latencies_sec": stage_times,
         "total_latency_sec": round(sum(stage_times.values()), 2),
     }
-    out = Path("outputs/run_manifest.json")
+    out = Path(f"outputs/run_manifest_{whisper_model}_{prompt_variant}.json")
     out.parent.mkdir(parents=True, exist_ok=True)
     with open(out, "w") as f:
         json.dump(manifest, f, indent=2)

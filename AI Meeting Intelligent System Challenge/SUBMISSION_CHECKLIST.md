@@ -5,14 +5,14 @@
 - [x] Speech/audio input accepted (.mp3/.wav/.m4a) in app
 - [x] Pretrained foundation models integrated
 - [x] End-to-end pipeline runs: transcription -> diarization -> analysis -> summary -> TTS
-- [ ] At least 1 real sample run saved in outputs/
+- [x] At least 1 real sample run saved in outputs/
 
 Required output artifacts to generate before final submission:
-- [ ] outputs/transcript.txt
-- [ ] outputs/diarized.json
-- [ ] outputs/sentiment.json
-- [ ] outputs/summary.json
-- [ ] outputs/summary_audio.wav
+- [x] outputs/transcript.txt
+- [x] outputs/diarized.json
+- [x] outputs/sentiment.json
+- [x] outputs/summary.json
+- [x] outputs/summary_audio.wav
 - [ ] outputs/latency_chart.png
 
 ## 2. Evaluation (Required)
