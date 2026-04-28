@@ -33,8 +33,8 @@ def synthesize_speech(text: str, output_path: str = "outputs/summary_audio.wav")
     vocoder = bundle["vocoder"]
     speaker_embeddings = bundle["speaker_embeddings"]
 
-    # SpeechT5 has a 600-token limit — chunk long text
-    chunks = _chunk_text(text, max_chars=500)
+    # SpeechT5 has a hard 600-token limit — chunk by actual token count
+    chunks = _chunk_text(text, processor, max_tokens=550)
     print(f"[TTS] Synthesizing {len(chunks)} chunk(s)...")
 
     all_audio = []
@@ -102,22 +102,47 @@ def _get_tts_bundle(device: str) -> dict:
     return bundle
 
 
-def _chunk_text(text: str, max_chars: int = 500) -> list[str]:
-    """Split text at sentence boundaries to stay within model token limit."""
+def _chunk_text(text: str, processor, max_tokens: int = 550) -> list[str]:
+    """Split text at sentence boundaries so each chunk stays under max_tokens.
+
+    Character-count splitting is unreliable because the tokenizer produces
+    far more tokens than characters for some text (punctuation, rare words).
+    We measure the actual token count with the processor instead.
+    """
     import re
+
+    def _token_len(s: str) -> int:
+        return processor(text=s, return_tensors="pt")["input_ids"].shape[1]
+
     sentences = re.split(r'(?<=[.!?])\s+', text.strip())
-    chunks = []
+    chunks: list[str] = []
     current = ""
 
     for sentence in sentences:
-        if len(current) + len(sentence) + 1 <= max_chars:
-            current = (current + " " + sentence).strip()
+        candidate = (current + " " + sentence).strip() if current else sentence
+        if _token_len(candidate) <= max_tokens:
+            current = candidate
         else:
             if current:
                 chunks.append(current)
-            current = sentence
+            # If a single sentence is already over the limit, hard-truncate it
+            # by walking word-by-word until we fit.
+            if _token_len(sentence) > max_tokens:
+                words = sentence.split()
+                part = ""
+                for word in words:
+                    trial = (part + " " + word).strip()
+                    if _token_len(trial) <= max_tokens:
+                        part = trial
+                    else:
+                        if part:
+                            chunks.append(part)
+                        part = word
+                current = part
+            else:
+                current = sentence
 
     if current:
         chunks.append(current)
 
-    return chunks if chunks else [text[:max_chars]]
+    return chunks if chunks else [text]
