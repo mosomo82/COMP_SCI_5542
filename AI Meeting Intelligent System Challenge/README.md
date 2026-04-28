@@ -39,7 +39,7 @@ meeting-intelligence/
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/meeting-intelligence
+git clone https://github.com/mosomo82/COMP_SCI_5542
 cd meeting-intelligence
 python -m venv venv
 source venv/bin/activate        # Windows: venv\Scripts\activate
@@ -98,11 +98,32 @@ After running a meeting clip, `outputs/` will contain:
 - `sentiment.json` — per-speaker sentiment scores
 - `summary_audio.wav` — voiced narration of the summary
 
-## AI Tools Used
+## Tools & AI Used
 
-- **Anthropic Claude / GitHub Copilot (GPT-5.3-Codex)** — code scaffolding, prompt engineering, README drafting
-- **Hugging Face** — model hosting and inference
-- **Gradio** — UI framework
+### Core Tools
+
+| Tool | Purpose | How It Was Used | Contribution | Limitations |
+|------|---------|-----------------|--------------|-------------|
+| [Visual Studio Code](https://code.visualstudio.com/) | Primary development environment | Used to edit Python source files, Gradio UI, and evaluation scripts; managed local venv and terminal execution | Central workspace for implementation, pipeline orchestration, and debugging | Editor only; depends on local CPU/GPU for model execution |
+| [Google Colab](https://colab.research.google.com/) | Remote API runtime | Used to host the `colab_api_server.ipynb` for testing pipeline execution on remote GPU resources | Enabled testing of transcription and diarization models without local dependency conflicts | Session timeouts and ngrok tunnel dependency |
+| [Hugging Face Transformers](https://huggingface.co/docs/transformers) | Model inference framework | Used to load and execute Whisper, RoBERTa, and SpeechT5 models | Core library for transcription, sentiment analysis, and text-to-speech stages | Heavy memory/compute requirements for local inference |
+| [Gradio](https://www.gradio.app/) | Interactive Web UI | Used to create the main user interface for audio uploading and result visualization | Provided a user-friendly way to interact with the full ML pipeline | Limited customization for complex data visualization compared to custom React frontends |
+| [pyannote.audio](https://github.com/pyannote/pyannote-audio) | Speaker Diarization | Used to identify and separate different speakers in the meeting audio | Essential for producing structured, speaker-labeled transcripts | Requires Hugging Face token and model acceptance; compute intensive |
+| [Gemini API](https://ai.google.dev/) | LLM Summarization | Used to transform raw transcripts into structured JSON summaries and action items | Provided high-quality reasoning for baseline vs improved prompt evaluation | Dependent on API availability, latency, and token credit limits |
+
+### AI Assistance Disclosure
+
+| Tool | Purpose | How It Assisted | Contribution to This Project | Limitations / Human Verification |
+|------|---------|-----------------|------------------------------|----------------------------------|
+| [Claude Code](https://www.anthropic.com/claude-code) | Coding workflow assistance | Used to help implement pipeline updates, evaluator/reporting changes, notebook support, and documentation | Accelerated code drafting, refactoring, and integration of the final evaluation framework | All generated code was reviewed, edited, and validated before acceptance |
+| [ChatGPT](https://chat.openai.com) | Prompt and writing assistance | Used to brainstorm prompt phrasing, structure README explanations, and articulate failure-case descriptions | Helped refine structured prompt wording and supporting written explanations | Suggestions were treated as drafts and checked against actual project behavior |
+| [Antigravity AI](https://antigravity.ai) | Code/documentation assistance | Used for ideation around code organization, terminal troubleshooting, and documentation improvements | Supported project structuring and technical explanation formatting | Output required manual verification for pathing and environment compatibility |
+
+### Human Responsibility Statement
+
+- Final model selection, prompt strategy, evaluation design, and code integration decisions were made manually.
+- AI tools were used as assistants for drafting, debugging, and documentation support, not as autonomous substitutes for implementation review.
+- All reported results, metrics, and submission artifacts were checked against the actual repository outputs before inclusion.
 
 ## Challenge Alignment Snapshot
 
@@ -114,13 +135,9 @@ After running a meeting clip, `outputs/` will contain:
 | Working demo pipeline | Done | end-to-end `src/pipeline.py` + `app.py` |
 | GitHub repo with setup and outputs | Done | setup is present; specific sample outputs (transcript, diarized, summary, sentiment, audio) are in `outputs/` |
 | AI tools disclosure | Done | this section + `SUBMISSION_CHECKLIST.md` |
-| 1-2 minute demo video | Pending | add final link in `SUBMISSION_CHECKLIST.md` |
-| 10-slide presentation | Pending | prepare and link in `SUBMISSION_CHECKLIST.md` |
+| 1-2 minute demo video | Done | [YouTube Link](https://youtu.be/oL2RsNLcwUo) |
+| 10-slide presentation | Done | [GitHub PPTX Link](https://github.com/mosomo82/COMP_SCI_5542/blob/main/AI%20Meeting%20Intelligent%20System%20Challenge/slides/UMKC_COMP_SCI_5542_Presentation_Meeting_Intelligence.pptx) |
 
-Use these companion docs before submission:
-- `SUBMISSION_CHECKLIST.md`
-- `BONUS_OPTIONS.md`
-- `ENHANCEMENTS.md`
 
 ## Limitations
 

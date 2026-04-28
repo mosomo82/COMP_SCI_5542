@@ -44,3 +44,7 @@ MANIFEST
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Project-specific ignores
+BONUS_OPTIONS.md
+ENHANCEMENTS.md

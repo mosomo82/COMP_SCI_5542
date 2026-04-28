@@ -36,24 +36,24 @@ Ensure deck includes all required sections:
 - [x] Prompt/input design
 - [x] Results
 - [x] Evaluation
-- [ ] Demo video link
+- [x] Demo video link
 - [x] GitHub link
 - [x] Limitations
 - [x] AI tools used disclosure
 
 Deck link:
-- [ ] Add final URL here:
+- [x] https://github.com/mosomo82/COMP_SCI_5542/blob/main/AI%20Meeting%20Intelligent%20System%20Challenge/slides/UMKC_COMP_SCI_5542_Presentation_Meeting_Intelligence.pptx
 
 ## 4. Demo Video (1-2 Minutes)
 
 Show:
-- [ ] Input sample
-- [ ] Model running
-- [ ] Output results
-- [ ] Key findings
+- [x] Input sample
+- [x] Model running
+- [x] Output results
+- [x] Key findings
 
 Video link:
-- [ ] Add final URL here:
+- [x] https://youtu.be/oL2RsNLcwUo
 
 ## 5. AI Tools Disclosure (Required)
 
