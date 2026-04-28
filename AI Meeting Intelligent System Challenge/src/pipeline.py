@@ -125,7 +125,7 @@ def _save_manifest(audio_path: str, whisper_model: str, prompt_variant: str, sta
         "input_file": Path(audio_path).name,
         "model_versions": {
             "whisper": whisper_model,
-            "summarizer_primary": os.getenv("GEMINI_MODEL", "gemini-1.5-pro"),
+            "summarizer_primary": os.getenv("GEMINI_MODEL", "gemini-2.0-flash"),
             "summarizer_fallback": "claude-sonnet-4-20250514",
         },
         "prompt_variant": prompt_variant,

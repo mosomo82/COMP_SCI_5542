@@ -68,7 +68,6 @@ def synthesize_speech(text: str, output_path: str = "outputs/summary_audio.wav")
 def _get_tts_bundle(device: str) -> dict:
     import torch
     from transformers import SpeechT5Processor, SpeechT5ForTextToSpeech, SpeechT5HifiGan
-    from datasets import load_dataset
 
     if device in _TTS_COMPONENT_CACHE:
         print(f"[TTS] Using cached SpeechT5 bundle on {device}.")
@@ -77,12 +76,20 @@ def _get_tts_bundle(device: str) -> dict:
     print(f"[TTS] Loading SpeechT5 bundle on {device}...")
     processor = SpeechT5Processor.from_pretrained("microsoft/speecht5_tts")
     model = SpeechT5ForTextToSpeech.from_pretrained("microsoft/speecht5_tts").to(device)
-    vocoder = SpeechT5HifiGan.from_pretrained("microsoft/speecht5-hifigan").to(device)
+    vocoder = SpeechT5HifiGan.from_pretrained("microsoft/speecht5_hifigan").to(device)
 
     print("[TTS] Loading speaker embeddings...")
-    embeddings_dataset = load_dataset("Matthijs/cmu-arctic-xvectors", split="validation")
+    # datasets 3.x dropped legacy script support for this dataset — load parquet directly
+    import pandas as pd, requests, io as _io
+    _url = (
+        "https://huggingface.co/datasets/Matthijs/cmu-arctic-xvectors"
+        "/resolve/refs%2Fconvert%2Fparquet/default/validation/0000.parquet"
+    )
+    _resp = requests.get(_url)
+    _resp.raise_for_status()
+    _df = pd.read_parquet(_io.BytesIO(_resp.content))
     speaker_embeddings = torch.tensor(
-        embeddings_dataset[7306]["xvector"]  # slt speaker
+        list(_df.iloc[7306]["xvector"])  # slt speaker
     ).unsqueeze(0).to(device)
 
     bundle = {

@@ -287,7 +287,7 @@ def _call_llm(user_content: str, prompt_variant: str) -> str:
     if gemini_key:
         try:
             import google.generativeai as genai
-            model_name = os.getenv("GEMINI_MODEL", "gemini-1.5-pro")
+            model_name = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
             print(f"[Summarize] Sending to Gemini ({model_name}, {prompt_variant} prompt)...")
             genai.configure(api_key=gemini_key)
             model = genai.GenerativeModel(model_name)

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meeting Intelligence — Colab API</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #f5f5f5; color: #222; }
+
+    header {
+      background: #1a1a2e; color: white; padding: 20px 32px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    header h1 { font-size: 1.4rem; font-weight: 600; }
+    header span { font-size: 1.6rem; }
+
+    .container { max-width: 1100px; margin: 32px auto; padding: 0 24px; }
+
+    .card {
+      background: white; border-radius: 12px; padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.08); margin-bottom: 24px;
+    }
+    .card h2 { font-size: 1rem; font-weight: 600; margin-bottom: 16px; color: #444; text-transform: uppercase; letter-spacing: .05em; }
+
+    .api-row { display: flex; gap: 10px; align-items: center; }
+    .api-row input { flex: 1; padding: 10px 14px; border: 1px solid #ddd; border-radius: 8px; font-size: .95rem; }
+    .api-row input:focus { outline: 2px solid #4f46e5; border-color: transparent; }
+
+    .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .controls label { display: block; font-size: .85rem; color: #555; margin-bottom: 6px; }
+    .controls select, .controls input[type=file] {
+      width: 100%; padding: 9px 12px; border: 1px solid #ddd; border-radius: 8px; font-size: .9rem;
+    }
+    .controls select:focus { outline: 2px solid #4f46e5; border-color: transparent; }
+
+    .checkbox-row { display: flex; align-items: center; gap: 8px; font-size: .9rem; }
+    .checkbox-row input { width: 16px; height: 16px; cursor: pointer; }
+
+    .btn {
+      padding: 11px 24px; border: none; border-radius: 8px;
+      font-size: .95rem; font-weight: 600; cursor: pointer; transition: opacity .15s;
+    }
+    .btn:hover { opacity: .85; }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-primary { background: #4f46e5; color: white; }
+    .btn-secondary { background: #e5e7eb; color: #333; }
+
+    .status {
+      padding: 10px 14px; border-radius: 8px; font-size: .88rem;
+      background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0;
+    }
+    .status.error { background: #fef2f2; color: #991b1b; border-color: #fecaca; }
+    .status.info  { background: #eff6ff; color: #1e40af; border-color: #bfdbfe; }
+
+    .tabs { display: flex; gap: 4px; margin-bottom: 16px; border-bottom: 2px solid #e5e7eb; }
+    .tab {
+      padding: 10px 18px; cursor: pointer; font-size: .9rem; border: none;
+      background: none; border-radius: 8px 8px 0 0; color: #666;
+      border-bottom: 2px solid transparent; margin-bottom: -2px;
+    }
+    .tab.active { color: #4f46e5; border-bottom-color: #4f46e5; font-weight: 600; background: #f5f3ff; }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    pre {
+      background: #f8f8f8; border: 1px solid #e5e7eb; border-radius: 8px;
+      padding: 16px; font-size: .85rem; white-space: pre-wrap; line-height: 1.6;
+      max-height: 400px; overflow-y: auto;
+    }
+
+    .meta { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 12px; }
+    .meta-chip {
+      background: #f0f4ff; border: 1px solid #c7d2fe; border-radius: 20px;
+      padding: 4px 12px; font-size: .82rem; color: #3730a3;
+    }
+
+    audio { width: 100%; border-radius: 8px; margin-top: 8px; }
+
+    .spinner {
+      display: inline-block; width: 18px; height: 18px;
+      border: 3px solid #c7d2fe; border-top-color: #4f46e5;
+      border-radius: 50%; animation: spin .7s linear infinite;
+      vertical-align: middle; margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .hidden { display: none; }
+    .row { display: flex; gap: 12px; align-items: flex-start; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+
+<header>
+  <span>🎙</span>
+  <h1>Meeting Intelligence System</h1>
+</header>
+
+<div class="container">
+
+  <!-- API Config -->
+  <div class="card">
+    <h2>Colab Backend</h2>
+    <div class="api-row">
+      <input id="apiUrl" type="text" placeholder="https://abc123.ngrok-free.app  ← paste from Colab Cell 4">
+      <button class="btn btn-secondary" onclick="checkHealth()">Check Health</button>
+    </div>
+    <div id="healthStatus" class="status info" style="margin-top:12px; display:none;"></div>
+  </div>
+
+  <!-- Upload & Settings -->
+  <div class="card">
+    <h2>Upload Meeting Audio</h2>
+    <div class="controls">
+      <div>
+        <label>Audio File (.wav / .mp3 / .m4a)</label>
+        <input type="file" id="audioFile" accept="audio/*">
+      </div>
+      <div>
+        <label>Whisper Model</label>
+        <select id="whisperModel">
+          <option value="tiny">Tiny (fastest, less accurate)</option>
+          <option value="small" selected>Small (balanced)</option>
+          <option value="medium">Medium (most accurate, slower)</option>
+        </select>
+      </div>
+      <div>
+        <label>Summary Prompt Variant</label>
+        <select id="promptVariant">
+          <option value="baseline">Baseline</option>
+          <option value="improved" selected>Improved</option>
+        </select>
+      </div>
+      <div style="display:flex; align-items:flex-end; padding-bottom:2px;">
+        <label class="checkbox-row">
+          <input type="checkbox" id="generateAudio" checked>
+          Generate voiced audio summary (TTS)
+        </label>
+      </div>
+    </div>
+
+    <div style="margin-top:20px;" class="row">
+      <button id="analyzeBtn" class="btn btn-primary" onclick="submitAnalysis()">
+        Analyze Meeting
+      </button>
+      <div id="spinner" class="hidden">
+        <span class="spinner"></span>
+        <span id="spinnerText">Uploading...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div id="resultsCard" class="card hidden">
+    <h2>Results</h2>
+
+    <div class="meta" id="metaChips"></div>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="transcript">Transcript</button>
+      <button class="tab" data-tab="summary">Summary</button>
+      <button class="tab" data-tab="sentiment">Sentiment</button>
+      <button class="tab" data-tab="keywords">Keywords & Timing</button>
+    </div>
+
+    <div id="tab-transcript" class="tab-panel active">
+      <pre id="transcriptOut"></pre>
+    </div>
+    <div id="tab-summary" class="tab-panel">
+      <pre id="summaryOut"></pre>
+    </div>
+    <div id="tab-sentiment" class="tab-panel">
+      <pre id="sentimentOut"></pre>
+    </div>
+    <div id="tab-keywords" class="tab-panel">
+      <pre id="keywordsOut"></pre>
+    </div>
+
+    <div id="audioSection" class="hidden" style="margin-top:20px;">
+      <strong>Voiced Summary</strong>
+      <audio id="audioOut" controls></audio>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ── Tab switching ─────────────────────────────────────────────────────────
+  document.querySelectorAll('.tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  const apiUrl = () => document.getElementById('apiUrl').value.replace(/\/$/, '');
+
+  // ngrok free tier shows a browser interstitial for all requests unless this
+  // header is present. Safe to send to non-ngrok URLs (Cloudflare ignores it).
+  const TUNNEL_HEADERS = { 'ngrok-skip-browser-warning': 'true' };
+
+  function setStatus(el, msg, type = 'info') {
+    el.className = `status ${type}`;
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  function setSpinner(visible, text = '') {
+    document.getElementById('spinner').classList.toggle('hidden', !visible);
+    document.getElementById('spinnerText').textContent = text;
+    document.getElementById('analyzeBtn').disabled = visible;
+  }
+
+  // ── Health check ──────────────────────────────────────────────────────────
+  async function checkHealth() {
+    const el = document.getElementById('healthStatus');
+    setStatus(el, 'Checking...', 'info');
+    try {
+      const res = await fetch(`${apiUrl()}/health`, { headers: TUNNEL_HEADERS });
+      const data = await res.json();
+      const gpuInfo = data.gpu ? ` | ${data.gpu} (${data.vram_free_gb}/${data.vram_total_gb} GB free)` : '';
+      const models = Object.entries(data.models_loaded || {})
+        .map(([k,v]) => `${k}: ${v ? '✓' : '✗'}`).join('  ');
+      setStatus(el, `✓ Server OK${gpuInfo} | Models: ${models}`, 'success');
+    } catch (e) {
+      setStatus(el, `✗ Could not reach server: ${e.message}`, 'error');
+    }
+  }
+
+  // ── Submit analysis ───────────────────────────────────────────────────────
+  async function submitAnalysis() {
+    const file = document.getElementById('audioFile').files[0];
+    if (!file) { alert('Please select an audio file first.'); return; }
+    if (!apiUrl()) { alert('Please paste the Colab API URL first.'); return; }
+
+    setSpinner(true, 'Reading audio file...');
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const audioB64 = e.target.result;
+
+      setSpinner(true, 'Sending to Colab server...');
+
+      const payload = {
+        audio:          audioB64,
+        whisper_model:  document.getElementById('whisperModel').value,
+        prompt_variant: document.getElementById('promptVariant').value,
+        generate_audio: document.getElementById('generateAudio').checked,
+      };
+
+      try {
+        const t0 = Date.now();
+        setSpinner(true, 'Analyzing (this takes 30–120s)...');
+
+        const res = await fetch(`${apiUrl()}/analyze`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...TUNNEL_HEADERS },
+          body: JSON.stringify(payload),
+        });
+
+        const result = await res.json();
+        const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
+
+        if (result.error) {
+          alert('Server error:\n\n' + result.error);
+          setSpinner(false);
+          return;
+        }
+
+        renderResults(result, elapsed);
+
+      } catch (e) {
+        alert('Request failed: ' + e.message);
+      } finally {
+        setSpinner(false);
+      }
+    };
+
+    reader.readAsDataURL(file);
+  }
+
+  // ── Render results ────────────────────────────────────────────────────────
+  function renderResults(r, elapsed) {
+    document.getElementById('resultsCard').classList.remove('hidden');
+
+    // Meta chips
+    const stages = r.stage_times || {};
+    const chips = [
+      `Total: ${elapsed}s`,
+      ...Object.entries(stages).map(([k, v]) => `${k}: ${v}s`),
+    ];
+    document.getElementById('metaChips').innerHTML = chips
+      .map(c => `<span class="meta-chip">${c}</span>`).join('');
+
+    // Transcript
+    document.getElementById('transcriptOut').textContent =
+      r.diarized_text || r.transcript || '(empty)';
+
+    // Summary
+    const s = r.summary || {};
+    let summaryTxt = '';
+    if (s.executive_summary) summaryTxt += `SUMMARY\n${s.executive_summary}\n\n`;
+    if (s.key_decisions?.length)
+      summaryTxt += `KEY DECISIONS\n${s.key_decisions.map(d => `• ${d}`).join('\n')}\n\n`;
+    if (s.action_items?.length) {
+      summaryTxt += `ACTION ITEMS\n`;
+      s.action_items.forEach(a => {
+        const dl = a.deadline ? ` (due: ${a.deadline})` : '';
+        summaryTxt += `• ${a.owner || '?'}: ${a.task || ''}${dl}\n`;
+      });
+      summaryTxt += '\n';
+    }
+    if (s.unresolved_questions?.length)
+      summaryTxt += `OPEN QUESTIONS\n${s.unresolved_questions.map(q => `• ${q}`).join('\n')}\n\n`;
+    if (s.meeting_tone)
+      summaryTxt += `TONE\n${s.meeting_tone}\n`;
+    document.getElementById('summaryOut').textContent = summaryTxt.trim() || JSON.stringify(s, null, 2);
+
+    // Sentiment
+    document.getElementById('sentimentOut').textContent =
+      JSON.stringify(r.sentiment, null, 2);
+
+    // Keywords & timing
+    const kwLine = (r.keywords || []).join(', ');
+    const timingLines = Object.entries(stages).map(([k,v]) => `  ${k.padEnd(20)} ${v}s`).join('\n');
+    document.getElementById('keywordsOut').textContent =
+      `Keywords:\n  ${kwLine}\n\nStage Latency:\n${timingLines}`;
+
+    // Audio
+    if (r.summary_audio) {
+      document.getElementById('audioSection').classList.remove('hidden');
+      document.getElementById('audioOut').src = r.summary_audio;
+    } else {
+      document.getElementById('audioSection').classList.add('hidden');
+    }
+
+    // Scroll to results
+    document.getElementById('resultsCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+</script>
+
+</body>
+</html>
