@@ -110,9 +110,9 @@ After running a meeting clip, `outputs/` will contain:
 |---|---|---|
 | Pretrained foundation model(s) | Done | Whisper, pyannote, DistilBERT, SpeechT5 in `src/` and `requirements.txt` |
 | Prompt / input engineering | Done | baseline vs improved prompts in `src/summarize.py` |
-| Evaluation baseline vs improved | In progress | `notesbooks/evaluation.ipynb` contains WER/prompt/noise/latency workflow |
+| Evaluation baseline vs improved | Done | `outputs/evaluation/evaluation_report.md` contains WER/prompt/noise/latency workflow |
 | Working demo pipeline | Done | end-to-end `src/pipeline.py` + `app.py` |
-| GitHub repo with setup and outputs | Done | setup is present; sample outputs have been successfully generated into `outputs/` |
+| GitHub repo with setup and outputs | Done | setup is present; specific sample outputs (transcript, diarized, summary, sentiment, audio) are in `outputs/` |
 | AI tools disclosure | Done | this section + `SUBMISSION_CHECKLIST.md` |
 | 1-2 minute demo video | Pending | add final link in `SUBMISSION_CHECKLIST.md` |
 | 10-slide presentation | Pending | prepare and link in `SUBMISSION_CHECKLIST.md` |

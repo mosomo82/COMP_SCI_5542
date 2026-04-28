@@ -1,6 +1,0 @@
-[0.0s → 6.7s] Hello. This is Officer Daniel Reed from the Social Security Administration Fraud Division.
-[7.7s → 13.2s] We have detected suspicious activity linked to your Social Security number, which has
-[13.2s → 19.8s] now been suspended. You are facing a penalty of $2,400 due to fraudulent use of your account.
-[20.5s → 26.3s] To avoid immediate arrest and a federal warrant being issued in your name, you must act now.
-[26.3s → 32.5s] Call our resolution hotline and provide your Social Security number and bank account details
-[32.5s → 40.6s] to verify your identity. You have 24 hours before legal proceedings begin. This is your final warning.

@@ -6,7 +6,16 @@ Run: python -m pytest tests/ -v
 
 import pytest
 import sys
-sys.path.append("..")
+import os
+from pathlib import Path
+
+# Add repo root to path so src modules are importable
+sys.path.append(str(Path(__file__).parent.parent))
+
+# Ensure ffmpeg is in PATH for transcription tests
+FFMPEG_PATH = r"C:\Users\mtuan\AppData\Local\Microsoft\WinGet\Packages\Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe\ffmpeg-8.1-full_build\bin"
+if FFMPEG_PATH not in os.environ["PATH"]:
+    os.environ["PATH"] += os.pathsep + FFMPEG_PATH
 
 
 # ── Transcription ──────────────────────────────────────────────────────────────
@@ -19,10 +28,14 @@ def test_transcribe_returns_expected_keys():
     import tempfile, os
 
     silence = np.zeros(16000, dtype=np.float32)  # 1s silence
-    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as f:
-        sf.write(f.name, silence, 16000)
-        result = transcribe(f.name, model_size="tiny")
-        os.unlink(f.name)
+    fd, path = tempfile.mkstemp(suffix=".wav")
+    try:
+        os.close(fd)
+        sf.write(path, silence, 16000)
+        result = transcribe(path, model_size="tiny")
+    finally:
+        if os.path.exists(path):
+            os.unlink(path)
 
     assert "text" in result
     assert "segments" in result
@@ -99,10 +112,17 @@ def test_polarity_thresholding_to_labels():
 
 def test_text_chunking():
     from src.speak import _chunk_text
-    long_text = "Hello world. " * 100
-    chunks = _chunk_text(long_text, max_chars=200)
+    
+    # Mock processor to simulate token count = char count
+    class MockProcessor:
+        def __call__(self, text, return_tensors=None):
+            return {"input_ids": type('obj', (object,), {'shape': (1, len(text))})}
+    
+    long_text = "Hello world. " * 50
+    chunks = _chunk_text(long_text, processor=MockProcessor(), max_tokens=100)
     assert isinstance(chunks, list)
-    assert all(len(c) <= 210 for c in chunks)  # allow slight overrun at sentence boundary
+    assert len(chunks) > 1
+    assert all(len(c) <= 120 for c in chunks) # allow slight sentence overlap
 
 
 # ── Summary formatting ────────────────────────────────────────────────────────

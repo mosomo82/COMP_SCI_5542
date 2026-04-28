@@ -13,7 +13,7 @@ Required output artifacts to generate before final submission:
 - [x] outputs/sentiment.json
 - [x] outputs/summary.json
 - [x] outputs/summary_audio.wav
-- [ ] outputs/latency_chart.png
+- [x] outputs/latency_chart.png (Included as table in evaluation_report.md)
 
 ## 2. Evaluation (Required)
 
@@ -21,24 +21,25 @@ Required output artifacts to generate before final submission:
 - [x] WER function implemented for transcription comparison
 - [x] Prompt comparison rubric included
 - [x] Noise robustness experiment included
-- [ ] Run evaluation and capture final numeric results table
-- [ ] Add 3-5 key insights from failures and tradeoffs
+- [x] Run evaluation and capture final numeric results table
+- [x] Add 3-5 key insights from failures and tradeoffs (See evaluation_report.md)
+- [x] Basic smoke tests passing (pytest tests/ -v)
 
 ## 3. Presentation Deck (Minimum 10 Slides)
 
 Ensure deck includes all required sections:
-- [ ] Problem description
-- [ ] Why interesting / business value
-- [ ] Dataset or inputs used
-- [ ] Models used
-- [ ] Pipeline architecture
-- [ ] Prompt/input design
-- [ ] Results
-- [ ] Evaluation
+- [x] Problem description
+- [x] Why interesting / business value
+- [x] Dataset or inputs used
+- [x] Models used
+- [x] Pipeline architecture
+- [x] Prompt/input design
+- [x] Results
+- [x] Evaluation
 - [ ] Demo video link
-- [ ] GitHub link
-- [ ] Limitations
-- [ ] AI tools used disclosure
+- [x] GitHub link
+- [x] Limitations
+- [x] AI tools used disclosure
 
 Deck link:
 - [ ] Add final URL here:
